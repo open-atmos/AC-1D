@@ -9,6 +9,7 @@ import numpy as np
 class LES():
     """
     Model namelists and unit conversion coefficient required for the 1D model.
+    The LES class includes methods to processes model output and prepare the out fields for the 1D model.
 
     Attributes
     ----------
@@ -49,7 +50,6 @@ class LES():
         self.q_liq_pbl_cut = 1e-3  # g/kg (default value of 1e-3).
         self.q_liq_cbh = self.q_liq_pbl_cut  # Equal to the pbl cutoff value by default
 
-
     def _crop_time_range(self, t_harvest=None):
         """
         Crop model output time range.
@@ -71,7 +71,6 @@ class LES():
             self.ds = self.ds.sel({self.time_dim: slice(*t_harvest)})
         elif isinstance(t_harvest, (list, np.ndarray)):
             self.ds = self.ds.sel({self.time_dim: t_harvest}, method='nearest')
-
 
     def _crop_fields(self, fields_to_retain=None, height_ind_2crop=None):
         """
@@ -113,7 +112,6 @@ class LES():
                 rel_inds = height_ind_2crop
             self.ds = self.ds[{self.height_dim: rel_inds}]
 
-            
     def _prepare_les_dataset_for_1d_model(self, cbh_det_method="ql_cbh"):
         """
         scale (unit conversion), rename the required fields (prepare the dataset for informing the 1D model
@@ -153,7 +151,6 @@ class LES():
         # calculated weighted precip rates
         self._find_and_calc_cb_precip(cbh_det_method)
 
-
     def _find_and_calc_cb_precip(self, cbh_det_method="ql_cbh"):
         """
         calculate number-weighted precip rate in the domain and allocate a field for values at lowest cloud base.
@@ -187,7 +184,6 @@ class LES():
         self.ds["Pcb_per_Ni"][cbh_lowest[1]] = self.ds["P_Ni"].values[cbh_lowest]
         self.ds["Pcb_per_Ni"].attrs['units'] = '$mm\: h^{-1}\: L^{-1}$'
         self.ds["Pcb_per_Ni"].attrs['long_name'] = "Precipitation rate at the lowest cloud base per profile"
-
 
     def _calc_delta_aw(self):
         """
