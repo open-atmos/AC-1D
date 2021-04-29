@@ -1,7 +1,7 @@
 1D model for ice formation from INP
 ==============================================
 
-The goal of this simplified 1D model is to enable the comparison and evaluation of different ice formation mechanisms from the literature against observational constraints. The model is informed from LES case study output (Fridlind et al., 2012).
+The goal of this simplified 1D model is to enable the comparison and evaluation of different ice formation mechanisms from the literature against observational constraints. The model is informed from LES case study output. The default case study is taken from the SHEBA field campaign described and simulated by Fridlind et al. (2012).
 
 Assumptions
 ^^^^^^^^^^^^^^
@@ -27,7 +27,7 @@ Requirements
 Authors
 -------
 
-Code was written by Ann Fridlind (NASA GISS) and Israel Silber (PSU). 
+Code was written by `Israel Silber <ixs34@psu.edu>`_ (Pennsylvania State University) and Ann Fridlind (NASA GISS). 
 
 References
 ----------
