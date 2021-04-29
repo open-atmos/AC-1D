@@ -47,7 +47,7 @@ class LES():
         self.height_dim = ""  # assuming in m
         self.height_dim_2nd = "" # assuming in m
         self.q_liq_pbl_cut = 1e-3  # g/kg (default value of 1e-3).
-        self.q_liq_cbh = self.q_liq_pbl_cut  # equial to the pbl cutoff value by default
+        self.q_liq_cbh = self.q_liq_pbl_cut  # Equal to the pbl cutoff value by default
 
 
     def _crop_time_range(self, t_harvest=None):
@@ -130,7 +130,10 @@ class LES():
                         self.Ni_field["name"]: "Ni", self.T_field["name"]: "T", self.q_liq_field["name"]: "ql",
                         self.RH_field["name"]: "RH"})
 
-        # scale
+        # scale and convert to float64
+        for key in self.ds.keys():
+            if self.ds[key].dtype == "float32":
+                self.ds[key] = self.ds[key].astype(float)
         self.ds["RH"] *= self.RH_field["scaling"]
         self.ds["ql"] *= self.q_liq_field["scaling"]
         self.ds["T"] += self.T_field["addition"]
