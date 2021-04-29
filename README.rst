@@ -27,7 +27,7 @@ Requirements
 Authors
 -------
 
-Code was written by Ann Fridlind (NASA GISS). 
+Code was written by Ann Fridlind (NASA GISS) and Israel Silber (PSU). 
 
 References
 ----------
