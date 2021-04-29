@@ -1,6 +1,5 @@
 """
-LES class and the inherited DHARMA class
-
+This file is used to nucleate ice using the ABIFM or singular approaches.
 """
 import xarray as xr
 import numpy as np

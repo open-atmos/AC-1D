@@ -199,17 +199,17 @@ class LES():
 
 
 class DHARMA(LES):
-    def __init__(self, les_out_path, les_out_filename, t_harvest=None, fields_to_retain=None,
+    def __init__(self, les_out_path=None, les_out_filename=None, t_harvest=None, fields_to_retain=None,
                  height_ind_2crop=None, cbh_det_method="ql_cbh"):
         """
         LES class for DHARMA that loads model output dataset
 
         Parameters
         ----------
-        les_out_path: str
-            LES output path (can be relative to running directory).
-        les_out_filename: str
-            LES output filename.
+        les_out_path: str or None
+            LES output path (can be relative to running directory). Use default if None.
+        les_out_filename: str or None
+            LES output filename. Use default file if None.
         t_harvest: scalar, 2-element tuple, list (or ndarray), or None
             If scalar then using the nearest time (assuming units of seconds) to initialize the model
             (single profile).
@@ -246,6 +246,12 @@ class DHARMA(LES):
         self.time_dim = "time"
         self.height_dim = "zt"
         self.height_dim_2nd = "zw"
+
+        # using the default ISDAC model output if None.
+        if les_out_path is None:
+            les_out_path = 'data_les/shi3_isdac_sfc6_pTqv_fthqv_lw_3_abifm_final/dharma.soundings.cdf'
+        if les_out_filename is None:
+            les_out_filename = 'dharma.soundings.cdf'
 
         # load model output
         self.ds = xr.open_dataset(les_out_path+les_out_filename)
