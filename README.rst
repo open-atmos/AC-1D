@@ -1,7 +1,7 @@
 1D model for ice formation from INP
 ==============================================
 
-The goal of this simplified 1D model is to enable the comparison and evaluation of different ice formation mechanisms from the literature against observational constraints. The model is informed from LES case study output.
+The goal of this simplified 1D model is to enable the comparison and evaluation of different ice formation mechanisms from the literature against observational constraints. The model is informed from LES case study output (Fridlind et al., 2012).
 
 Assumptions
 ^^^^^^^^^^^^^^
@@ -31,4 +31,4 @@ Code was written by Ann Fridlind (NASA GISS) and Israel Silber (PSU).
 
 References
 ----------
-
+Fridlind, A.M., B. van Diedenhoven, A.S. Ackerman, A. Avramov, A. Mrowiec, H. Morrison, P. Zuidema, and M.D. Shupe, 2012: A FIRE-ACE/SHEBA case study of mixed-phase Arctic boundary-layer clouds: Entrainment rate limitations on rapid primary ice nucleation processes. J. Atmos. Sci., 69, 365-389, doi:10.1175/JAS-D-11-052.1.
