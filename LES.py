@@ -157,6 +157,7 @@ class LES():
     def _find_and_calc_cb_precip(self, cbh_det_method="ql_cbh"):
         """
         calculate number-weighted precip rate in the domain and allocate a field for values at lowest cloud base.
+        The method finds cbh as well as cth
 
         Parameters
         ----------
@@ -172,17 +173,25 @@ class LES():
         if cbh_det_method == "ql_cbh":
             self.ds["cbh_all"] = xr.DataArray(np.diff(self.ds["ql"].values >= self.q_liq_cbh, prepend=0,
                                                       axis=0) == 1, dims=self.ds["P_Ni"].dims)
+            self.ds["cth_all"] = xr.DataArray(np.diff(self.ds["ql"].values >= self.q_liq_cbh, append=0,
+                                                      axis=0) == -1, dims=self.ds["P_Ni"].dims)
         else:
             print("Unknown cbh method string - skipping cbh detection function")
             return
         self.ds["cbh_all"].attrs['long_name'] = "All detected cloud base heights (receive a 'True' value)"
+        self.ds["cbh_all"].attrs['long_name'] = "All detected cloud top heights (receive a 'True' value)"
 
         cbh_lowest = np.where(np.logical_and(np.cumsum(self.ds["cbh_all"], axis=0) == 1,
                                              self.ds["cbh_all"] == True))
+        cth_lowest = np.where(np.logical_and(np.cumsum(self.ds["cth_all"], axis=0) == 1,
+                                             self.ds["cth_all"] == True))
         self.ds["lowest_cbh"] = xr.DataArray(np.zeros(self.ds.dims["time"]) * np.nan, dims=self.ds["time"].dims)
-        self.ds["lowest_cbh"][cbh_lowest[1]] = self.ds["height"].values[cbh_lowest[0]]
         self.ds["lowest_cbh"].attrs['units'] = '$m$'
+        self.ds["lowest_cth"] = self.ds["lowest_cbh"].copy()
         self.ds["lowest_cbh"].attrs['long_name'] = "Lowest cloud base height per profile"
+        self.ds["lowest_cth"].attrs['long_name'] = "Lowest cloud top height per profile"
+        self.ds["lowest_cbh"][cbh_lowest[1]] = self.ds["height"].values[cbh_lowest[0]]
+        self.ds["lowest_cth"][cth_lowest[1]] = self.ds["height"].values[cth_lowest[0]]
         self.ds["Pcb_per_Ni"] = xr.DataArray(np.zeros(self.ds.dims["time"]) * np.nan, dims=self.ds["time"].dims)
         self.ds["Pcb_per_Ni"][cbh_lowest[1]] = self.ds["P_Ni"].values[cbh_lowest]
         self.ds["Pcb_per_Ni"].attrs['units'] = '$mm\: h^{-1}\: L^{-1}$'
