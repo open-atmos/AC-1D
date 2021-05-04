@@ -67,7 +67,8 @@ class LES():
         if isinstance(t_harvest, (float,int)):
             self.ds = self.ds.sel({self.time_dim: [t_harvest]}, method='nearest') 
         elif isinstance(t_harvest, tuple):  # assuming a 2-element tuple.
-            assert len(t_harvest) == 2, "t_harvest (time range) tuple length should be 2"
+            if len(t_harvest) != 2:
+                raise ValueError("t_harvest (time range) tuple length should be 2")
             self.ds = self.ds.sel({self.time_dim: slice(*t_harvest)})
         elif isinstance(t_harvest, (list, np.ndarray)):
             self.ds = self.ds.sel({self.time_dim: t_harvest}, method='nearest')
@@ -139,6 +140,8 @@ class LES():
         self.ds["prec"] *= self.pflux_field["scaling"]
 
         # set units
+        self.ds["height"].attrs["units"] = "m"
+        self.ds["time"].attrs["units"] = "s"
         self.ds["RH"].attrs["units"] = ""
         self.ds["ql"].attrs["units"] = "$g\: kg^{-1}$"
         self.ds["T"].attrs["units"] = "$K$"
@@ -234,7 +237,6 @@ class DHARMA(LES):
             Method to determine cloud base with:
                 - if == "ql_cbh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
                 - OTHER OPTIONS TO BE ADDED.
-
         """
         super().__init__()
         self.Ni_field = {"name": "ntot_3", "scaling": 1000}  # scale to L^-1
@@ -249,9 +251,11 @@ class DHARMA(LES):
 
         # using the default ISDAC model output if None.
         if les_out_path is None:
-            les_out_path = 'data_les/shi3_isdac_sfc6_pTqv_fthqv_lw_3_abifm_final/dharma.soundings.cdf'
+            les_out_path = 'data_les/shi3_isdac_sfc6_pTqv_fthqv_lw_3_abifm_final/'
         if les_out_filename is None:
             les_out_filename = 'dharma.soundings.cdf'
+        self.les_out_path = les_out_path
+        self.les_out_filename =les_out_filename
 
         # load model output
         self.ds = xr.open_dataset(les_out_path+les_out_filename)
