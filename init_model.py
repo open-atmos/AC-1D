@@ -59,8 +59,8 @@ class ci_model():
                if a dict, then treated as in the case of a dict for w_e_ent.
         mixing_bounds: two-element tuple or list, or None
                Determining the mixing layer (especially relevant when using time-varying LES input).
-               The first element provides a fixed lowest range of mixing (float), a time varying range (list or
-               np.ndarray), or the method with which to determine mixing base (str). The second element is
+               The first element provides a fixed lowest range of mixing (float), a time varying range (dict as
+               in w_e_ent), or the method with which to determine mixing base (str). The second element is
                similar, but for the determination of the mixing layer top.
                If None, using the full domain.
                NOTE: currently, the only accepted pre-specified mixing determination method is "ql_cbh"
@@ -242,15 +242,42 @@ class ci_model():
         # init entrainment
         self.w_e_ent = w_e_ent
         self.entrain_from_cth = entrain_from_cth
-        self._set_1D_or_2D_var_from_input(w_e_ent, "w_e_ent", "m/s", "Cloud-top entrainment rate")
+        self._set_1D_or_2D_var_from_input(w_e_ent, "w_e_ent", "$m/s$", "Cloud-top entrainment rate")
 
-        # init vertical mixing
+        # init vertical mixing and generate a mixing layer mask for the model
         self.tau_mix = tau_mix
-        self._set_1D_or_2D_var_from_input(tau_mix, "tau_mix", "s", "Boundary-layer mixing time scale")
- 
+        self._set_1D_or_2D_var_from_input(tau_mix, "tau_mix", "$s$", "Boundary-layer mixing time scale")
+        if mixing_bounds is None:
+            self.ds["mixing_mask"] = xr.DataArray(np.full((self.ds["height"].size, self.ds["time"].size),
+                True, dtype=bool), dims=("height", "time"))
+        else:
+            if isinstance(mixing_bounds[0], str):
+                if mixing_bounds[0] == "ql_cbh":
+                    self.ds["mixing_base"] = xr.DataArray(np.interp(
+                        self.ds["time"], self.les["time"], self.les["lowest_cbh"]), dims=("time"))
+                    self.ds["mixing_base"].attrs["units"] = "$m$"
+            else:
+                self._set_1D_or_2D_var_from_input(mixing_bounds[0], "mixing_base", "$m$", "Mixing layer base")
+            if isinstance(mixing_bounds[1], str):
+                if mixing_bounds[1] == "ql_cbh":
+                    self.ds["mixing_top"] = xr.DataArray(np.interp(
+                        self.ds["time"], self.les["time"], self.les["lowest_cth"]), dims=("time"))
+                    self.ds["mixing_top"].attrs["units"] = "$m$"
+            else:
+                self._set_1D_or_2D_var_from_input(mixing_bounds[1], "mixing_top", "$m$", "Mixing layer top")
+            mixing_mask = np.full((self.ds["height"].size, self.ds["time"].size), False, dtype=bool)
+            for t in range(self.ds["time"].size):
+                rel_ind = np.arange(
+                    np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_base"].values[t])),
+                    np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_top"].values[t])))
+                mixing_mask[rel_ind, t] = True
+            self.ds["mixing_mask"] = xr.DataArray(mixing_mask, dims=("height", "time"))
+        self.ds["mixing_mask"].attrs["long_name"] = "Mixing-layer mask (True --> mixed)"
+            
+
         # init number weighted ice fall velocity
         self.v_f_ice = v_f_ice
-        self._set_1D_or_2D_var_from_input(v_f_ice, "v_f_ice", "m/s", "Number-weighted ice crystal fall velocity")
+        self._set_1D_or_2D_var_from_input(v_f_ice, "v_f_ice", "$m/s$", "Number-weighted ice crystal fall velocity")
 
         # calculate delta_aw
         self._calc_delta_aw()
