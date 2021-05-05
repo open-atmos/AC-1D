@@ -69,7 +69,7 @@ class ci_model():
                number-weighted ice crystal fall velocity [m/s].
                if a float then using its value throughout the simulation time.
                if a dict, then treated as in the case of a dict for w_e_ent.
-               if an xr DataArray, must cotain the "height" [m] and "time" [s] coordinates. Values outside the
+               if an xr DataArray, must contain the "height" [m] and "time" [s] coordinates. Values outside the
                coordinate range are extrapolated using the nearest edge values.
         inp_info: list of dict
             Used to initialize the INP arrays. Each element of the list describes a single population of an INP
@@ -149,12 +149,10 @@ class ci_model():
         # count processing time
         Now = time()
 
-        # General simulation attributes.
+        # Set some simulation attributes.
         self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec"]  # processed variables used by the model.
         self.final_t = final_t
-        self.delta_t = delta_t
         self.use_ABIFM = use_ABIFM
-        self.mod_nt = int(final_t / delta_t) + 1  # number of time steps
 
         # Load LES output
         if les_name == "DHARMA":
@@ -201,8 +199,12 @@ class ci_model():
         # Retain only the LES xr.Dataset for accessibility
         self.les = les.ds
 
-        # allocate xarray DataSet for model atmospheric state variable fields
-        self.ds = xr.Dataset()
+        # Make sure ice does not sediment more than 1 vertical cell per time step. In that case change delta_t
+        if isinstance(v_f_ice, dict):
+            max_sediment_vel = np.max(v_f_ice["value"])
+        else:
+            max_sediment_vel = np.max(v_f_ice)
+        max_sediment_dist = max_sediment_vel * delta_t  #maximum ice sedimentation distance per time step
         if custom_vert_grid is not None:
             height = custom_vert_grid
             height = height[np.logical_and(height <= self.les["height"].max().values,
@@ -211,6 +213,15 @@ class ci_model():
                 print("Some heights were omitted because they are outside the processed LES dataset grid")
         else:
             height = self.les["height"].values
+        if max_sediment_dist > np.min(np.diff(height)):
+            delta_t = np.floor(np.min(np.diff(height)) / max_sediment_vel)
+            print("∆t was modified to the largest integer preventing ice sedimentation of more than 1 " +
+                  "grid cell (%d s)" % delta_t)
+        self.delta_t = delta_t
+        self.mod_nt = int(final_t / delta_t) + 1  # number of time steps
+
+        # allocate xarray DataSet for model atmospheric state variable fields
+        self.ds = xr.Dataset()
         self.ds = self.ds.assign_coords({"height": height})
         self.ds = self.ds.assign_coords({"time": np.arange(self.mod_nt) * self.delta_t})
         extrap_locs_tail = self.ds["time"] >= self.les["time"].max()
