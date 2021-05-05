@@ -18,7 +18,10 @@ matrix:
       dist: xenial
       env:
           - PYTHON_VERSION="3.8"
+install:
+    - source continuous_integration/install.sh
 
 script:
+    - source continuous_integration/build_docs.sh
     - flake8 --max-line-length=115 --ignore=F401,E402,W504,W605,E731
 

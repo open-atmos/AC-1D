@@ -2,3 +2,4 @@ numpy
 xarray
 pandas
 matplotlib
+flake8
