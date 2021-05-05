@@ -1,5 +1,10 @@
 language: python
 
+env:
+      global:
+        # Deploy key
+        - secure: "b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZWQyNTUxOQAAACBv+3ogOLOlwrs4EabRoR3MquP2HpdyPsocQ08E30+z3wAAAKAMav0fDGr9HwAAAAtzc2gtZWQyNTUxOQAAACBv+3ogOLOlwrs4EabRoR3MquP2HpdyPsocQ08E30+z3wAAAEAP9eGw3U+I6wkDtbYislzBHwkN2t2CSZMOq2hE1CQiYW/7eiA4s6XCuzgRptGhHcyq4/Yel3I+yhxDTwTfT7PfAAAAF2lzcmFlbDBzaWxiZXJAZ21haWwuY29tAQIDBAUG"
+
 matrix:
     include:
     - python: 3.7

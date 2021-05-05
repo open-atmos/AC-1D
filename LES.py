@@ -140,13 +140,13 @@ class LES():
         self.ds["prec"] *= self.pflux_field["scaling"]
 
         # set units
-        self.ds["height"].attrs["units"] = "m"
-        self.ds["time"].attrs["units"] = "s"
+        self.ds["height"].attrs["units"] = "$m$"
+        self.ds["time"].attrs["units"] = "$s$"
         self.ds["RH"].attrs["units"] = ""
-        self.ds["ql"].attrs["units"] = "$g\: kg^{-1}$"
+        self.ds["ql"].attrs["units"] = "$g\:kg^{-1}$"
         self.ds["T"].attrs["units"] = "$K$"
         self.ds["Ni"].attrs["units"] = "$L^{-1}$"
-        self.ds["prec"].attrs["units"] = "$mm\: h^{-1}$"
+        self.ds["prec"].attrs["units"] = "$mm\:h^{-1}$"
 
         # calculate ∆aw field for ABIFM
         self._calc_delta_aw()
@@ -167,7 +167,8 @@ class LES():
                 - OTHER OPTIONS TO BE ADDED.
         """
         self.ds["P_Ni"] = self.ds['prec'] / self.ds['Ni']
-        self.ds["P_Ni"].attrs['units'] = '$mm\: h^{-1}\: L^{-1}$'
+        self.ds["P_Ni"].attrs['units'] = '$mm\:h^{-1}\:L^{-1}$'
+        self.ds["P_Ni"].attrs['long_name'] = "Ni-normalized precipitation rate"
 
         # find all cloud bases and the precip rate in the lowest cloud base in every time step (each profile).
         if cbh_det_method == "ql_cbh":
@@ -194,8 +195,8 @@ class LES():
         self.ds["lowest_cth"][cth_lowest[1]] = self.ds["height"].values[cth_lowest[0]]
         self.ds["Pcb_per_Ni"] = xr.DataArray(np.zeros(self.ds.dims["time"]) * np.nan, dims=self.ds["time"].dims)
         self.ds["Pcb_per_Ni"][cbh_lowest[1]] = self.ds["P_Ni"].values[cbh_lowest]
-        self.ds["Pcb_per_Ni"].attrs['units'] = '$mm\: h^{-1}\: L^{-1}$'
-        self.ds["Pcb_per_Ni"].attrs['long_name'] = "Precipitation rate at the lowest cloud base per profile"
+        self.ds["Pcb_per_Ni"].attrs['units'] = '$mm\:h^{-1}\:L^{-1}$'
+        self.ds["Pcb_per_Ni"].attrs['long_name'] = "Ni-normalized lowest cloud base precipitation rate"
 
     def _calc_delta_aw(self):
         """

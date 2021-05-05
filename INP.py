@@ -102,11 +102,15 @@ class INP_pop():
             dictionary providing psd parameter information enabling full psd reproduction.
         name: str
             population name (or tag).
-        n_init_weight_prof: np.ndarray or None
-            s x 2 array providing height [m]-weight pairs for INP concentrations relative to n_init_max (values
-            between 0 and 1) (--ABIFM--).
-            Heights are linearly interpolated onto the model grid and edge values are extrapolated. If None,
-            no weighting is performed, i.e., vertically uniform n_init (= n_init_max).
+        n_init_weight_prof: dict or None
+               a dict with keys "height" and "weight". Each key contains a list or np.ndarray of length s (s > 1)
+               determining PSD heights [m] and weighting profiles. Weights are applied on n_init such that
+               n_init(z) = n_init_max * weighting_factor(z), i.e., a weighted_inp_prof filled with ones means
+               that n_init(z) = n_init_max.
+               All weighting values greater (smaller) than 1 (0) are set to 1 (0). heights are interpolated
+               between the specified heights, and the edge values are used for extrapolation (can be used to set
+               different INP source layers at model initialization, and combined with turbulence weighting,
+               allows the emulation of cloud-driven mixing. (--ABIFM--)
         ci_model: ci_model class
             Containing variables such as the requested domain size, LES time averaging option
             (ci_model.t_averaged_les), custom or LES grid information (ci_model.custom_vert_grid),
@@ -185,8 +189,8 @@ class INP_pop():
                     self._weight_inp_prof()
             elif use_ABIFM == False:
                 self._init_inp_singular_array(ci_model)
-            self.ds["height"].attrs["units"] = "m"
-            self.ds["time"].attrs["units"] = "s"
+            self.ds["height"].attrs["units"] = "$m$"
+            self.ds["time"].attrs["units"] = "$s$"
         else:
             print("'ci_model' object not provided - not assigning INP array")
 
@@ -259,7 +263,7 @@ class INP_pop():
         apply weights on initial INP profile (weighting on n_init_max).
         """
         if not np.all([x in self.n_init_weight_prof.keys() for x in ["height", "weight"]]):
-            raise KeyError('Weighting the INP profiles requires the fields "height" and "weight"')
+            raise KeyError('Weighting the INP profiles requires the keys "height" and "weight"')
         if not np.logical_and(len(self.n_init_weight_prof["height"]) > 1,
                     len(self.n_init_weight_prof["height"]) == len(self.n_init_weight_prof["weight"])):
             raise ValueError("weights and heights must have the same length > 1")
