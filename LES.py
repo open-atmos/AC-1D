@@ -35,7 +35,7 @@ class LES():
         value of q_liq cutoff (g/kg) required to define the PBL top z-index (where LWC becomes negligible) -
         to be used in '_crop_fields' if 'height_ind_2crop' == 'ql_pbl'.
     q_liq_cbh: float
-        Threshold value (g/kg) for cloud base height defined using q_liq. 
+        Threshold value (g/kg) for cloud base height defined using q_liq.
     """
     def __init__(self):
         self.Ni_field = {"name": None, "scaling": None}  # scale to L^-1
@@ -46,7 +46,7 @@ class LES():
         self.model_name = ""
         self.time_dim = ""  # assuming in seconds
         self.height_dim = ""  # assuming in m
-        self.height_dim_2nd = "" # assuming in m
+        self.height_dim_2nd = ""  # assuming in m
         self.q_liq_pbl_cut = 1e-3  # g/kg (default value of 1e-3).
         self.q_liq_cbh = self.q_liq_pbl_cut  # Equal to the pbl cutoff value by default
 
@@ -64,8 +64,8 @@ class LES():
             If a list, cropping the times specified in the list (can be used take LES output profiles every
             delta_t seconds.
         """
-        if isinstance(t_harvest, (float,int)):
-            self.ds = self.ds.sel({self.time_dim: [t_harvest]}, method='nearest') 
+        if isinstance(t_harvest, (float, int)):
+            self.ds = self.ds.sel({self.time_dim: [t_harvest]}, method='nearest')
         elif isinstance(t_harvest, tuple):  # assuming a 2-element tuple.
             if len(t_harvest) != 2:
                 raise ValueError("t_harvest (time range) tuple length should be 2")
@@ -125,9 +125,10 @@ class LES():
                 - if == "ql_cbh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
                 - OTHER OPTIONS TO BE ADDED.
         """
-        self.ds = self.ds.rename({self.height_dim: "height", self.time_dim: "time", self.pflux_field["name"]: "prec",
-                        self.Ni_field["name"]: "Ni", self.T_field["name"]: "T", self.q_liq_field["name"]: "ql",
-                        self.RH_field["name"]: "RH"})
+        self.ds = self.ds.rename({self.height_dim: "height", self.time_dim: "time",
+                                  self.pflux_field["name"]: "prec", self.Ni_field["name"]: "Ni",
+                                  self.T_field["name"]: "T", self.q_liq_field["name"]: "ql",
+                                  self.RH_field["name"]: "RH"})
 
         # scale and convert to float64
         for key in self.ds.keys():
@@ -143,10 +144,10 @@ class LES():
         self.ds["height"].attrs["units"] = "$m$"
         self.ds["time"].attrs["units"] = "$s$"
         self.ds["RH"].attrs["units"] = ""
-        self.ds["ql"].attrs["units"] = "$g\:kg^{-1}$"
+        self.ds["ql"].attrs["units"] = r"$g\:kg^{-1}$"
         self.ds["T"].attrs["units"] = "$K$"
         self.ds["Ni"].attrs["units"] = "$L^{-1}$"
-        self.ds["prec"].attrs["units"] = "$mm\:h^{-1}$"
+        self.ds["prec"].attrs["units"] = r"$mm\:h^{-1}$"
 
         # calculate ∆aw field for ABIFM
         self._calc_delta_aw()
@@ -167,7 +168,7 @@ class LES():
                 - OTHER OPTIONS TO BE ADDED.
         """
         self.ds["P_Ni"] = self.ds['prec'] / self.ds['Ni']
-        self.ds["P_Ni"].attrs['units'] = '$mm\:h^{-1}\:L^{-1}$'
+        self.ds["P_Ni"].attrs['units'] = r'$mm\:h^{-1}\:L^{-1}$'
         self.ds["P_Ni"].attrs['long_name'] = "Ni-normalized precipitation rate"
 
         # find all cloud bases and the precip rate in the lowest cloud base in every time step (each profile).
@@ -183,9 +184,9 @@ class LES():
         self.ds["cbh_all"].attrs['long_name'] = "All detected cloud top heights (receive a 'True' value)"
 
         cbh_lowest = np.where(np.logical_and(np.cumsum(self.ds["cbh_all"], axis=0) == 1,
-                                             self.ds["cbh_all"] == True))
+                                             self.ds["cbh_all"] is True))
         cth_lowest = np.where(np.logical_and(np.cumsum(self.ds["cth_all"], axis=0) == 1,
-                                             self.ds["cth_all"] == True))
+                                             self.ds["cth_all"] is True))
         self.ds["lowest_cbh"] = xr.DataArray(np.zeros(self.ds.dims["time"]) * np.nan, dims=self.ds["time"].dims)
         self.ds["lowest_cbh"].attrs['units'] = '$m$'
         self.ds["lowest_cth"] = self.ds["lowest_cbh"].copy()
@@ -195,7 +196,7 @@ class LES():
         self.ds["lowest_cth"][cth_lowest[1]] = self.ds["height"].values[cth_lowest[0]]
         self.ds["Pcb_per_Ni"] = xr.DataArray(np.zeros(self.ds.dims["time"]) * np.nan, dims=self.ds["time"].dims)
         self.ds["Pcb_per_Ni"][cbh_lowest[1]] = self.ds["P_Ni"].values[cbh_lowest]
-        self.ds["Pcb_per_Ni"].attrs['units'] = '$mm\:h^{-1}\:L^{-1}$'
+        self.ds["Pcb_per_Ni"].attrs['units'] = r'$mm\:h^{-1}r\:L^{-1}$'
         self.ds["Pcb_per_Ni"].attrs['long_name'] = "Ni-normalized lowest cloud base precipitation rate"
 
     def _calc_delta_aw(self):
@@ -203,11 +204,12 @@ class LES():
         calculate the ∆aw field for ABIFM
         """
         self.ds["delta_aw"] = self.ds['RH'] - \
-                                (np.exp(9.550426-5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) -
-                                 0.00728332 * self.ds['T']) / ( np.exp(54.842763 - 6763.22 / self.ds['T'] -
-                                 4.210 * np.log(self.ds['T']) + 0.000367 * self.ds['T'] + np.tanh(0.0415 *
-                                 (self.ds['T'] - 218.8)) * (53.878 - 1331.22 / self.ds['T'] - 9.44523 *
-                                 np.log(self.ds['T']) + 0.014025 * self.ds['T'])) ) )
+            (np.exp(9.550426-5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) - 0.00728332 *
+                    self.ds['T']) / (np.exp(54.842763 - 6763.22 / self.ds['T'] -
+                                     4.210 * np.log(self.ds['T']) + 0.000367 * self.ds['T'] +
+                                     np.tanh(0.0415 * (self.ds['T'] - 218.8)) *
+                                     (53.878 - 1331.22 / self.ds['T'] - 9.44523 *
+                                      np.log(self.ds['T']) + 0.014025 * self.ds['T']))))
         self.ds['delta_aw'].attrs['units'] = ""
 
 
@@ -265,11 +267,11 @@ class DHARMA(LES):
         if les_out_filename is None:
             les_out_filename = 'dharma.soundings.cdf'
         self.les_out_path = les_out_path
-        self.les_out_filename =les_out_filename
+        self.les_out_filename = les_out_filename
 
         # load model output
         self.ds = xr.open_dataset(les_out_path+les_out_filename)
-        self.ds = self.ds.transpose(*(self.height_dim, self.time_dim, self.height_dim_2nd))  # make sure the height dim is on index 0 and make the 2nd height coordinates in the last dim.
+        self.ds = self.ds.transpose(*(self.height_dim, self.time_dim, self.height_dim_2nd))  # validate dim order
 
         # crop specific model output time range (if requested)
         if t_harvest is not None:

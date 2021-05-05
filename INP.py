@@ -5,7 +5,6 @@ Jhet class.
 import xarray as xr
 import numpy as np
 import pandas as pd
-import LES
 
 
 class Jhet():
@@ -139,11 +138,11 @@ class INP_pop():
                 else:
                     self.diam_cutoff = diam_cutoff
                 if T_array is None:
-                    self.T_array = np.linspace(-35.,-5.,301) + 273.15
+                    self.T_array = np.linspace(-35., -5., 301) + 273.15
                 else:
                     self.T_array = T_array
                 if singular_fun is None:
-                    self.singular_fun = lambda Tk : 0.117 * np.exp(-0.125 * (Tk - 273.2))  # DeMott et al. (2010)
+                    self.singular_fun = lambda Tk: 0.117 * np.exp(-0.125 * (Tk - 273.2))  # DeMott et al. (2010)
                 else:
                     self.singular_fun = singular_fun
                 if singular_scale is None:
@@ -163,7 +162,7 @@ class INP_pop():
             self.dn_dlogD = dn_dlogD
         self.psd = psd
         if "type" in psd.keys():  # assuming that the __init__ method is invoked from an inhertied classes.
-            self.psd_type=psd["type"]
+            self.psd_type = psd["type"]
         if name is None:
             self._random_name()
         else:
@@ -172,7 +171,7 @@ class INP_pop():
         # Assign INP dataset
         self.ds = xr.Dataset()
         self.ds = self.ds.assign_coords({"diam": np.ones(1) * diam})
-        self.ds["diam"].attrs["units"] = "$\mu m$"
+        self.ds["diam"].attrs["units"] = r"$\mu m$"
         self.ds["diam"].attrs["long_name"] = "Particle diameter"
         self.ds["dn_dlogD"] = xr.DataArray(np.ones(1) * dn_dlogD, dims=self.ds["diam"].dims)
         self.ds["dn_dlogD"].attrs["units"] = "$L^{-1}$"
@@ -183,11 +182,11 @@ class INP_pop():
         if ci_model is not None:
             self.ds = self.ds.assign_coords({"height": ci_model.ds["height"].values,
                                              "time": ci_model.ds["time"].values})
-            if use_ABIFM == True:
+            if use_ABIFM is True:
                 self._init_inp_Jhet_ABIFM_arrays(ci_model)
                 if n_init_weight_prof is not None:
                     self._weight_inp_prof()
-            elif use_ABIFM == False:
+            elif use_ABIFM is False:
                 self._init_inp_singular_array(ci_model)
             self.ds["height"].attrs["units"] = "$m$"
             self.ds["time"].attrs["units"] = "$s$"
@@ -199,7 +198,7 @@ class INP_pop():
         Generate random string name for population
         """
         self.name = self.psd_type + \
-                    "_%05d" % np.random.randint(1e4-1) # generate random population number if not provided.
+            "_%05d" % np.random.randint(1e4-1)  # generate random population number if not provided.
 
     def _calc_surf_area(self):
         """
@@ -226,10 +225,10 @@ class INP_pop():
         self.ds = self.ds.assign_coords({"T": self.T_array})
         self.ds["T"].attrs["units"] = "$K$"
         tmp_inp_array = np.zeros(self.ds["T"].size)
-        tmp_n_inp = np.flip(self.singular_fun(self.ds["T"].values)) # start at highest temperatures
+        tmp_n_inp = np.flip(self.singular_fun(self.ds["T"].values))  # start at highest temperatures
         tmp_inp_array[0] = tmp_n_inp[0]
         for ii in range(1, self.ds["T"].size):
-                tmp_inp_array[ii] = tmp_n_inp[ii] - tmp_inp_array[:ii].sum()
+            tmp_inp_array[ii] = tmp_n_inp[ii] - tmp_inp_array[:ii].sum()
         if self.singular_scale != 1.:
             tmp_inp_array *= self.singular_scale
         self.ds["inp"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size, self.ds["T"].size)),
@@ -247,7 +246,7 @@ class INP_pop():
         ---------
         ci_model: ci_model class object
             Cloud-INP model object including all model initialization and prognosed field datasets.
-        """ 
+        """
         self.ds["Jhet"] = 10.**(self.Jhet.c + self.Jhet.m * ci_model.ds["delta_aw"])  # calc Jhet
         self.ds["Jhet"].attrs["units"] = "$cm^{-2} s{-1}$"
         self.ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
@@ -265,14 +264,14 @@ class INP_pop():
         if not np.all([x in self.n_init_weight_prof.keys() for x in ["height", "weight"]]):
             raise KeyError('Weighting the INP profiles requires the keys "height" and "weight"')
         if not np.logical_and(len(self.n_init_weight_prof["height"]) > 1,
-                    len(self.n_init_weight_prof["height"]) == len(self.n_init_weight_prof["weight"])):
+                              len(self.n_init_weight_prof["height"]) == len(self.n_init_weight_prof["weight"])):
             raise ValueError("weights and heights must have the same length > 1")
         self.n_init_weight_prof["weight"] = np.where(self.n_init_weight_prof["weight"] > 1., 1.,
-                                           self.n_init_weight_prof["weight"])  # weights don't exceed 1.
+                                                     self.n_init_weight_prof["weight"])  # weights don't exceed 1.
         weight_prof_interp = np.interp(self.ds["height"], self.n_init_weight_prof["height"],
                                        self.n_init_weight_prof["weight"])
         self.ds["inp"][{"time": 0}] = np.tile(np.expand_dims(weight_prof_interp, axis=1),
-                (1, self.ds["diam"].size)) * self.ds["inp"][{"time": 0}]
+                                              (1, self.ds["diam"].size)) * self.ds["inp"][{"time": 0}]
 
 
 class mono_INP(INP_pop):
@@ -287,7 +286,7 @@ class mono_INP(INP_pop):
         key or in the diam.
         """
         psd.update({"type": "mono"})  # require type key consistency
-        if not "diam" in psd.keys():
+        if "diam" not in psd.keys():
             raise KeyError('mono-dispersed PSD processing requires the "diam" fields')
         diam = psd["diam"]
         dn_dlogD = np.array(n_init_max)
@@ -356,7 +355,7 @@ class logn_INP(INP_pop):
         dn_dlogD = (1 / denom) * np.exp(-0.5 * argexp**2)
         dn_dlogD = dn_dlogD / dn_dlogD.sum() * n_init_max
         return diam, dn_dlogD
-            
+
 
 class custom_INP(INP_pop):
     """
@@ -383,7 +382,7 @@ class custom_INP(INP_pop):
             raise ValueError("The 'diam' and 'dn_dlogD' arrays must have the same size!")
         if "norm_to_n_init_max" in psd.keys():
             if psd["norm_to_n_init_max"]:
-                dn_dlogD = dn_dlogD / np.sum(dn_dlogD) * n_init_max            
+                dn_dlogD = dn_dlogD / np.sum(dn_dlogD) * n_init_max
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,

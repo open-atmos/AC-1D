@@ -47,7 +47,7 @@ class ci_model():
                cloud-top entrainment rate [m/s].
                if a float then using its value throughout the simulation time.
                if a dict, must have the keys "time" [s] and "value". Each key contains a list or np.ndarray of
-               length s (s > 1) determining time and entrainment rate time series. 
+               length s (s > 1) determining time and entrainment rate time series.
                Time values are interpolated between the specified times, and the edge values are used for
                extrapolation.
         entrain_from_cth: bool
@@ -150,11 +150,11 @@ class ci_model():
         Now = time()
 
         # General simulation attributes.
-        self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec"] # variables used by the model (after LES processing).
+        self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec"]  # processed variables used by the model.
         self.final_t = final_t
         self.delta_t = delta_t
         self.use_ABIFM = use_ABIFM
-        self.mod_nt  = int(final_t/delta_t)+1  # number of time steps
+        self.mod_nt = int(final_t / delta_t) + 1  # number of time steps
 
         # Load LES output
         if les_name == "DHARMA":
@@ -185,7 +185,7 @@ class ci_model():
                 les.ds[key].attrs["units"] = les_units[key]
 
             # Redetermine cloud bounds with the time-averaged profile for model consistency (entrainment, etc.).
-            tmp_ds = xr.Dataset() # first, use a temporary xr.Dataset to retain t-averaged precip rates.
+            tmp_ds = xr.Dataset()  # first, use a temporary xr.Dataset to retain t-averaged precip rates.
             tmp_ds["P_Ni"], tmp_ds["Pcb_per_Ni"] = les.ds["P_Ni"].copy(), les.ds["Pcb_per_Ni"].copy()
             les._find_and_calc_cb_precip(self.LES_attributes["cbh_det_method"])
             tmp_fields = [x for x in les.ds.keys()]
@@ -196,7 +196,7 @@ class ci_model():
             les.q_liq_field["name"], les.q_liq_field["scaling"], les.height_dim = "ql", 1, "height"
             les._crop_fields(tmp_fields, height_ind_2crop)
             les.q_liq_field["name"], les.q_liq_field["scaling"], les.height_dim = \
-                        tmp_attrs["ql"]["name"], tmp_attrs["ql"]["scaling"], tmp_attrs["height_dim"]
+                tmp_attrs["ql"]["name"], tmp_attrs["ql"]["scaling"], tmp_attrs["height_dim"]
 
         # Retain only the LES xr.Dataset for accessibility
         self.les = les.ds
@@ -206,7 +206,7 @@ class ci_model():
         if custom_vert_grid is not None:
             height = custom_vert_grid
             height = height[np.logical_and(height <= self.les["height"].max().values,
-                                             height >= self.les["height"].min().values)]
+                                           height >= self.les["height"].min().values)]
             if len(height) < len(custom_vert_grid):
                 print("Some heights were omitted because they are outside the processed LES dataset grid")
         else:
@@ -222,17 +222,17 @@ class ci_model():
             if self.les["time"].size > 1:
                 self._set_1D_or_2D_var_from_input(self.les[key], key)
             else:
-            # Use LES bounds (min and max) outside the available range (redundant step but could be useful later).
+                # Use LES bounds (min & max) outside the available range (redundant step - could be useful later).
                 key_array_tmp = np.zeros((self.ds["height"].size, self.ds["time"].size))
                 if extrap_locs_head.sum() > 0:
                     key_array_tmp[:, extrap_locs_head.values] = np.tile(np.expand_dims(
                         np.interp(self.ds["height"], self.les["height"],
-                        self.les[key].sel({"time": self.les["time"].min()})),
+                                  self.les[key].sel({"time": self.les["time"].min()})),
                         axis=1), (1, np.sum(extrap_locs_head.values)))
                 if extrap_locs_tail.sum() > 0:
                     key_array_tmp[:, extrap_locs_tail.values] = np.tile(np.expand_dims(
                         np.interp(self.ds["height"], self.les["height"],
-                        self.les[key].sel({"time": self.les["time"].max()})),
+                                  self.les[key].sel({"time": self.les["time"].max()})),
                         axis=1), (1, np.sum(extrap_locs_tail.values)))
                 self.ds[key] = xr.DataArray(key_array_tmp, dims=("height", "time"))
             self.ds[key].attrs = self.les[key].attrs
@@ -249,7 +249,7 @@ class ci_model():
         self._set_1D_or_2D_var_from_input(tau_mix, "tau_mix", "$s$", "Boundary-layer mixing time scale")
         if mixing_bounds is None:
             self.ds["mixing_mask"] = xr.DataArray(np.full((self.ds["height"].size, self.ds["time"].size),
-                True, dtype=bool), dims=("height", "time"))
+                                                          True, dtype=bool), dims=("height", "time"))
         else:
             if isinstance(mixing_bounds[0], str):
                 if mixing_bounds[0] == "ql_cbh":
@@ -273,7 +273,6 @@ class ci_model():
                 mixing_mask[rel_ind, t] = True
             self.ds["mixing_mask"] = xr.DataArray(mixing_mask, dims=("height", "time"))
         self.ds["mixing_mask"].attrs["long_name"] = "Mixing-layer mask (True --> mixed)"
-            
 
         # init number weighted ice fall velocity
         self.v_f_ice = v_f_ice
@@ -281,11 +280,11 @@ class ci_model():
 
         # calculate delta_aw
         self._calc_delta_aw()
-        
+
         # allocate for INP population Datasets
         self.inp = {}
         self.inp_info = inp_info  # save the INP info dict for reference.
-        optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # list of optional INP class input parameters.
+        optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # optional INP class input parameters.
                          "n_init_weight_prof", "singular_fun", "singular_scale"]
         for ii in range(len(inp_info)):
             param_dict = {"use_ABIFM": use_ABIFM}  # tmp dict for INP attributes to send INP class call.
@@ -313,14 +312,14 @@ class ci_model():
         Here we assume that our droplets are in equilibrium with the environment at its given RH, hence, RH = a_w.
         """
         self.ds["delta_aw"] = self.ds['RH'] - \
-                                 (
-                                 np.exp(9.550426-5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) -
-                                 0.00728332 * self.ds['T']) / \
-                                 (np.exp(54.842763 - 6763.22 / self.ds['T'] -
-                                 4.210 * np.log(self.ds['T']) + 0.000367 * self.ds['T'] + np.tanh(0.0415 *
-                                 (self.ds['T'] - 218.8)) * (53.878 - 1331.22 / self.ds['T'] - 9.44523 *
-                                 np.log(self.ds['T']) + 0.014025 * self.ds['T'])))
-                                 )
+            (
+            np.exp(9.550426-5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) -
+                   0.00728332 * self.ds['T']) /
+            (np.exp(54.842763 - 6763.22 / self.ds['T'] -
+             4.210 * np.log(self.ds['T']) + 0.000367 * self.ds['T'] +
+             np.tanh(0.0415 * (self.ds['T'] - 218.8)) * (53.878 - 1331.22 / self.ds['T'] - 9.44523 *
+                                                         np.log(self.ds['T']) + 0.014025 * self.ds['T'])))
+            )
         self.ds['delta_aw'].attrs['units'] = ""
 
     def _set_1D_or_2D_var_from_input(self, var_in, var_name, units_str=None, long_name_str=None):
@@ -351,10 +350,10 @@ class ci_model():
             if not np.all([x in var_in.keys() for x in ["time", "value"]]):
                 raise KeyError('variable time series requires the keys "time" and "value"')
             if not np.logical_and(len(var_in["time"]) > 1,
-                        len(var_in["time"]) == len(var_in["value"])):
+                                  len(var_in["time"]) == len(var_in["value"])):
                 raise ValueError("times and values must have the same length > 1")
             self.ds[var_name] = xr.DataArray(np.interp(self.ds["time"],
-                        var_in["time"], var_in["value"]), dims=("time"))
+                                             var_in["time"], var_in["value"]), dims=("time"))
         elif isinstance(var_in, xr.DataArray):  # 2D linear interpolation
             if not np.all([x in var_in.coords for x in ["time", "height"]]):
                 raise KeyError('2D variable processing requires the "time" and "height" coordinates!')
@@ -364,10 +363,10 @@ class ci_model():
             key_1st_interp = np.zeros((var_in["height"].size, self.ds["time"].size))
             for hh in range(var_in["height"].size):
                 key_1st_interp[hh, :] = np.interp(self.ds["time"].values, var_in["time"].values,
-                    var_in.isel({"height": hh}))
+                                                  var_in.isel({"height": hh}))
             for tt in range(self.ds["time"].size):
                 key_array_tmp[:, tt] = np.interp(self.ds["height"].values, var_in["height"].values,
-                    key_1st_interp[:, tt])
+                                                 key_1st_interp[:, tt])
             self.ds[var_name] = xr.DataArray(key_array_tmp, dims=("height", "time"))
         else:
             raise TypeError("Input variable must be of type float, int, dict, or xr.DataArray!")
@@ -400,7 +399,7 @@ class ci_model():
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "logn":
-           tmp_inp_pop = INP.logn_INP(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
+            tmp_inp_pop = INP.logn_INP(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
                                        psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
@@ -408,11 +407,11 @@ class ci_model():
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "custom":
             tmp_inp_pop = INP.custom_INP(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
-                                       psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
-                                       name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
-                                       T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
-                                       singular_scale=param_dict["singular_scale"],
-                                       n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
+                                         psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
+                                         name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
+                                         T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
+                                         singular_scale=param_dict["singular_scale"],
+                                         n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "default":
             param_dict["psd"].update({"diam_mean": 1, "geom_sd": 2.5, "n_bins": 35, "diam_min": 0.01,
                                       "m_ratio": 2.})  # default parameters.
