@@ -2,8 +2,8 @@ language: python
 
 env:
       global:
-        # Deploy key
-        - secure: "b3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jYmMAAAAGYmNyeXB0AAAAGAAAABDZU9TenCOSyipdSotBVIf+AAAAEAAAAAEAAAAzAAAAC3NzaC1lZDI1NTE5AAAAIOohfms/aPUqts8BH8MNdEy7xwJtgQztUwG4h3Ju0kTuAAAAoIDU+/UanynoEX5qKBtecmK4UnepXxlE8ScRjGjeX/VqrB9sYQrZoMAHkG+4uosQeACFQdA4hMzr47ABtlEYnnRC6ENuh8BRJdsfTrOBgAu7nopAy3OxZmKjWPRceUMs66EbRRUjx6raFcYh68GMczg8FIL+BdnwvMOiCueMr+7WjFlmmHaBVcYjDKP1T1iZbvfyX8X33ucTf34L3McVOFU="
+        # Doctr deploy key for isilber/cld_INP_1D_model
+        - secure: "uMStQ3p8aUMVXxvcoeRwbhUAbdIRM/4td/hOggiH1uCXfMZVe46d/zDsUA9oD7pM7hJs2Jfb94+rafFXW4CgozyfjxG1WUWYnOVDOdKHzHGltJq55IdsrlwIXZZrYeyMvRbzNdooCYfXVztI2Uu8KU6pCbU+ZpWk2KYFxlbidRg7Eu4OJTh7Q2wezmfsifJXPiPh4aHtxJlIgNvlW9rfuFcI2NlWUA331tnOs7glSwbEcmTc5Eeo6A+zjtGVNipjCJS8ZrrevV26lQskwUcftwLYuywUs7Ch4rKHdNeYujuNavr/M04q8O1RIbnfRpuGwCaLfufpJu0KMSluFOnEtv9BjqJyXB6VPGah0EZexj+OLCp1XYrDCwhacJHLreca1wHt9wS2rQMhZ5nxN9iRoe4lAHLnQl/o6p1YMEfij6OPWGc7wu3dsDUcpx4LkuiFZWugSuUQf8+glpJNHyIvZ7C0k/BHipM8H68XEEH4yzQgXdm2OZ0h9GGM7iLbKEo1sSGRKf8tlYG694cmMPgRvAv3P9uuwwzz/EUoA2Twaqul6ebMgGWKtfAn7TtzlZiIlkv2If4edKPZvKZ5F3q9vKRKIdkBpJNN3tLMzT1+ZIt+fDhgzPDYWK636Y72bV99/39vDt4dvt9D34+S2ZqaApWLs/+hegnEY7FrDJjTqCg="
 
 matrix:
     include:
