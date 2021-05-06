@@ -313,6 +313,16 @@ class ci_model():
             tmp_inp_pop = self._set_inp_obj(param_dict)
             self.inp[tmp_inp_pop.name] = tmp_inp_pop
 
+        # allocate nucleated ice DataArrays
+        self.ds["Ni_nuc"] = xr.DataArray(np.zeros((self.ds["height"].size,
+                                         self.ds["time"].size)), dims=("height", "time"))
+        self.ds["Ni_nuc"].attrs["units"] = "$L^{-1}$"
+        self.ds["Ni_nuc"].attrs["long_name"] = "Nucleated ice"
+        self.ds["nuc_rate"] = xr.DataArray(np.zeros((self.ds["height"].size,
+                                         self.ds["time"].size)), dims=("height", "time"))
+        self.ds["nuc_rate"].attrs["units"] = "$L^{-1}\:s^{-1}$"
+        self.ds["nuc_rate"].attrs["long_name"] = "Ice nucleation rate"
+
         print("Model initalization done! Total processing time = %f s" % (time() - Now))
 
     def _calc_delta_aw(self):
