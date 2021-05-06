@@ -22,6 +22,7 @@ Requirements
 
 * Numpy (https://numpy.org)
 * Matplotlib (https://matplotlib.org)
+* Pandas (https://pandas.pydata.org)
 * Xarray (http://xarray.pydata.org)
    
 Authors
@@ -32,3 +33,5 @@ Code was written by `Israel Silber <ixs34@psu.edu>`_ (Pennsylvania State Univers
 References
 ----------
 Fridlind, A.M., B. van Diedenhoven, A.S. Ackerman, A. Avramov, A. Mrowiec, H. Morrison, P. Zuidema, and M.D. Shupe, 2012: A FIRE-ACE/SHEBA case study of mixed-phase Arctic boundary-layer clouds: Entrainment rate limitations on rapid primary ice nucleation processes. J. Atmos. Sci., 69, 365-389, doi:10.1175/JAS-D-11-052.1.
+
+Knopf, D.A., P.A. Alpert, 2013: A water activity based model of heterogeneous ice nucleation kinetics for freezing of water and aqueous solution droplets, Faraday Discuss., 165, 513-534, doi:10.1039/C3FD00035D.
