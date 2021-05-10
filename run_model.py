@@ -79,7 +79,7 @@ def run_model(ci_model):
             n_ice_curr += inp_act.sum(axis=1)  # Add from inp reservoir (*currently*, without INP memory)
             run_stats["activation_inp"] += (time() - t_process)
             t_proc += time() - t_process
-            
+
             # Cloud-top entrainment of INP
             t_process = time()
             if ci_model.entrain_from_cth:  # using cloud top data (INP difference) for entrainment
