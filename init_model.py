@@ -235,7 +235,7 @@ class ci_model():
         self.ds = self.ds.assign_coords({"time": np.arange(self.mod_nt) * self.delta_t})
         delta_z = np.diff(self.ds["height"])
         self.ds["delta_z"] = xr.DataArray(np.concatenate((delta_z, np.array([delta_z[-1]]))),
-                               dims=("height"), attrs={"units": "$m$"})
+                                          dims=("height"), attrs={"units": "$m$"})
         extrap_locs_tail = self.ds["time"] >= self.les["time"].max()
         extrap_locs_head = self.ds["time"] <= self.les["time"].min()
         x, y = np.meshgrid(self.les["height"], self.les["time"])
@@ -268,7 +268,7 @@ class ci_model():
         self._set_1D_or_2D_var_from_input(w_e_ent, "w_e_ent", "$m/s$", "Cloud-top entrainment rate")
         if entrain_from_cth:  # add cloud-top height for entrainment calculations during model run.
             if self.les["time"].size > 1:
-                self._set_1D_or_2D_var_from_input({"time": self.les["time"].values, 
+                self._set_1D_or_2D_var_from_input({"time": self.les["time"].values,
                                                    "value": self.les["lowest_cth"].values},
                                                   "lowest_cth", "$m$", "Lowest cloud top height")
             else:

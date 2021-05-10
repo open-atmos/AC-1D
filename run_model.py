@@ -40,7 +40,7 @@ def run_model(ci_model):
     if ci_model.entrain_from_cth:
         cth_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["lowest_cth"].values, axis=0),
                             (ci_model.mod_nz, 1)) - np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
-                                                           (1, ci_model.mod_nt))), axis=0)
+                                                            (1, ci_model.mod_nt))), axis=0)
         cth_ind = np.where(cth_ind == 0, -9999, cth_ind)
 
     for it in range(1, ci_model.mod_nt):
@@ -103,8 +103,8 @@ def run_model(ci_model):
                 PSDt = "diam"  # string for PSD dim (diameter in the case of singular)
             else:
                 PSDt = "T"  # string for PSD dim (temperature in the case of singular)
-            if not np.all(t_step_mix_mask == False):  # checking that some mixing takes place.
-                if np.all(t_step_mix_mask == True): # Faster processing for fully mixed domain
+            if not np.all(not t_step_mix_mask):  # checking that some mixing takes place.
+                if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
                     inp_fully_mixed = np.nanmean(n_inp_curr, axis=0)
                     inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                         (np.tile(np.expand_dims(inp_fully_mixed, axis=0), (ci_model.mod_nz, 1)) - n_inp_curr)
@@ -117,7 +117,7 @@ def run_model(ci_model):
                         (np.tile(np.expand_dims(inp_fully_mixed, axis=0), (np.sum(t_step_mix_mask), 1)) -
                          n_inp_curr[t_step_mix_mask, :])
                     n_inp_curr[t_step_mix_mask, :] += inp_mixing
-                
+
                 run_stats["mixing_inp"] += (time() - t_process)
                 t_proc += time() - t_process
 
@@ -141,14 +141,14 @@ def run_model(ci_model):
 
         # Turbulent mixing of ice
         t_process = time()
-        if not np.all(t_step_mix_mask == False):  # checking that some mixing takes place.
-            if np.all(t_step_mix_mask == True): # Faster processing for fully mixed domain
+        if not np.all(not t_step_mix_mask):  # checking that some mixing takes place.
+            if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
                 ice_fully_mixed = np.nanmean(n_ice_curr, axis=0)
                 ice_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                     (ice_fully_mixed - n_ice_curr)
                 n_ice_curr += ice_mixing
             else:
-                ice_fully_mixed = np.nanmean(np.where(t_step_mix_mask , n_ice_curr, np.nan), axis=0)
+                ice_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_ice_curr, np.nan), axis=0)
                 ice_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                     (ice_fully_mixed - n_ice_curr[t_step_mix_mask])
                 n_ice_curr[t_step_mix_mask] += ice_mixing
@@ -164,5 +164,5 @@ def run_model(ci_model):
     runtime_tot = time() - Now
     print("\nModel run finished! Total run time = %f s\nModel run time stats:" % runtime_tot)
     for key in run_stats.keys():
-        print("Process: %s: %.2f s (%.2f%% of of total time)" % 
+        print("Process: %s: %.2f s (%.2f%% of of total time)" %
               (key, run_stats[key], run_stats[key] / runtime_tot * 100.))

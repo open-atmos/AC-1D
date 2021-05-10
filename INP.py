@@ -250,8 +250,7 @@ class INP_pop():
         self.ds["Jhet"] = 10.**(self.Jhet.c + self.Jhet.m * ci_model.ds["delta_aw"])  # calc Jhet
         self.ds["Jhet"].attrs["units"] = "$cm^{-2} s{-1}$"
         self.ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
-        self.ds["inp"] = xr.DataArray(
-                                      np.zeros((self.ds["height"].size, self.ds["time"].size,
+        self.ds["inp"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
                                                 self.ds["diam"].size)),
                                       dims=("height", "time", "diam"))
         self.ds["inp"].loc[{"time": 0}] = np.tile(self.dn_dlogD, (self.ds["height"].size, 1))
