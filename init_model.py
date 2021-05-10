@@ -1,11 +1,12 @@
 """
-This file is used to initialize the model, and allocate fields and arrays to a 'ci_model' class.
+This module is used to initialize the model, and allocate fields and arrays to a 'ci_model' class.
 """
 import xarray as xr
 import numpy as np
 from time import time
 import LES
 import INP
+from run_model import run_model as Run
 
 
 class ci_model():
@@ -15,11 +16,12 @@ class ci_model():
     2. LES output dataset used to initialize and inform the model (ci_model.les).
     3. Model output  output fields (ci_model.ds).
     """
-    def __init__(self, final_t=3600*6, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
+    def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
                  custom_vert_grid=None, w_e_ent=0.1e-3, entrain_from_cth=True, tau_mix=1800.,
-                 mixing_bounds=None, v_f_ice=0.3,
-                 inp_info=None, les_out_path=None, les_out_filename=None, t_harvest=3600*3,
-                 fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_cbh"):
+                 mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-3,
+                 inp_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
+                 fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_cbh",
+                 run_model=True):
         """
         Model namelists and unit conversion coefficient required for the 1D model.
         The LES class includes methods to processes model output and prepare the out fields for the 1D model.
@@ -44,33 +46,36 @@ class ci_model():
             custom vertical grid for the 1D model. If None, then using the processed (and cropped) LES output
             grid.
         w_e_ent: dict or float
-               cloud-top entrainment rate [m/s].
-               if a float then using its value throughout the simulation time.
-               if a dict, must have the keys "time" [s] and "value". Each key contains a list or np.ndarray of
-               length s (s > 1) determining time and entrainment rate time series.
-               Time values are interpolated between the specified times, and the edge values are used for
-               extrapolation.
+            cloud-top entrainment rate [m/s].
+            if a float then using its value throughout the simulation time.
+            if a dict, must have the keys "time" [s] and "value". Each key contains a list or np.ndarray of
+            length s (s > 1) determining time and entrainment rate time series.
+            Time values are interpolated between the specified times, and the edge values are used for
+            extrapolation.
         entrain_from_cth: bool
             If True, then entrain from cloud top definition consistent with the 'cbh_det_method' input parameter.
             If False, then entraining from domain top.
         tau_mix: dict or float
-               boundary-layer mixing time scale [s].
-               if a float then using its value throughout the simulation time.
-               if a dict, then treated as in the case of a dict for w_e_ent.
+            boundary-layer mixing time scale [s].
+            if a float then using its value throughout the simulation time.
+            if a dict, then treated as in the case of a dict for w_e_ent.
         mixing_bounds: two-element tuple or list, or None
-               Determining the mixing layer (especially relevant when using time-varying LES input).
-               The first element provides a fixed lowest range of mixing (float), a time varying range (dict as
-               in w_e_ent), or the method with which to determine mixing base (str). The second element is
-               similar, but for the determination of the mixing layer top.
-               If None, using the full domain.
-               NOTE: currently, the only accepted pre-specified mixing determination method is "ql_cbh"
-               (q_liq-based cloud base or top height detection method, allowing limit mixing to the cloud).
+            Determining the mixing layer (especially relevant when using time-varying LES input).
+            The first element provides a fixed lowest range of mixing (float), a time varying range (dict as
+            in w_e_ent), or the method with which to determine mixing base (str). The second element is
+            similar, but for the determination of the mixing layer top.
+            If None, using the full domain.
+            NOTE: currently, the only accepted pre-specified mixing determination method is "ql_cbh"
+            (q_liq-based cloud base or top height detection method, allowing limit mixing to the cloud).
         v_f_ice: xr DataArray, dict, or float
-               number-weighted ice crystal fall velocity [m/s].
-               if a float then using its value throughout the simulation time.
-               if a dict, then treated as in the case of a dict for w_e_ent.
-               if an xr DataArray, must contain the "height" [m] and "time" [s] coordinates. Values outside the
-               coordinate range are extrapolated using the nearest edge values.
+            number-weighted ice crystal fall velocity [m/s].
+            if a float then using its value throughout the simulation time.
+            if a dict, then treated as in the case of a dict for w_e_ent.
+            if an xr DataArray, must contain the "height" [m] and "time" [s] coordinates. Values outside the
+            coordinate range are extrapolated using the nearest edge values.
+        in_cld_q_thresh: float
+            Mixing ratio threshold [g/kg] for determination of in-cloud environment; also assigned to the
+            'q_liq_pbl_cut' attribute value.
         inp_info: list of dict
             Used to initialize the INP arrays. Each element of the list describes a single population of an INP
             type providing its composition, concentration, and PSD, e.g., can use a single log-normal population
@@ -81,11 +86,11 @@ class ci_model():
             2. psd:   [dict] choose a 'type' key between several options (parentheses denote required dict key
                              names):
                             - "mono": fixed-size population, i.e., a single particle diameter should be provided
-                              (diam).
-                            - "logn": log--normal: provide geometric mean diameter (diam_mean), geometric SD
-                              (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min) and bin-to-bin
-                              mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio equals
-                              m_ratio**(1/3)
+                               (diam [um]).
+                            - "logn": log--normal: provide geometric mean diameter (diam_mean [um]), geometric SD
+                              (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [um]) and
+                              bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio
+                              equals m_ratio**(1/3).
                             - "custom": custom size distribution with maunally specified bin values and PSD shape.
                               Provide the PSD diameter array (diam) and the number concentration per bin
                               (dn_dlogD). Optional input key includes normalization to n_init (norm_to_n_init_max)
@@ -112,6 +117,8 @@ class ci_model():
                between the specified heights, and the edge values are used for extrapolation (can be used to set
                different INP source layers at model initialization, and combined with turbulence weighting,
                allows the emulation of cloud-driven mixing.
+        run_model: bool
+            True - run model once initialization is done.
 
         LES-related parameters
         ----------------------
@@ -153,12 +160,13 @@ class ci_model():
         self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec"]  # processed variables used by the model.
         self.final_t = final_t
         self.use_ABIFM = use_ABIFM
+        self.in_cld_q_thresh = in_cld_q_thresh  # g/kg
 
         # Load LES output
         if les_name == "DHARMA":
             les = LES.DHARMA(les_out_path=les_out_path, les_out_filename=les_out_filename, t_harvest=t_harvest,
                              fields_to_retain=fields_to_retain, height_ind_2crop=height_ind_2crop,
-                             cbh_det_method=cbh_det_method)
+                             cbh_det_method=cbh_det_method, q_liq_pbl_cut=in_cld_q_thresh)
         else:
             raise NameError("Can't process LES model output from '%s'" % les_name)
         self.LES_attributes = {"LES_name": les_name,
@@ -204,9 +212,9 @@ class ci_model():
             max_sediment_vel = np.max(v_f_ice["value"])
         else:
             max_sediment_vel = np.max(v_f_ice)
-        max_sediment_dist = max_sediment_vel * delta_t  #maximum ice sedimentation distance per time step
+        max_sediment_dist = max_sediment_vel * delta_t  # maximum ice sedimentation distance per time step
         if custom_vert_grid is not None:
-            height = custom_vert_grid
+            height = custom_vert_grid.astype(np.float32)
             height = height[np.logical_and(height <= self.les["height"].max().values,
                                            height >= self.les["height"].min().values)]
             if len(height) < len(custom_vert_grid):
@@ -219,11 +227,15 @@ class ci_model():
                   "grid cell (%d s)" % delta_t)
         self.delta_t = delta_t
         self.mod_nt = int(final_t / delta_t) + 1  # number of time steps
+        self.mod_nz = len(height)  # number of vertical layers
 
-        # allocate xarray DataSet for model atmospheric state variable fields
+        # allocate xarray DataSet for model atmospheric state and prognosed variable fields
         self.ds = xr.Dataset()
         self.ds = self.ds.assign_coords({"height": height})
         self.ds = self.ds.assign_coords({"time": np.arange(self.mod_nt) * self.delta_t})
+        delta_z = np.diff(self.ds["height"])
+        self.ds["delta_z"] = xr.DataArray(np.concatenate((delta_z, np.array([delta_z[-1]]))),
+                               dims=("height"), attrs={"units": "$m$"})
         extrap_locs_tail = self.ds["time"] >= self.les["time"].max()
         extrap_locs_head = self.ds["time"] <= self.les["time"].min()
         x, y = np.meshgrid(self.les["height"], self.les["time"])
@@ -234,7 +246,7 @@ class ci_model():
                 self._set_1D_or_2D_var_from_input(self.les[key], key)
             else:
                 # Use LES bounds (min & max) outside the available range (redundant step - could be useful later).
-                key_array_tmp = np.zeros((self.ds["height"].size, self.ds["time"].size))
+                key_array_tmp = np.zeros((self.mod_nz, self.mod_nt))
                 if extrap_locs_head.sum() > 0:
                     key_array_tmp[:, extrap_locs_head.values] = np.tile(np.expand_dims(
                         np.interp(self.ds["height"], self.les["height"],
@@ -254,12 +266,20 @@ class ci_model():
         self.w_e_ent = w_e_ent
         self.entrain_from_cth = entrain_from_cth
         self._set_1D_or_2D_var_from_input(w_e_ent, "w_e_ent", "$m/s$", "Cloud-top entrainment rate")
+        if entrain_from_cth:  # add cloud-top height for entrainment calculations during model run.
+            if self.les["time"].size > 1:
+                self._set_1D_or_2D_var_from_input({"time": self.les["time"].values, 
+                                                   "value": self.les["lowest_cth"].values},
+                                                  "lowest_cth", "$m$", "Lowest cloud top height")
+            else:
+                self._set_1D_or_2D_var_from_input(self.les["lowest_cth"].item(),
+                                                  "lowest_cth", "$m$", "Lowest cloud top height")
 
         # init vertical mixing and generate a mixing layer mask for the model
         self.tau_mix = tau_mix
         self._set_1D_or_2D_var_from_input(tau_mix, "tau_mix", "$s$", "Boundary-layer mixing time scale")
         if mixing_bounds is None:
-            self.ds["mixing_mask"] = xr.DataArray(np.full((self.ds["height"].size, self.ds["time"].size),
+            self.ds["mixing_mask"] = xr.DataArray(np.full((self.mod_nz, self.mod_nt),
                                                           True, dtype=bool), dims=("height", "time"))
         else:
             if isinstance(mixing_bounds[0], str):
@@ -276,8 +296,8 @@ class ci_model():
                     self.ds["mixing_top"].attrs["units"] = "$m$"
             else:
                 self._set_1D_or_2D_var_from_input(mixing_bounds[1], "mixing_top", "$m$", "Mixing layer top")
-            mixing_mask = np.full((self.ds["height"].size, self.ds["time"].size), False, dtype=bool)
-            for t in range(self.ds["time"].size):
+            mixing_mask = np.full((self.mod_nz, self.mod_nt), False, dtype=bool)
+            for t in range(self.mod_nt):
                 rel_ind = np.arange(
                     np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_base"].values[t])),
                     np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_top"].values[t])))
@@ -314,16 +334,20 @@ class ci_model():
             self.inp[tmp_inp_pop.name] = tmp_inp_pop
 
         # allocate nucleated ice DataArrays
-        self.ds["Ni_nuc"] = xr.DataArray(np.zeros((self.ds["height"].size,
-                                         self.ds["time"].size)), dims=("height", "time"))
+        self.ds["Ni_nuc"] = xr.DataArray(np.zeros((self.mod_nz,
+                                         self.mod_nt)), dims=("height", "time"))
         self.ds["Ni_nuc"].attrs["units"] = "$L^{-1}$"
         self.ds["Ni_nuc"].attrs["long_name"] = "Nucleated ice"
-        self.ds["nuc_rate"] = xr.DataArray(np.zeros((self.ds["height"].size,
-                                         self.ds["time"].size)), dims=("height", "time"))
+        self.ds["nuc_rate"] = xr.DataArray(np.zeros((self.mod_nz,
+                                           self.mod_nt)), dims=("height", "time"))
         self.ds["nuc_rate"].attrs["units"] = "$L^{-1}\:s^{-1}$"
         self.ds["nuc_rate"].attrs["long_name"] = "Ice nucleation rate"
 
         print("Model initalization done! Total processing time = %f s" % (time() - Now))
+
+        # Run the model
+        if run_model:
+            Run(self)
 
     def _calc_delta_aw(self):
         """
@@ -334,13 +358,13 @@ class ci_model():
         """
         self.ds["delta_aw"] = self.ds['RH'] - \
             (
-            np.exp(9.550426-5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) -
+            np.exp(9.550426 - 5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) -
                    0.00728332 * self.ds['T']) /
             (np.exp(54.842763 - 6763.22 / self.ds['T'] -
              4.210 * np.log(self.ds['T']) + 0.000367 * self.ds['T'] +
              np.tanh(0.0415 * (self.ds['T'] - 218.8)) * (53.878 - 1331.22 / self.ds['T'] - 9.44523 *
                                                          np.log(self.ds['T']) + 0.014025 * self.ds['T'])))
-            )
+        )
         self.ds['delta_aw'].attrs['units'] = ""
 
     def _set_1D_or_2D_var_from_input(self, var_in, var_name, units_str=None, long_name_str=None):
@@ -366,7 +390,7 @@ class ci_model():
             string for the long_name attribute.
         """
         if isinstance(var_in, (float, int)):
-            self.ds[var_name] = xr.DataArray(np.ones(self.ds["time"].size) * var_in, dims=("time"))
+            self.ds[var_name] = xr.DataArray(np.ones(self.mod_nt) * var_in, dims=("time"))
         elif isinstance(var_in, dict):  # 1D linear interpolation
             if not np.all([x in var_in.keys() for x in ["time", "value"]]):
                 raise KeyError('variable time series requires the keys "time" and "value"')
@@ -380,12 +404,12 @@ class ci_model():
                 raise KeyError('2D variable processing requires the "time" and "height" coordinates!')
             if not np.logical_and(len(var_in["time"]) > 1, len(var_in["height"]) > 1):
                 raise ValueError("times and height coordinates must be longer than 1 for interpolation!")
-            key_array_tmp = np.zeros((self.ds["height"].size, self.ds["time"].size))
-            key_1st_interp = np.zeros((var_in["height"].size, self.ds["time"].size))
+            key_array_tmp = np.zeros((self.mod_nz, self.mod_nt))
+            key_1st_interp = np.zeros((var_in["height"].size, self.mod_nt))
             for hh in range(var_in["height"].size):
                 key_1st_interp[hh, :] = np.interp(self.ds["time"].values, var_in["time"].values,
                                                   var_in.isel({"height": hh}))
-            for tt in range(self.ds["time"].size):
+            for tt in range(self.mod_nt):
                 key_array_tmp[:, tt] = np.interp(self.ds["height"].values, var_in["height"].values,
                                                  key_1st_interp[:, tt])
             self.ds[var_name] = xr.DataArray(key_array_tmp, dims=("height", "time"))

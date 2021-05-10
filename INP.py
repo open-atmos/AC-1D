@@ -1,6 +1,6 @@
 """
-INP population class and inherited classes for different PSDs.
-Jhet class.
+This module include INP population class and its sub-classes for different PSDs.
+In addition, it includes the Jhet class.
 """
 import xarray as xr
 import numpy as np
@@ -198,7 +198,7 @@ class INP_pop():
         Generate random string name for population
         """
         self.name = self.psd_type + \
-            "_%05d" % np.random.randint(1e4-1)  # generate random population number if not provided.
+            "_%05d" % np.random.randint(1e4 - 1)  # generate random population number if not provided.
 
     def _calc_surf_area(self):
         """
@@ -251,8 +251,9 @@ class INP_pop():
         self.ds["Jhet"].attrs["units"] = "$cm^{-2} s{-1}$"
         self.ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
         self.ds["inp"] = xr.DataArray(
-                            np.zeros((self.ds["height"].size, self.ds["time"].size, self.ds["diam"].size)),
-                            dims=("height", "time", "diam"))
+                                      np.zeros((self.ds["height"].size, self.ds["time"].size,
+                                                self.ds["diam"].size)),
+                                      dims=("height", "time", "diam"))
         self.ds["inp"].loc[{"time": 0}] = np.tile(self.dn_dlogD, (self.ds["height"].size, 1))
         self.ds["inp"].attrs["units"] = "$L^{-1}$"
         self.ds["inp"].attrs["long_name"] = "INP concentration per diameter bin"
@@ -349,7 +350,7 @@ class logn_INP(INP_pop):
             Particle number concentration per diameter bin.
         """
         diam = np.ones(psd["n_bins"]) * psd["diam_min"]
-        diam = diam * (psd["m_ratio"]**(1/3)) ** (np.cumsum(np.ones(psd["n_bins"])) - 1)
+        diam = diam * (psd["m_ratio"] ** (1. / 3.)) ** (np.cumsum(np.ones(psd["n_bins"])) - 1)
         denom = np.sqrt(2 * np.pi) * np.log(psd["geom_sd"])
         argexp = np.log(diam / psd["diam_mean"]) / np.log(psd["geom_sd"])
         dn_dlogD = (1 / denom) * np.exp(-0.5 * argexp**2)

@@ -1,6 +1,5 @@
 """
-LES class and the inherited DHARMA class
-
+This module includes the LES class and the DHARMA sub-class
 """
 import xarray as xr
 import numpy as np
@@ -31,13 +30,13 @@ class LES():
         name of the height dim.
     height_dim_2nd: str
         name of the height dim for grid cell edge coordinates.
-    q_liq_pbl_cutoff: float
-        value of q_liq cutoff (g/kg) required to define the PBL top z-index (where LWC becomes negligible) -
+    q_liq_pbl_cut: float
+        value of q_liq cut (g/kg) required to define the PBL top z-index (where LWC becomes negligible) -
         to be used in '_crop_fields' if 'height_ind_2crop' == 'ql_pbl'.
     q_liq_cbh: float
         Threshold value (g/kg) for cloud base height defined using q_liq.
     """
-    def __init__(self):
+    def __init__(self, q_liq_pbl_cut=None):
         self.Ni_field = {"name": None, "scaling": None}  # scale to L^-1
         self.pflux_field = {"name": None, "scaling": None}  # scale to mm/h
         self.T_field = {"name": None, "addition": None}  # scale to K
@@ -47,7 +46,10 @@ class LES():
         self.time_dim = ""  # assuming in seconds
         self.height_dim = ""  # assuming in m
         self.height_dim_2nd = ""  # assuming in m
-        self.q_liq_pbl_cut = 1e-3  # g/kg (default value of 1e-3).
+        if q_liq_pbl_cut is None:
+            self.q_liq_pbl_cut = 1e-3  # g/kg (default value of 1e-3).
+        else:
+            self.q_liq_pbl_cut = q_liq_pbl_cut
         self.q_liq_cbh = self.q_liq_pbl_cut  # Equal to the pbl cutoff value by default
 
     def _crop_time_range(self, t_harvest=None):
@@ -84,8 +86,10 @@ class LES():
             Fieldnames to crop from the LES output (required to properly run the model).
             If None, then cropping the minimum number of required fields using the model's namelist convention
             (Temperature, q_liq, RH, precipitation flux, and ice number concentration).
-        height_ind_2crop: list, str, or None
-            Indices of heights to crop from the model output (e.g., up to the PBL top).
+        height_ind_2crop: list, np.ndarray, float, int, str, or None
+            Indices of heights (in a list or np.ndarray) to crop from the model output (e.g., up to the PBL top).
+            if float then indicating then the value indicates the cropped domain-top height.
+            if int then indicating the index of the domain-top height.
             if str then different defitions for PBL:
                 - if == "ql_pbl" then cropping all values within the PBL defined here based on the
                 'q_liq_pbl_cut' attribute. If more than a single time step exist in the dataset, then cropping
@@ -109,6 +113,10 @@ class LES():
                                          self.q_liq_field["scaling"])[0]) + 1)
                 else:
                     print("Unknown croppoing method string - skipping xr dataset (LES domain) cropping.")
+            elif isinstance(height_ind_2crop, float):
+                rel_inds = np.arange(np.argmin(np.abs(height_ind_2crop - self.ds[self.height_dim])) + 1)
+            elif isinstance(height_ind_2crop, int):
+                rel_inds = np.arange(height_ind_2crop + 1)
             elif isinstance(height_ind_2crop, (list, np.ndarray)):
                 rel_inds = height_ind_2crop
             self.ds = self.ds[{self.height_dim: rel_inds}]
@@ -183,10 +191,8 @@ class LES():
         self.ds["cbh_all"].attrs['long_name'] = "All detected cloud base heights (receive a 'True' value)"
         self.ds["cbh_all"].attrs['long_name'] = "All detected cloud top heights (receive a 'True' value)"
 
-        cbh_lowest = np.where(np.logical_and(np.cumsum(self.ds["cbh_all"], axis=0) == 1,
-                                             self.ds["cbh_all"] is True))
-        cth_lowest = np.where(np.logical_and(np.cumsum(self.ds["cth_all"], axis=0) == 1,
-                                             self.ds["cth_all"] is True))
+        cbh_lowest = np.where(np.logical_and(np.cumsum(self.ds["cbh_all"], axis=0) == 1, self.ds["cbh_all"]))
+        cth_lowest = np.where(np.logical_and(np.cumsum(self.ds["cth_all"], axis=0) == 1, self.ds["cth_all"]))
         self.ds["lowest_cbh"] = xr.DataArray(np.zeros(self.ds.dims["time"]) * np.nan, dims=self.ds["time"].dims)
         self.ds["lowest_cbh"].attrs['units'] = '$m$'
         self.ds["lowest_cth"] = self.ds["lowest_cbh"].copy()
@@ -204,7 +210,7 @@ class LES():
         calculate the ∆aw field for ABIFM
         """
         self.ds["delta_aw"] = self.ds['RH'] - \
-            (np.exp(9.550426-5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) - 0.00728332 *
+            (np.exp(9.550426 - 5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) - 0.00728332 *
                     self.ds['T']) / (np.exp(54.842763 - 6763.22 / self.ds['T'] -
                                      4.210 * np.log(self.ds['T']) + 0.000367 * self.ds['T'] +
                                      np.tanh(0.0415 * (self.ds['T'] - 218.8)) *
@@ -215,7 +221,7 @@ class LES():
 
 class DHARMA(LES):
     def __init__(self, les_out_path=None, les_out_filename=None, t_harvest=None, fields_to_retain=None,
-                 height_ind_2crop=None, cbh_det_method="ql_cbh"):
+                 height_ind_2crop=None, cbh_det_method="ql_cbh", q_liq_pbl_cut=None):
         """
         LES class for DHARMA that loads model output dataset
 
@@ -239,7 +245,7 @@ class DHARMA(LES):
             concentration [cm^-3]).
         height_ind_2crop: list, str, or None
             Indices of heights to crop from the model output (e.g., up to the PBL top).
-            if str then different defitions for PBL:
+            if str then different definitions for PBL:
                 - if == "ql_pbl" then cropping all values within the PBL defined here based on the
                 'q_liq_pbl_cut' attribute. If more than a single time step exist in the dataset, then cropping
                 the highest index corresponding to the cutoff.
@@ -249,13 +255,16 @@ class DHARMA(LES):
             Method to determine cloud base with:
                 - if == "ql_cbh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
                 - OTHER OPTIONS TO BE ADDED.
+        q_liq_pbl_cutoff: float
+            value of q_liq_cut (g/kg) required to define the PBL top z-index (where LWC becomes negligible) -
+            to be used in '_crop_fields' if 'height_ind_2crop' == 'ql_pbl'.
         """
-        super().__init__()
+        super().__init__(q_liq_pbl_cut=q_liq_pbl_cut)
         self.Ni_field = {"name": "ntot_3", "scaling": 1000}  # scale to L^-1
         self.pflux_field = {"name": "pflux_3", "scaling": 1}  # scale to mm/h
         self.T_field = {"name": "T", "addition": 0}  # scale to K (addition)
         self.q_liq_field = {"name": "ql", "scaling": 1000}  # scale to g/kg
-        self.RH_field = {"name": "RH", "scaling": 1./100.}  # scale to fraction
+        self.RH_field = {"name": "RH", "scaling": 1. / 100.}  # scale to fraction
         self.model_name = "DHARMA"
         self.time_dim = "time"
         self.height_dim = "zt"
@@ -270,7 +279,7 @@ class DHARMA(LES):
         self.les_out_filename = les_out_filename
 
         # load model output
-        self.ds = xr.open_dataset(les_out_path+les_out_filename)
+        self.ds = xr.open_dataset(les_out_path + les_out_filename)
         self.ds = self.ds.transpose(*(self.height_dim, self.time_dim, self.height_dim_2nd))  # validate dim order
 
         # crop specific model output time range (if requested)

@@ -22,7 +22,7 @@ setup(
     author="Israel Silber",
     author_email="ixs34@psu.edu",
 
-    description="LES_informed 1D model for the evaluation of different ice formation mechanisms from the literature",
+    description="LES_informed 1D model for the evaluation of different ice formation mechanisms from literature",
     long_description=read("README.rst"),
     include_package_data=True,
     packages=find_packages(exclude=('tests',)),
