@@ -3,7 +3,7 @@ language: python
 env:
       global:
         # Doctr deploy key for isilber/cld_INP_1D_model
-        - secure: "uMStQ3p8aUMVXxvcoeRwbhUAbdIRM/4td/hOggiH1uCXfMZVe46d/zDsUA9oD7pM7hJs2Jfb94+rafFXW4CgozyfjxG1WUWYnOVDOdKHzHGltJq55IdsrlwIXZZrYeyMvRbzNdooCYfXVztI2Uu8KU6pCbU+ZpWk2KYFxlbidRg7Eu4OJTh7Q2wezmfsifJXPiPh4aHtxJlIgNvlW9rfuFcI2NlWUA331tnOs7glSwbEcmTc5Eeo6A+zjtGVNipjCJS8ZrrevV26lQskwUcftwLYuywUs7Ch4rKHdNeYujuNavr/M04q8O1RIbnfRpuGwCaLfufpJu0KMSluFOnEtv9BjqJyXB6VPGah0EZexj+OLCp1XYrDCwhacJHLreca1wHt9wS2rQMhZ5nxN9iRoe4lAHLnQl/o6p1YMEfij6OPWGc7wu3dsDUcpx4LkuiFZWugSuUQf8+glpJNHyIvZ7C0k/BHipM8H68XEEH4yzQgXdm2OZ0h9GGM7iLbKEo1sSGRKf8tlYG694cmMPgRvAv3P9uuwwzz/EUoA2Twaqul6ebMgGWKtfAn7TtzlZiIlkv2If4edKPZvKZ5F3q9vKRKIdkBpJNN3tLMzT1+ZIt+fDhgzPDYWK636Y72bV99/39vDt4dvt9D34+S2ZqaApWLs/+hegnEY7FrDJjTqCg="
+        - secure: "i9MvoMyaISparWO5e0kb45NIRYpaiDJayxyzTqKs1kTNAm68PA7+3vDZomG+aQaElpUF2I07IW6LWwO1sqTQ0O6s9BPaoN1m+4Ygmc5tDxLHKk6kPzFj3dHigMPse+fWGJl8Nk1LvrW/ccNR8l7weWupsb6HsQirxIY7FQCDM7HH+nnYMgMQgxYhDzq9Oj4KKSa9rWtXgSxjeUSvyh3gji5FKXQdsWNVVmO/iaiN5cVNwkOIF57OETfyS8aHB3TQZNUGrwce8wFH2037CBgWyG1GFHlDcBJTcUd/PqXjIVVPQiqzEBnQ7yfxG/yqOV02QX7ewsRjKVi4n38DhFnpK7hK6DyigM1c5zFABYS3W63fw8iCyUJjN0D/9hv46EA61Jgvj6ITS1bid/If5eNjm6HX2JdoJESLMUjrLhTL7hT2ehzrzPIfnffVTUvHzEiNhn/lSbV00kThTtjBke30jw3ymYKi4LhwjDsbVLi4TcG812i2OK/t3iFQfjwF4roLdyZxukM9ILbGHKe1MKE2phG3ZxFtmMR2pZQZcU8AuNYRgzuW12CJETq0o58k1WDvUCbMC9wYxcRD1vxUcOjbNeZ5qNN2ypA56TY8cvNwiIjxxKbavyWposnVzxI47tQ/W67d51zBjiTuoOwJIMEEhU3s6lq/FNg0XLmiD3axkqE="
 
 matrix:
     include:
@@ -22,6 +22,9 @@ install:
     - source continuous_integration/install.sh
 
 script:
+    - set -e
     - source continuous_integration/build_docs.sh
+    - pip install doctr
+    - doctr deploy --built-docs doc/build/
     - flake8 --max-line-length=115 --ignore=F401,E402,W504,W605,E731
 
