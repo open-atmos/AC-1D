@@ -7,6 +7,9 @@ env:
 
 matrix:
     include:
+    - python: 3.6
+      env:
+        - PYTHON_VERSION="3.6"
     - python: 3.7
       sudo: true
       dist: xenial
