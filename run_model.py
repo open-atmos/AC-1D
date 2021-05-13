@@ -103,7 +103,7 @@ def run_model(ci_model):
                 PSDt = "diam"  # string for PSD dim (diameter in the case of singular)
             else:
                 PSDt = "T"  # string for PSD dim (temperature in the case of singular)
-            if not np.all(not t_step_mix_mask):  # checking that some mixing takes place.
+            if np.any(t_step_mix_mask):  # checking that some mixing takes place.
                 if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
                     inp_fully_mixed = np.nanmean(n_inp_curr, axis=0)
                     inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
@@ -141,7 +141,7 @@ def run_model(ci_model):
 
         # Turbulent mixing of ice
         t_process = time()
-        if not np.all(not t_step_mix_mask):  # checking that some mixing takes place.
+        if np.any(t_step_mix_mask):  # checking that some mixing takes place.
             if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
                 ice_fully_mixed = np.nanmean(n_ice_curr, axis=0)
                 ice_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \

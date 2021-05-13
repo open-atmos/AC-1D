@@ -171,8 +171,6 @@ class INP_pop():
         # Assign INP dataset
         self.ds = xr.Dataset()
         self.ds = self.ds.assign_coords({"diam": np.ones(1) * diam})
-        self.ds["diam"].attrs["units"] = r"$\mu m$"
-        self.ds["diam"].attrs["long_name"] = "Particle diameter"
         self.ds["dn_dlogD"] = xr.DataArray(np.ones(1) * dn_dlogD, dims=self.ds["diam"].dims)
         self.ds["dn_dlogD"].attrs["units"] = "$L^{-1}$"
         self.ds["dn_dlogD"].attrs["long_name"] = "Particle number concentration per diameter bin"
@@ -190,8 +188,15 @@ class INP_pop():
                 self._init_inp_singular_array(ci_model)
             self.ds["height"].attrs["units"] = "$m$"
             self.ds["time"].attrs["units"] = "$s$"
+            self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
+            self.ds["time_h"].attrs["units"] = "$h$"
+
         else:
             print("'ci_model' object not provided - not assigning INP array")
+
+        # Set coordinate attributes
+        self.ds["diam"].attrs["units"] = r"$\mu m$"
+        self.ds["diam"].attrs["long_name"] = "Particle diameter"
 
     def _random_name(self):
         """
@@ -223,7 +228,6 @@ class INP_pop():
             height x time x temperature (singular).
         """
         self.ds = self.ds.assign_coords({"T": self.T_array})
-        self.ds["T"].attrs["units"] = "$K$"
         tmp_inp_array = np.zeros(self.ds["T"].size)
         tmp_n_inp = np.flip(self.singular_fun(self.ds["T"].values))  # start at highest temperatures
         tmp_inp_array[0] = tmp_n_inp[0]
@@ -231,6 +235,9 @@ class INP_pop():
             tmp_inp_array[ii] = tmp_n_inp[ii] - tmp_inp_array[:ii].sum()
         if self.singular_scale != 1.:
             tmp_inp_array *= self.singular_scale
+
+        self.ds["T"].attrs["units"] = "$K$"  # set coordinate attributes.
+
         self.ds["inp"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size, self.ds["T"].size)),
                                       dims=("height", "time", "T"))
         self.ds["inp"].loc[{"time": 0}] = np.tile(np.flip(tmp_inp_array), (self.ds["height"].size, 1))

@@ -6,6 +6,7 @@ import numpy as np
 from time import time
 import LES
 import INP
+import plotting
 from run_model import run_model as Run
 
 
@@ -259,8 +260,6 @@ class ci_model():
                         axis=1), (1, np.sum(extrap_locs_tail.values)))
                 self.ds[key] = xr.DataArray(key_array_tmp, dims=("height", "time"))
             self.ds[key].attrs = self.les[key].attrs
-        self.ds["height"].attrs["units"] = "$m$"
-        self.ds["time"].attrs["units"] = "$s$"
 
         # init entrainment
         self.w_e_ent = w_e_ent
@@ -344,6 +343,15 @@ class ci_model():
         self.ds["nuc_rate"].attrs["long_name"] = "Ice nucleation rate"
 
         print("Model initalization done! Total processing time = %f s" % (time() - Now))
+
+        # Set coordinate attributes
+        self.ds["height"].attrs["units"] = "$m$"
+        self.ds["time"].attrs["units"] = "$s$"
+        self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
+        self.ds["time_h"].attrs["units"] = "$h$"
+
+        # Add plotting routines
+        self.plot = plotting
 
         # Run the model
         if run_model:
