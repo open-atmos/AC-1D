@@ -594,7 +594,7 @@ def process_dim(plot_data, dim_name, dim_vals_inds, dim_treat="sum"):
         else:
             plot_data = treat_fun(plot_data.isel({dim_name: dim_vals_inds}))
 
-    # restore units 
+    # restore units
     if units != "":
         plot_data.attrs["units"] = units
 
