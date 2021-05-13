@@ -6,6 +6,8 @@ conda install numpydoc
 pip install sphinx_gallery
 pip install sphinx-copybutton
 conda install -c conda-forge nbsphinx
+pip install cloud-sptheme
+pip install insegel
 cd doc
 make clean
 make html
