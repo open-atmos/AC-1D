@@ -15,6 +15,5 @@ Welcome to LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)'s docum
 Indices and tables
 ==================
 
-* :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
