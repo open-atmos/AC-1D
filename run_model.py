@@ -13,12 +13,12 @@ def run_model(ci_model):
     far less convenient and intuitive, numpy calculations have shown to be ~5-10 times faster than xarray (after
     optimization), which becomes significant with thousands of time steps.
     Note: calculations are performed in the following order (mass is conserved):
-    1. INP activation since previous time step.
-    2. Cloud-top entrainment of INP using entrainment rate from the previous time step.
-    3. Turbulent mixing of INP using mixing depth and time scales from the previous time step (independent from
-       the next steps).
-    4. Ice sedimentation using ice fall velocity from the previous time step.
-    5. Turbulent mixing of ice using mixing depth and time scales from the previous time step.
+        1. INP activation since previous time step.
+        2. Cloud-top entrainment of INP using entrainment rate from the previous time step.
+        3. Turbulent mixing of INP using mixing depth and time scales from the previous time step (independent from
+           the next steps).
+        4. Ice sedimentation using ice fall velocity from the previous time step.
+        5. Turbulent mixing of ice using mixing depth and time scales from the previous time step.
 
     Parameters
     ----------

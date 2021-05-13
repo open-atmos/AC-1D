@@ -12,6 +12,7 @@ Assumptions
 
 Step-by-step (model operation)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 1. Profiles of temperature, RH, and cloud water mixing ratio are read in from LES output.  
 2. Model predicts evolution of Ninp(z,t) and Nice(z,t).  
 3. Precipitation rates are estimated from LES number-weighted value at cloud base.  
@@ -24,7 +25,13 @@ Requirements
 * Matplotlib (https://matplotlib.org)
 * Pandas (https://pandas.pydata.org)
 * Xarray (http://xarray.pydata.org)
-   
+
+Documentation
+-----------------
+
+For API documentation and an example Jupyter Notebook see: https://isilber.github.io/cld_INP_1D_model/.
+
+
 Authors
 -------
 

@@ -83,45 +83,49 @@ class ci_model():
             of Illite, or two Illite PSDs with different mode diameter and geometric SD combined with a Kaolinite
             population.
             Each dictionary (i.e., an 'inp_attrs' list element) must contain the keys:
-            1. n_init_max: [float] total concentration [L-1].
-            2. psd:   [dict] choose a 'type' key between several options (parentheses denote required dict key
-                             names):
-                            - "mono": fixed-size population, i.e., a single particle diameter should be provided
-                               (diam [um]).
-                            - "logn": log--normal: provide geometric mean diameter (diam_mean [um]), geometric SD
-                              (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [um]) and
-                              bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio
-                              equals m_ratio**(1/3).
-                            - "custom": custom size distribution with maunally specified bin values and PSD shape.
-                              Provide the PSD diameter array (diam) and the number concentration per bin
-                              (dn_dlogD). Optional input key includes normalization to n_init (norm_to_n_init_max)
-                              that normalizes dn_dlogD such that such sum(dn_dlogD) = n_init_max.
-                            - "default": (parameters not required) using a log-normal PSD with mean diameter
-                              of 1 um, geometric SD of 2.5, 35 PSD bins with minimum diameter of 0.01 um and mass
-                              ratio of 2, resulting in max diameter of ~26 um.
+
+                1. n_init_max: [float] total concentration [L-1].
+
+                2. psd: [dict] choose a 'type' key between several options (parentheses denote required dict key
+                names):
+                    - "mono": fixed-size population, i.e., a single particle diameter should be provided
+                      (diam [um]).
+                    - "logn": log--normal: provide geometric mean diameter (diam_mean [um]), geometric SD
+                      (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [um]) and
+                      bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio
+                      equals m_ratio**(1/3).
+                    - "custom": custom size distribution with maunally specified bin values and PSD shape.
+                      Provide the PSD diameter array (diam) and the number concentration per bin
+                      (dn_dlogD). Optional input key includes normalization to n_init (norm_to_n_init_max)
+                      that normalizes dn_dlogD such that such sum(dn_dlogD) = n_init_max.
+                    - "default": (parameters not required) using a log-normal PSD with mean diameter
+                      of 1 um, geometric SD of 2.5, 35 PSD bins with minimum diameter of 0.01 um and mass
+                      ratio of 2, resulting in max diameter of ~26 um.
             optional keys:
-            1. name: [str] population name (or tag). A default string using nucleus type is used if not provided.
-            2. nucleus_type: [str; --ABIFM--]  name of substance (e.g., Al2O3) - to initialize Jhet (must be
-               specified for ABIFM).
-            3. diam_cutoff: [float; --singular--] minimum particle diameter to consider (--singular--). Using a
-               value of 0 (all diameters are considered) if not specified.
-            4. T_array: [list or np.ndarray; --singular--] discrete temperature array. If not specified, using
-               temperatures between -40 and 0 with delta_T = 0.1 C.
-            5. singular_fun: [lambda function; --singular--] INP parametrization (typically as a function of T).
-                    Uses DeMott et al., 2010 if None.
-            6. singular_scale: [float; --singular--] Scale factor for 'singular_fun' (1 by default).
-            7. n_init_weight_prof: [dict; --ABIFM--] a dict with keys "height" and "weight". Each key contains a
-               list or np.ndarray of length s (s > 1) determining PSD heights [m] and weighting profiles. Weights
-               are applied on n_init such that n_init(z) = n_init_max * weighting_factor(z), i.e., a
-               weighted_inp_prof filled with ones means that n_init(z) = n_init_max.
-               All weighting values greater (smaller) than 1 (0) are set to 1 (0). heights are interpolated
-               between the specified heights, and the edge values are used for extrapolation (can be used to set
-               different INP source layers at model initialization, and combined with turbulence weighting,
-               allows the emulation of cloud-driven mixing.
+                1. name: [str] population name (or tag). A default string using nucleus type is used if not
+                provided.
+                2. nucleus_type: [str; --ABIFM--]  name of substance (e.g., Al2O3) - to initialize Jhet (must be
+                specified for ABIFM).
+                3. diam_cutoff: [float; --singular--] minimum particle diameter to consider (--singular--). Using
+                a value of 0 (all diameters are considered) if not specified.
+                4. T_array: [list or np.ndarray; --singular--] discrete temperature array. If not specified, using
+                temperatures between -40 and 0 with delta_T = 0.1 C.
+                5. singular_fun: [lambda function; --singular--] INP parametrization (typically as a function of
+                T).
+                Uses DeMott et al., 2010 if None.
+                6. singular_scale: [float; --singular--] Scale factor for 'singular_fun' (1 by default).
+                7. n_init_weight_prof: [dict; --ABIFM--] a dict with keys "height" and "weight". Each key contains
+                a list or np.ndarray of length s (s > 1) determining PSD heights [m] and weighting profiles.
+                Weights are applied on n_init such that n_init(z) = n_init_max * weighting_factor(z), i.e., a
+                weighted_inp_prof filled with ones means that n_init(z) = n_init_max.
+                All weighting values greater (smaller) than 1 (0) are set to 1 (0). heights are interpolated
+                between the specified heights, and the edge values are used for extrapolation (can be used to set
+                different INP source layers at model initialization, and combined with turbulence weighting,
+                allows the emulation of cloud-driven mixing.
         run_model: bool
             True - run model once initialization is done.
 
-        LES-related parameters
+        Other Parameters
         ----------------------
         les_out_path: str or None
             LES output path (can be relative to running directory). Use default if None.

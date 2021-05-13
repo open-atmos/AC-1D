@@ -246,9 +246,9 @@ class DHARMA(LES):
         height_ind_2crop: list, str, or None
             Indices of heights to crop from the model output (e.g., up to the PBL top).
             if str then different definitions for PBL:
-                - if == "ql_pbl" then cropping all values within the PBL defined here based on the
-                'q_liq_pbl_cut' attribute. If more than a single time step exist in the dataset, then cropping
-                the highest index corresponding to the cutoff.
+                - if == "ql_pbl" then cropping all values within the PBL defined here based on the 'q_liq_pbl_cut'
+                  attribute. If more than a single time step exist in the dataset, then cropping
+                  the highest index corresponding to the cutoff.
                 - OTHER OPTIONS TO BE ADDED.
             If None then not cropping.
         cbh_det_method: str
