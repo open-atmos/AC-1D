@@ -7,7 +7,7 @@ Welcome to LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)'s docum
 =========================================================================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    Example.ipynb

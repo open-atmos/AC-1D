@@ -1,0 +1,259 @@
+
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>LES module &#8212; LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/cloud.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-rendered-html.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noticia+Text:400,i,b,bi|Open+Sans:400,i,b,bi|Roboto+Mono:400,i,b,bi&amp;display=swap" type="text/css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    
+    
+     
+        <script src="../_static/jquery.cookie.js"></script>
+    
+
+    
+     
+        <script src="../_static/cloud.base.js"></script>
+    
+
+    
+     
+        <script src="../_static/cloud.js"></script>
+    
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head><body>
+    <div class="relbar-top">
+        
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../index.html">LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</a> &#187;</li>
+
+        <li class="nav-item nav-item-this"><a href="">LES module</a></li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS overrides for cloud theme */
+
+/* nicer titles and more space for info and warning logos */
+
+div.admonition p.admonition-title {
+    background: rgba(0, 0, 0, .05);
+    margin: .5em -1em;
+    margin-top: -.5em !important;
+    padding: .5em .5em .5em 2.65em;
+}
+
+/* indent single paragraph */
+div.admonition {
+    text-indent: 20px;
+}
+/* don't indent multiple paragraphs */
+div.admonition > p {
+    text-indent: 0;
+}
+/* remove excessive padding */
+div.admonition.inline-title p.admonition-title {
+    padding-left: .2em;
+}
+</style>
+<section id="module-LES">
+<span id="les-module"></span><h1>LES module<a class="headerlink" href="#module-LES" title="Permalink to this headline">¶</a></h1>
+<p>This module includes the LES class and the DHARMA sub-class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="LES.DHARMA">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">LES.</span></span><span class="sig-name descname"><span class="pre">DHARMA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">les_out_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_out_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_harvest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields_to_retain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_ind_2crop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbh_det_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ql_cbh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_liq_pbl_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LES.html#DHARMA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#LES.DHARMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#LES.LES" title="LES.LES"><code class="xref py py-class docutils literal notranslate"><span class="pre">LES.LES</span></code></a></p>
+<p>LES class for DHARMA that loads model output dataset</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>les_out_path: str or None</strong></dt><dd><p>LES output path (can be relative to running directory). Use default if None.</p>
+</dd>
+<dt><strong>les_out_filename: str or None</strong></dt><dd><p>LES output filename. Use default file if None.</p>
+</dd>
+<dt><strong>t_harvest: scalar, 2-element tuple, list (or ndarray), or None</strong></dt><dd><p>If scalar then using the nearest time (assuming units of seconds) to initialize the model
+(single profile).
+If a tuple, cropping the range defined by the first two elements (increasing values) using a
+slice object.
+If a list, cropping the times specified in the list (can be used take LES output profiles every
+delta_t seconds.</p>
+</dd>
+<dt><strong>fields_to_retain: list or None</strong></dt><dd><p>Fieldnames to crop from the LES output (required to properly run the model).
+If None, then cropping the minimum number of required fields using DHARMA’s namelist convention
+(Temperature [K], q_liq [kg/kg], RH [fraction], precipitation flux [mm/h], and ice number
+concentration [cm^-3]).</p>
+</dd>
+<dt><strong>height_ind_2crop: list, str, or None</strong></dt><dd><p>Indices of heights to crop from the model output (e.g., up to the PBL top).
+if str then different definitions for PBL:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>if == “ql_pbl” then cropping all values within the PBL defined here based on the ‘q_liq_pbl_cut’
+attribute. If more than a single time step exist in the dataset, then cropping
+the highest index corresponding to the cutoff.</p></li>
+<li><p>OTHER OPTIONS TO BE ADDED.</p></li>
+</ul>
+</div></blockquote>
+<p>If None then not cropping.</p>
+</dd>
+<dt><strong>cbh_det_method: str</strong></dt><dd><dl class="simple">
+<dt>Method to determine cloud base with:</dt><dd><ul class="simple">
+<li><p>if == “ql_cbh” then cbh is determined by a q_liq threshold set with the ‘q_liq_cbh’ attribute.</p></li>
+<li><p>OTHER OPTIONS TO BE ADDED.</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt><strong>q_liq_pbl_cutoff: float</strong></dt><dd><p>value of q_liq_cut (g/kg) required to define the PBL top z-index (where LWC becomes negligible) -
+to be used in ‘_crop_fields’ if ‘height_ind_2crop’ == ‘ql_pbl’.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="LES.LES">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">LES.</span></span><span class="sig-name descname"><span class="pre">LES</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_liq_pbl_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LES.html#LES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#LES.LES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Model namelists and unit conversion coefficient required for the 1D model.
+The LES class includes methods to processes model output and prepare the out fields for the 1D model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>Ni_field: dict</strong></dt><dd><p>Ice number concentration fieldname and scaling factor required for L^-1 units</p>
+</dd>
+<dt><strong>pflux_field: dict</strong></dt><dd><p>Precipitation flux fieldname and scaling factor for mm/h.</p>
+</dd>
+<dt><strong>T_field: dict</strong></dt><dd><p>Temperature field name and addition factor in case of T reported in C (K is needed).</p>
+</dd>
+<dt><strong>q_liq_field: dict</strong></dt><dd><p>Liquid mixing ratio fieldname and scaling factor for g/kg.</p>
+</dd>
+<dt><strong>RH_field: dict</strong></dt><dd><p>RH fieldname and scaling factor for fraction units (not %).</p>
+</dd>
+<dt><strong>model_name: str</strong></dt><dd><p>name of model.</p>
+</dd>
+<dt><strong>time_dim: str</strong></dt><dd><p>name of the time dimension.</p>
+</dd>
+<dt><strong>height_dim: str</strong></dt><dd><p>name of the height dim.</p>
+</dd>
+<dt><strong>height_dim_2nd: str</strong></dt><dd><p>name of the height dim for grid cell edge coordinates.</p>
+</dd>
+<dt><strong>q_liq_pbl_cut: float</strong></dt><dd><p>value of q_liq cut (g/kg) required to define the PBL top z-index (where LWC becomes negligible) -
+to be used in ‘_crop_fields’ if ‘height_ind_2crop’ == ‘ql_pbl’.</p>
+</dd>
+<dt><strong>q_liq_cbh: float</strong></dt><dd><p>Threshold value (g/kg) for cloud base height defined using q_liq.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/API/LES.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+    
+    
+        <div class="sidebar-toggle-group no-js">
+            
+            <button class="sidebar-toggle" id="sidebar-hide" title="Hide the sidebar menu">
+                 «
+                <span class="show-for-small">hide menu</span>
+                
+            </button>
+            <button class="sidebar-toggle" id="sidebar-show" title="Show the sidebar menu">
+                
+                <span class="show-for-small">menu</span>
+                <span class="hide-for-small">sidebar</span>
+                 »
+            </button>
+        </div>
+    
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../index.html">LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</a> &#187;</li>
+
+        <li class="nav-item nav-item-this"><a href="">LES module</a></li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Israel Silber, Ann Fridlind.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>
