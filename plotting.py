@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
+
 def generate_figure(subplot_shape=(1,), figsize=(15, 10), **kwargs):
     """
     Generate a figure window - effectively the same as calling the 'plt.subplots' method, only with
@@ -22,10 +23,10 @@ def generate_figure(subplot_shape=(1,), figsize=(15, 10), **kwargs):
     -------
     fig: Matplotlib figure handle
     ax: Matplotlib axes handle
-                    
     """
     fig, ax = plt.subplots(*subplot_shape, figsize=figsize, **kwargs)
     return fig, ax
+
 
 def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", inp_z=None, dim_treat="sum",
             cmap="cubehelix", vmin="auto", vmax="auto", ax=None, colorbar=True, cbar_label=None,
@@ -69,9 +70,11 @@ def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
     cbar_label: str
         colorbar lable. Using the field name if None
     xscale: str or None
-        "linear" or "log" scale for x-axis. If None, using "linear" for "time", "height", or "T" (singular) and "log" for "diam" (ABIFM).
+        "linear" or "log" scale for x-axis. If None, using "linear" for "time", "height", or "T" (singular)
+        and "log" for "diam" (ABIFM).
     yscale: str or None
-        "linear" or "log" scale for y-axis. If None, using "linear" for "time", "height", or "T" (singular) and "log" for "diam" (ABIFM).
+        "linear" or "log" scale for y-axis. If None, using "linear" for "time", "height", or "T" (singular)
+        and "log" for "diam" (ABIFM).
     log_plot: bool
         scale for the c-axis (color-scale). Choose between linear (False) or log-scale (True).
     title: str or None
@@ -113,10 +116,9 @@ def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         if field_to_plot == "Jhet":
             plot_data = ci_model.inp[which_inp].ds[field_to_plot].copy()
             xf, yf = ci_model.ds[x], ci_model.ds[y]
-        else: 
+        else:
             plot_data = ci_model.inp[which_inp].ds["inp"].copy()  # plot INP field
             xf, yf = ci_model.inp[which_inp].ds[x], ci_model.inp[which_inp].ds[y]
-            plot_units = plot_data.attrs["units"]
             if ci_model.use_ABIFM:
                 possible_fields = {"height", "time", "diam"}
             else:
@@ -140,15 +142,19 @@ def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
     if vmax == "auto":
         vmax = np.percentile(plot_data, 99)
 
-    if xlabel is None: xlabel = "%s [%s]" % (x, plot_data[x].attrs["units"])
-    if ylabel is None: ylabel = "%s [%s]" % (y, plot_data[y].attrs["units"])
+    if xlabel is None:
+        xlabel = "%s [%s]" % (x, plot_data[x].attrs["units"])
+    if ylabel is None:
+        ylabel = "%s [%s]" % (y, plot_data[y].attrs["units"])
 
-    if np.logical_and(xscale is None, x == "diam"): xscale = "log"
-    if np.logical_and(yscale is None, y == "diam"): yscale = "log"
+    if np.logical_and(xscale is None, x == "diam"):
+        xscale = "log"
+    if np.logical_and(yscale is None, y == "diam"):
+        yscale = "log"
 
     if log_plot is True:
         mesh = ax.pcolormesh(xf, yf, plot_data, norm=colors.LogNorm(vmin=vmin, vmax=vmax),
-                                          cmap=cmap, **kwargs)
+                             cmap=cmap, **kwargs)
     else:
         mesh = ax.pcolormesh(xf, yf, plot_data, cmap=cmap,
                              vmin=vmin, vmax=vmax, **kwargs)
@@ -209,12 +215,14 @@ def tseries(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         6. list or np.darray of ints to define a specific indices.
         7. None to take the full coordinate range.
     Height_dim_treat: str
-        How to treat the height dimension. Use "mean", "sum", "sd", None for mean, sum, standard deviation, non-treatment (keep dim),
+        How to treat the height dimension. Use "mean", "sum", "sd", None for mean, sum, standard deviation,
+        non-treatment (keep dim),
         respectively.
     ax: matplotlib axis handle
         axes to plot on. If None, then creating a new figure.
     yscale: str or None
-        "linear" or "log" scale for y-axis. If None, using "linear" for "time", "height", or "T" (singular) and "log" for "diam" (ABIFM).
+        "linear" or "log" scale for y-axis. If None, using "linear" for "time", "height", or "T" (singular)
+        and "log" for "diam" (ABIFM).
     title: str or None
         panel (subplot) title if str
     grid: bool
@@ -257,7 +265,6 @@ def tseries(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
             label = "%s %s" % (which_inp, "Jhet")
         else:
             plot_data = ci_model.inp[which_inp].ds["inp"].copy()  # plot INP field
-            plot_units = plot_data.attrs["units"]
             label = "%s %s" % (which_inp, "INP")
             if ci_model.use_ABIFM:
                 inp_dim = "diam"
@@ -272,8 +279,10 @@ def tseries(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
     if plot_data.ndim == 2:
         plot_data = process_dim(plot_data, "height", Height, Height_dim_treat)
 
-    if xlabel is None: xlabel = "%s [%s]" % ("time", plot_data["time"].attrs["units"])
-    if ylabel is None: ylabel = "%s [%s]" % (label, plot_data.attrs["units"])
+    if xlabel is None:
+        xlabel = "%s [%s]" % ("time", plot_data["time"].attrs["units"])
+    if ylabel is None:
+        ylabel = "%s [%s]" % (label, plot_data.attrs["units"])
 
     if plot_data.ndim == 3:
         raise RuntimeError("processed INP field still had 3 dimensions. Consider reducing by selecting \
@@ -283,7 +292,7 @@ def tseries(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         for ii in range(plot_data[dim_2nd].size):
             if "units" in plot_data[dim_2nd].attrs:
                 label_p = label + " (%s = %.1f %s)" % (dim_2nd, plot_data[dim_2nd][ii],
-                                                      plot_data[dim_2nd].attrs["units"])
+                                                       plot_data[dim_2nd].attrs["units"])
             else:
                 label_p = label + " (%s = %.1f)" % (dim_2nd, plot_data[dim_2nd][ii])
             ax.plot(plot_data["time"], plot_data.isel({dim_2nd: ii}), label=label_p, **kwargs)
@@ -293,12 +302,13 @@ def tseries(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         ax.plot(plot_data["time"], plot_data, label=label, **kwargs)
 
     ax = fine_tuning(ax, title, None, yscale, grid, xlabel, ylabel, tight_layout, font_size, xtick, xticklabel,
-                ytick, yticklabel)
+                     ytick, yticklabel)
 
     if legend is True:
         ax.legend()
 
     return ax
+
 
 def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", inp_z=None, dim_treat="sum",
             Time=None, Time_dim_treat="mean", ax=None,
@@ -340,12 +350,14 @@ def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         6. list or np.darray of ints to define a specific indices.
         7. None to take the full coordinate range.
     Time_dim_treat: str
-        How to treat the time dimension. Use "mean", "sum", "sd", None for mean, sum, standard deviation, non-treatment (keep dim), 
+        How to treat the time dimension. Use "mean", "sum", "sd", None for mean, sum, standard deviation,
+        non-treatment (keep dim),
         respectively.
     ax: matplotlib axis handle
         axes to plot on. If None, then creating a new figure.
     xscale: str or None
-        "linear" or "log" scale for x-axis. If None, using "linear" for "time", "height", or "T" (singular) and "log" for "diam" (ABIFM).
+        "linear" or "log" scale for x-axis. If None, using "linear" for "time", "height", or "T" (singular)
+        and "log" for "diam" (ABIFM).
     title: str or None
         panel (subplot) title if str
     grid: bool
@@ -388,7 +400,6 @@ def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
             label = "%s %s" % (which_inp, "Jhet")
         else:
             plot_data = ci_model.inp[which_inp].ds["inp"].copy()  # plot INP field
-            plot_units = plot_data.attrs["units"]
             label = "%s %s" % (which_inp, "INP")
             if ci_model.use_ABIFM:
                 inp_dim = "diam"
@@ -403,8 +414,10 @@ def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
     if plot_data.ndim == 2:
         plot_data = process_dim(plot_data, "time", Time, Time_dim_treat)
 
-    if ylabel is None: ylabel = "%s [%s]" % ("height", plot_data["height"].attrs["units"])
-    if xlabel is None: xlabel = "%s [%s]" % (label, plot_data.attrs["units"])
+    if ylabel is None:
+        ylabel = "%s [%s]" % ("height", plot_data["height"].attrs["units"])
+    if xlabel is None:
+        xlabel = "%s [%s]" % (label, plot_data.attrs["units"])
 
     if plot_data.ndim == 3:
         raise RuntimeError("processed INP field still had 3 dimensions. Consider reducing by selecting \
@@ -414,7 +427,7 @@ def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         for ii in range(plot_data[dim_2nd].size):
             if "units" in plot_data[dim_2nd].attrs:
                 label_p = label + " (%s = %.1f %s)" % (dim_2nd, plot_data[dim_2nd][ii],
-                                                      plot_data[dim_2nd].attrs["units"])
+                                                       plot_data[dim_2nd].attrs["units"])
             else:
                 label_p = label + " (%s = %.1f)" % (dim_2nd, plot_data[dim_2nd][ii])
             ax.plot(plot_data.isel({dim_2nd: ii}), plot_data["height"], label=label_p, **kwargs)
@@ -424,12 +437,13 @@ def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         ax.plot(plot_data, plot_data["height"], label=label, **kwargs)
 
     ax = fine_tuning(ax, title, xscale, None, grid, xlabel, ylabel, tight_layout, font_size, xtick, xticklabel,
-                ytick, yticklabel)
+                     ytick, yticklabel)
 
     if legend is True:
         ax.legend()
 
     return ax
+
 
 def fine_tuning(ax, title=None, xscale=None, yscale=None, grid=False, xlabel=None, ylabel=None,
                 tight_layout=True, font_size=None, xtick=None, xticklabel=None, ytick=None,
@@ -444,9 +458,11 @@ def fine_tuning(ax, title=None, xscale=None, yscale=None, grid=False, xlabel=Non
     title: str or None
         panel (subplot) title if str
     xscale: str or None
-        "linear" or "log" scale for x-axis. If None, using "linear" for "time", "height", or "T" (singular) and "log" for "diam" (ABIFM).
+        "linear" or "log" scale for x-axis. If None, using "linear" for "time", "height", or "T" (singular)
+        and "log" for "diam" (ABIFM).
     yscale: str or None
-        "linear" or "log" scale for y-axis. If None, using "linear" for "time", "height", or "T" (singular) and "log" for "diam" (ABIFM).
+        "linear" or "log" scale for y-axis. If None, using "linear" for "time", "height", or "T" (singular)
+        and "log" for "diam" (ABIFM).
     log_plot: bool
         scale for the c-axis (color-scale). Choose between linear (False) or log-scale (True).
     grid: bool
@@ -476,7 +492,7 @@ def fine_tuning(ax, title=None, xscale=None, yscale=None, grid=False, xlabel=Non
     if title is not None:
         ax.set_title(title)
 
-    if  xlabel is not None:
+    if xlabel is not None:
         ax.set_xlabel(xlabel)
     if ylabel is not None:
         ax.set_ylabel(ylabel)
@@ -510,9 +526,10 @@ def fine_tuning(ax, title=None, xscale=None, yscale=None, grid=False, xlabel=Non
         ax.set_ylim(ylim)
 
     if tight_layout:
-                plt.tight_layout()
+        plt.tight_layout()
 
     return ax
+
 
 def process_dim(plot_data, dim_name, dim_vals_inds, dim_treat="sum"):
     """
@@ -577,9 +594,8 @@ def process_dim(plot_data, dim_name, dim_vals_inds, dim_treat="sum"):
         else:
             plot_data = treat_fun(plot_data.isel({dim_name: dim_vals_inds}))
 
-    # restore units    
+    # restore units 
     if units != "":
         plot_data.attrs["units"] = units
 
     return plot_data
-
