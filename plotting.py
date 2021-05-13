@@ -180,7 +180,7 @@ def tseries(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
             Height=None, Height_dim_treat="mean", ax=None,
             yscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
             font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
-            **kwargs):
+            xlim=None, ylim=None, **kwargs):
     """
     Generates INP or other model output field's time series
 
@@ -302,7 +302,7 @@ def tseries(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         ax.plot(plot_data["time"], plot_data, label=label, **kwargs)
 
     ax = fine_tuning(ax, title, None, yscale, grid, xlabel, ylabel, tight_layout, font_size, xtick, xticklabel,
-                     ytick, yticklabel)
+                     ytick, yticklabel, xlim, ylim)
 
     if legend is True:
         ax.legend()
@@ -314,7 +314,7 @@ def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
             Time=None, Time_dim_treat="mean", ax=None,
             xscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
             font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
-            **kwargs):
+            xlim=None, ylim=None, **kwargs):
 
     """
     Generates INP or other model output field's profile
@@ -437,7 +437,7 @@ def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         ax.plot(plot_data, plot_data["height"], label=label, **kwargs)
 
     ax = fine_tuning(ax, title, xscale, None, grid, xlabel, ylabel, tight_layout, font_size, xtick, xticklabel,
-                     ytick, yticklabel)
+                     ytick, yticklabel, xlim, ylim)
 
     if legend is True:
         ax.legend()
