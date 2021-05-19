@@ -106,19 +106,20 @@ class ci_model():
                 provided.
                 2. nucleus_type: [str; --ABIFM--]  name of substance (e.g., Al2O3) - to initialize Jhet (must be
                 specified for ABIFM).
-                3. diam_cutoff: [float; --singular--] minimum particle diameter to consider (--singular--). Using
-                a value of 0 (all diameters are considered) if not specified.
+                3. diam_cutoff: [float or tuple; --singular--] minimum particle diameter to consider (--singular--).
+                Using a value of 0.5 as in D2010 if not specified. Use a 2-element tuple to specify a range of
+                diameters to consider.
                 4. T_array: [list or np.ndarray; --singular--] discrete temperature array. If not specified, using
                 temperatures between -40 and 0 with delta_T = 0.1 C.
                 5. singular_fun: [lambda function; --singular--] INP parametrization (typically as a function of
                 T).
                 Uses DeMott et al., 2010 if None.
                 6. singular_scale: [float; --singular--] Scale factor for 'singular_fun' (1 by default).
-                7. n_init_weight_prof: [dict; --ABIFM--] a dict with keys "height" and "weight". Each key contains
+                7. n_init_weight_prof: [dict] a dict with keys "height" and "weight". Each key contains
                 a list or np.ndarray of length s (s > 1) determining PSD heights [m] and weighting profiles.
                 Weights are applied on n_init such that n_init(z) = n_init_max * weighting_factor(z), i.e., a
                 weighted_inp_prof filled with ones means that n_init(z) = n_init_max.
-                All weighting values greater (smaller) than 1 (0) are set to 1 (0). heights are interpolated
+                if weights > 1 are specified, the profile is normalized to max value == 1. heights are interpolated
                 between the specified heights, and the edge values are used for extrapolation (can be used to set
                 different INP source layers at model initialization, and combined with turbulence weighting,
                 allows the emulation of cloud-driven mixing.

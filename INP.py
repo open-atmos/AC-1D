@@ -79,14 +79,20 @@ class INP_pop():
             type of nucleus required for Jhet calculation (--ABIFM--)
         Jhet: Jhet class object
             To use with ABIFM (--ABIFM--)
-        diam_cutff: float
-            Minimum particle diameter to consider (0 by default, i.e., consider all sizes) (--singular--).
-            (CURRENTLY NOT IN USE).
+        diam_cutff: float or tuple
+            If float, minimum particle diameter to consider (0.5 by default, i.e., consider all sizes).
+            If tuple, then lower and upper diameter limits (--singular--).
         T_array: list or ndarray
             discrete temperature [K] array for INP parametrization (--singular--).
-        singular_fun: lambda function
-            INP parametrization (typically as a function of T (--singular--).
-            Use DeMott et al., 2010 if None.
+        singular_fun: str or lambda function
+            If str, then use "D2010" to use eq. 1 in DeMott et al., 2010, "D2015" to use eq. 2 in DeMott et al.,
+            2015, or "D2010fit" to use the temperature dependence fit from fig. 2 caption in DeMott et al., 2010.
+            The D2015 has default values of the five coefficients from eq. 2 (cf - calibration correction factor,
+            alpha, beta, gamma, delta); these might be coded as optional input parameters for INP the class in
+            the future.
+            Note that "D2010fit" does not consider aerosol PSDs.
+            Use a lambda function for INP parametrization typically as a function of T (--singular--).
+            Use "D2010" (default) if None.
         singular_scale: float
             Scale factor for 'singular_fun' (1 by default) (--singular--).
         n_init_max: float
@@ -106,10 +112,11 @@ class INP_pop():
                determining PSD heights [m] and weighting profiles. Weights are applied on n_init such that
                n_init(z) = n_init_max * weighting_factor(z), i.e., a weighted_inp_prof filled with ones means
                that n_init(z) = n_init_max.
-               All weighting values greater (smaller) than 1 (0) are set to 1 (0). heights are interpolated
+               Weights are generally expected to have values between 0 and 1. If at least one weight value > 1,
+               then the profile is normalized such that the maximum value equals 1. heights are interpolated
                between the specified heights, and the edge values are used for extrapolation (can be used to set
                different INP source layers at model initialization, and combined with turbulence weighting,
-               allows the emulation of cloud-driven mixing. (--ABIFM--)
+               allows the emulation of cloud-driven mixing.
         ci_model: ci_model class
             Containing variables such as the requested domain size, LES time averaging option
             (ci_model.t_averaged_les), custom or LES grid information (ci_model.custom_vert_grid),
@@ -130,11 +137,10 @@ class INP_pop():
                 self.scheme = "ABIFM"
                 self.nucleus_type = nucleus_type
                 self.Jhet = Jhet(nucleus_type=nucleus_type)
-                self.n_init_weight_prof = n_init_weight_prof
             else:
                 self.scheme = "singular"
                 if diam_cutoff is None:
-                    self.diam_cutoff = 0.
+                    self.diam_cutoff = 0.5
                 else:
                     self.diam_cutoff = diam_cutoff
                 if T_array is None:
@@ -142,15 +148,15 @@ class INP_pop():
                 else:
                     self.T_array = T_array
                 if singular_fun is None:
-                    self.singular_fun = lambda Tk: 0.117 * np.exp(-0.125 * (Tk - 273.2))  # DeMott et al. (2010)
-                else:
-                    self.singular_fun = singular_fun
+                    singular_fun = "D2010"  # set by default to DeMott et al. (2010)
+                self._set_inp_conc_fun(singular_fun)
                 if singular_scale is None:
                     self.singular_scale = 1.
                 else:
                     self.singular_scale = singular_scale
         else:
             self.scheme = None
+        self.n_init_weight_prof = n_init_weight_prof
         self.n_init_max = n_init_max
         if isinstance(diam, (float, int)):
             self.diam = [diam]
@@ -185,7 +191,7 @@ class INP_pop():
                 if n_init_weight_prof is not None:
                     self._weight_inp_prof()
             elif use_ABIFM is False:
-                self._init_inp_singular_array(ci_model)
+                self._init_inp_singular_array()
             self.ds["height"].attrs["units"] = "$m$"
             self.ds["time"].attrs["units"] = "$s$"
             self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
@@ -213,7 +219,39 @@ class INP_pop():
         self.ds["surf_area"].attrs["units"] = "$cm^2$"
         self.ds["surf_area"].attrs["long_name"] = "Surface area per particle diameter"
 
-    def _init_inp_singular_array(self, ci_model):
+    def _set_inp_conc_fun(self, singular_fun):
+        """
+        Set the INP initialization function for the singular approach.
+        Parameters
+        ---------
+        singular_fun: str or lambda function
+            If str, then use "D2010" to use eq. 1 in DeMott et al., 2010, "D2015" to use eq. 2 in DeMott et al.,
+            2015, or "D2010fit" to use the temperature dependence fit from fig. 2 caption in DeMott et al., 2010.
+            The D2015 has default values of the five coefficients from eq. 2 (cf - calibration correction factor,
+            alpha, beta, gamma, delta); these might be coded as optional input parameters for INP the class in
+            the future.
+            Note that "D2010fit" does not consider aerosol PSDs.
+            Use a lambda function for INP parametrization typically as a function of T (--singular--).
+        """
+        if isinstance(singular_fun, str):
+            if singular_fun == "D2010":
+                self.singular_fun = lambda Tk, n_aer05: 0.0000594 * (273.16 - Tk) ** 3.33 * n_aer05 ** \
+                    (0.0264 * (273.16 - Tk) + 0.0033)  # DeMott et al. (2010)
+            elif singular_fun == "D2015":
+                self.singular_fun = \
+                    lambda Tk, n_aer05, cf=3., alpha=0., beta=1.25, gamma=0.46, delta=-11.6: \
+                    cf * n_aer05 ** (alpha * (273.16 - Tk) + beta) * \
+                    np.exp(gamma * (273.16 - Tk) + delta)  # DeMott et al. (2015)
+            elif singular_fun == "D2010fit":
+                self.singular_fun = \
+                    lambda Tk: 0.117 * np.exp(-0.125 * (Tk - 273.2))  # DeMott et al. (2010) fig. 2 fit
+            else:
+                raise NameError("The singular treatment %s is not implemented in the model. Check the \
+                                input string." % singular_fun)
+        else:  # assuming lambda function
+            self.singular_fun = singular_fun
+
+    def _init_inp_singular_array(self):
         """
         initialize the INP array for singular (height x time x temperature).
         Parameters
@@ -228,11 +266,26 @@ class INP_pop():
             height x time x temperature (singular).
         """
         self.ds = self.ds.assign_coords({"T": self.T_array})
-        tmp_inp_array = np.zeros(self.ds["T"].size)
-        tmp_n_inp = np.flip(self.singular_fun(self.ds["T"].values))  # start at highest temperatures
-        tmp_inp_array[0] = tmp_n_inp[0]
+        tmp_inp_array = np.zeros((self.ds["height"].size, self.ds["T"].size))
+        if self.singular_fun.__code__.co_argcount > 1:  # assume 2nd argument is aerosol conc. above cutoff
+            if isinstance(self.diam_cutoff, float):
+                n_a_tot = np.sum(self.ds["dn_dlogD"].sel({"diam": slice(self.diam_cutoff, None)}).values)
+            else:  # assuming 2-element tuple
+                n_a_tot = np.sum(self.ds["dn_dlogD"].sel({"diam": slice(self.diam_cutoff[0],
+                                                                        self.diam_cutoff[1])}).values)
+            if self.n_init_weight_prof is None:
+                n_a_tot = np.ones((self.ds["height"].size, self.ds["T"].size)) * n_a_tot
+            else:
+                n_a_tot = np.tile(np.expand_dims(self._weight_inp_prof(False), axis=1),
+                                  (1, self.ds["T"].size)) * n_a_tot
+            tmp_n_inp = np.flip(self.singular_fun(np.tile(np.expand_dims(self.ds["T"].values, axis=0),
+                                (self.ds["height"].size, 1)), n_a_tot), axis=1)  # start at highest temperatures
+        else:  # single input (temperature)
+            tmp_n_inp = np.tile(np.expand_dims(np.flip(self.singular_fun(self.ds["T"].values)), axis=0),
+                                (self.ds["height"].size, 1))  # start at highest temperatures
+        tmp_inp_array[:, 0] = tmp_n_inp[:, 0]
         for ii in range(1, self.ds["T"].size):
-            tmp_inp_array[ii] = tmp_n_inp[ii] - tmp_inp_array[:ii].sum()
+            tmp_inp_array[:, ii] = tmp_n_inp[:, ii] - tmp_inp_array[:, :ii].sum(axis=1)
         if self.singular_scale != 1.:
             tmp_inp_array *= self.singular_scale
 
@@ -240,7 +293,7 @@ class INP_pop():
 
         self.ds["inp"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size, self.ds["T"].size)),
                                       dims=("height", "time", "T"))
-        self.ds["inp"].loc[{"time": 0}] = np.tile(np.flip(tmp_inp_array), (self.ds["height"].size, 1))
+        self.ds["inp"].loc[{"time": 0}] = np.flip(tmp_inp_array, axis=1)
         self.ds["inp"].attrs["units"] = "$L^{-1}$"
         self.ds["inp"].attrs["long_name"] = "INP concentration per temperature bin"
 
@@ -264,21 +317,39 @@ class INP_pop():
         self.ds["inp"].attrs["units"] = "$L^{-1}$"
         self.ds["inp"].attrs["long_name"] = "INP concentration per diameter bin"
 
-    def _weight_inp_prof(self):
+    def _weight_inp_prof(self, use_ABIFM=True):
         """
-        apply weights on initial INP profile (weighting on n_init_max).
+        apply weights on initial INP profile (weighting on n_init_max). If using singular then returning the
+        weights profile
+        Parameters
+        ---------
+        use_ABIFM: bool
+            True - use ABIFM, False - use singular.
+
+        Returns
+        -------
+        weight_prof_interp: np.ndarray (--singular--)
+            weight profile with height coordinates
         """
         if not np.all([x in self.n_init_weight_prof.keys() for x in ["height", "weight"]]):
             raise KeyError('Weighting the INP profiles requires the keys "height" and "weight"')
         if not np.logical_and(len(self.n_init_weight_prof["height"]) > 1,
                               len(self.n_init_weight_prof["height"]) == len(self.n_init_weight_prof["weight"])):
             raise ValueError("weights and heights must have the same length > 1")
-        self.n_init_weight_prof["weight"] = np.where(self.n_init_weight_prof["weight"] > 1., 1.,
-                                                     self.n_init_weight_prof["weight"])  # weights don't exceed 1.
+        if np.any(self.n_init_weight_prof["weight"] < 0.):
+            raise ValueError("weight values must by > 0 (at least one negative value was entered)")
+        if np.any(self.n_init_weight_prof["weight"] > 1.):
+            print("At least one specified weight > 1 (max value = %.1f); normalizing weight profile such that \
+                  max weight == 1" % self.n_init_weight_prof["weight"].max())
+            self.n_init_weight_prof["weight"] = self.n_init_weight_prof["weight"] / \
+                self.n_init_weight_prof["weight"].max()
         weight_prof_interp = np.interp(self.ds["height"], self.n_init_weight_prof["height"],
                                        self.n_init_weight_prof["weight"])
-        self.ds["inp"][{"time": 0}] = np.tile(np.expand_dims(weight_prof_interp, axis=1),
-                                              (1, self.ds["diam"].size)) * self.ds["inp"][{"time": 0}]
+        if use_ABIFM:
+            self.ds["inp"][{"time": 0}] = np.tile(np.expand_dims(weight_prof_interp, axis=1),
+                                                  (1, self.ds["diam"].size)) * self.ds["inp"][{"time": 0}]
+        else:  # Relevant for singular when considering particle diameters (e.g., D2010, D2015).
+            return weight_prof_interp
 
 
 class mono_INP(INP_pop):

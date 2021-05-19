@@ -166,3 +166,4 @@ def run_model(ci_model):
     for key in run_stats.keys():
         print("Process: %s: %.2f s (%.2f%% of of total time)" %
               (key, run_stats[key], run_stats[key] / runtime_tot * 100.))
+    print("\n")
