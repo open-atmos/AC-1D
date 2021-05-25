@@ -52,7 +52,7 @@ exclude_patterns = []
 
 # Generate the API documentation when building
 autosummary_generate = True
-numpydoc_show_class_members = False
+numpydoc_show_class_members = True
 autoclass_content = "both"
 
 

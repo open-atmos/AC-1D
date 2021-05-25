@@ -104,17 +104,29 @@ class ci_model():
             optional keys:
                 1. name: [str] population name (or tag). A default string using nucleus type is used if not
                 provided.
+
                 2. nucleus_type: [str; --ABIFM--]  name of substance (e.g., Al2O3) - to initialize Jhet (must be
                 specified for ABIFM).
+
                 3. diam_cutoff: [float or tuple; --singular--] minimum particle diameter to consider.
                 Using a value of 0.5 as in D2010 if not specified. Use a 2-element tuple to specify a range of
                 diameters to consider.
+
                 4. T_array: [list or np.ndarray; --singular--] discrete temperature array. If not specified, using
                 temperatures between -40 and 0 with delta_T = 0.1 C.
-                5. singular_fun: [lambda function; --singular--] INP parametrization (typically as a function of
-                T).
-                Uses DeMott et al., 2010 if None.
+
+                5. singular_fun: [lambda func. or str; --singular--] INP parametrization (typically as a function
+                of T).
+                str: use "D2010" to use eq. 1 in DeMott et al., 2010, "D2015" to use eq. 2 in DeMott et al.,
+                2015, or "D2010fit" to use the temperature dependence fit from fig. 2 in DeMott et al., 2010.
+                The D2015 has default values of the five coeff. from eq. 2 (cf - calibration correction factor,
+                alpha, beta, gamma, delta); these might be coded as optional input for INP the class in
+                the future.
+                Note that "D2010fit" does not consider aerosol PSDs.
+                Use "D2010" (default) if None.
+
                 6. singular_scale: [float; --singular--] Scale factor for 'singular_fun' (1 by default).
+
                 7. n_init_weight_prof: [dict] a dict with keys "height" and "weight". Each key contains
                 a list or np.ndarray of length s (s > 1) determining PSD heights [m] and weighting profiles.
                 Weights are applied on n_init such that n_init(z) = n_init_max * weighting_factor(z), i.e., a
