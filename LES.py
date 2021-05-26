@@ -114,7 +114,8 @@ class LES():
                 else:
                     print("Unknown croppoing method string - skipping xr dataset (LES domain) cropping.")
             elif isinstance(height_ind_2crop, float):
-                rel_inds = np.arange(np.argmin(np.abs(height_ind_2crop - self.ds[self.height_dim])) + 1)
+                rel_inds = np.arange(np.argmin(np.abs(height_ind_2crop -
+                                     self.ds[self.height_dim].values)) + 1)
             elif isinstance(height_ind_2crop, int):
                 rel_inds = np.arange(height_ind_2crop + 1)
             elif isinstance(height_ind_2crop, (list, np.ndarray)):
