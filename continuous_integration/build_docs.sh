@@ -6,7 +6,6 @@ conda install numpydoc
 pip install sphinx_gallery
 pip install sphinx-copybutton
 conda install -c conda-forge nbsphinx
-conda install -c conda-forge xarray
 pip install cloud-sptheme
 pip install insegel
 cd doc
