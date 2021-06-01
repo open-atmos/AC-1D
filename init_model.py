@@ -22,7 +22,7 @@ class ci_model():
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-3,
                  inp_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_cbh",
-                 run_model=True):
+                 do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True, run_model=True):
         """
         Model namelists and unit conversion coefficient required for the 1D model.
         The LES class includes methods to processes model output and prepare the out fields for the 1D model.
@@ -135,6 +135,14 @@ class ci_model():
                 between the specified heights, and the edge values are used for extrapolation (can be used to set
                 different INP source layers at model initialization, and combined with turbulence weighting,
                 allows the emulation of cloud-driven mixing.
+        do_entrain: bool
+            determines whether aerosols (INP) entrainment will be performed.
+        do_mix_aer: bool
+            determines whether mixing of aerosols (INP) will be performed.
+        do_mix_ice: bool
+            determines whether mixing of ice will be performed.
+        do_sedim: bool
+            determines whether ice sedimentation will be performed.
         run_model: bool
             True - run model once initialization is done.
 
@@ -371,6 +379,10 @@ class ci_model():
         self.plot = plotting
 
         # Run the model
+        self.do_entrain = do_entrain
+        self.do_mix_aer = do_mix_aer
+        self.do_mix_ice = do_mix_ice
+        self.do_sedim = do_sedim
         if run_model:
             Run(self)
 

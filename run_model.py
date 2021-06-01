@@ -81,79 +81,83 @@ def run_model(ci_model):
             t_proc += time() - t_process
 
             # Cloud-top entrainment of INP
-            t_process = time()
-            if ci_model.entrain_from_cth:  # using cloud top data (INP difference) for entrainment
-                if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
+            if ci_model.do_entrain:
+                t_process = time()
+                if ci_model.entrain_from_cth:  # using cloud top data (INP difference) for entrainment
+                    if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
+                        inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
+                            ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
+                            (n_inp_curr[cth_ind[it - 1] + 1, :] - n_inp_curr[cth_ind[it - 1], :])
+                        n_inp_curr[cth_ind[it - 1], :] += inp_ent
+                        n_inp_curr[cth_ind[it - 1] + 1, :] -= inp_ent  # update INP conc. just above cloud top.
+                else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
                     inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                        ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
-                        (n_inp_curr[cth_ind[it - 1] + 1, :] - n_inp_curr[cth_ind[it - 1], :])
-                    n_inp_curr[cth_ind[it - 1], :] += inp_ent
-                    n_inp_curr[cth_ind[it - 1] + 1, :] -= inp_ent  # update INP conc. just above cloud top.
-            else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
-                inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                    ci_model.ds["delta_z"].values[-1] * ci_model.delta_t * \
-                    (ci_model.inp[key].ds["inp"].values[-1, 0, :] - n_inp_curr[-1, :])
-                n_inp_curr[-1, :] += inp_ent
-            run_stats["entrainment_inp"] += (time() - t_process)
-            t_proc += time() - t_process
+                        ci_model.ds["delta_z"].values[-1] * ci_model.delta_t * \
+                        (ci_model.inp[key].ds["inp"].values[-1, 0, :] - n_inp_curr[-1, :])
+                    n_inp_curr[-1, :] += inp_ent
+                run_stats["entrainment_inp"] += (time() - t_process)
+                t_proc += time() - t_process
 
             # Turbulent mixing of INP
-            t_process = time()
-            if ci_model.use_ABIFM:
-                PSDt = "diam"  # string for PSD dim (diameter in the case of singular)
-            else:
-                PSDt = "T"  # string for PSD dim (temperature in the case of singular)
-            if np.any(t_step_mix_mask):  # checking that some mixing takes place.
-                if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
-                    inp_fully_mixed = np.nanmean(n_inp_curr, axis=0)
-                    inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                        (np.tile(np.expand_dims(inp_fully_mixed, axis=0), (ci_model.mod_nz, 1)) - n_inp_curr)
-                    n_inp_curr += inp_mixing
+            if ci_model.do_mix_aer:
+                t_process = time()
+                if ci_model.use_ABIFM:
+                    PSDt = "diam"  # string for PSD dim (diameter in the case of singular)
                 else:
-                    inp_fully_mixed = np.nanmean(np.where(np.tile(np.expand_dims(t_step_mix_mask, axis=1),
-                                                                  (1, ci_model.inp[key].ds["inp"][PSDt].size)),
-                                                          n_inp_curr, np.nan), axis=0)
-                    inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                        (np.tile(np.expand_dims(inp_fully_mixed, axis=0), (np.sum(t_step_mix_mask), 1)) -
-                         n_inp_curr[t_step_mix_mask, :])
-                    n_inp_curr[t_step_mix_mask, :] += inp_mixing
+                    PSDt = "T"  # string for PSD dim (temperature in the case of singular)
+                if np.any(t_step_mix_mask):  # checking that some mixing takes place.
+                    if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
+                        inp_fully_mixed = np.nanmean(n_inp_curr, axis=0)
+                        inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                            (np.tile(np.expand_dims(inp_fully_mixed, axis=0), (ci_model.mod_nz, 1)) - n_inp_curr)
+                        n_inp_curr += inp_mixing
+                    else:
+                        inp_fully_mixed = np.nanmean(np.where(np.tile(np.expand_dims(t_step_mix_mask, axis=1),
+                                                                      (1, ci_model.inp[key].ds["inp"][PSDt].size)),
+                                                              n_inp_curr, np.nan), axis=0)
+                        inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                            (np.tile(np.expand_dims(inp_fully_mixed, axis=0), (np.sum(t_step_mix_mask), 1)) -
+                             n_inp_curr[t_step_mix_mask, :])
+                        n_inp_curr[t_step_mix_mask, :] += inp_mixing
 
-                run_stats["mixing_inp"] += (time() - t_process)
-                t_proc += time() - t_process
+                    run_stats["mixing_inp"] += (time() - t_process)
+                    t_proc += time() - t_process
 
             # Place resolved INP
             ci_model.inp[key].ds["inp"][:, it, :].values = n_inp_curr
 
         # Sedimentation of ice (after INP were activated).
-        t_process = time()
-        if ci_model.ds["v_f_ice"].ndim == 2:
-            ice_sedim_out = n_ice_curr * ci_model.ds["v_f_ice"].values[:, it - 1] * ci_model.delta_t / \
-                ci_model.ds["delta_z"].values
-        else:
-            ice_sedim_out = n_ice_curr * ci_model.ds["v_f_ice"].values[it - 1] * ci_model.delta_t / \
-                ci_model.ds["delta_z"].values
-        ice_sedim_in = np.zeros(ci_model.mod_nz)
-        ice_sedim_in[:-1] += ice_sedim_out[1:]
-        n_ice_curr += ice_sedim_in
-        n_ice_curr -= ice_sedim_out
-        t_proc += time() - t_process
-        run_stats["sedimentation_ice"] += (time() - t_process)
+        if ci_model.do_sedim:
+            t_process = time()
+            if ci_model.ds["v_f_ice"].ndim == 2:
+                ice_sedim_out = n_ice_curr * ci_model.ds["v_f_ice"].values[:, it - 1] * ci_model.delta_t / \
+                    ci_model.ds["delta_z"].values
+            else:
+                ice_sedim_out = n_ice_curr * ci_model.ds["v_f_ice"].values[it - 1] * ci_model.delta_t / \
+                    ci_model.ds["delta_z"].values
+            ice_sedim_in = np.zeros(ci_model.mod_nz)
+            ice_sedim_in[:-1] += ice_sedim_out[1:]
+            n_ice_curr += ice_sedim_in
+            n_ice_curr -= ice_sedim_out
+            t_proc += time() - t_process
+            run_stats["sedimentation_ice"] += (time() - t_process)
 
         # Turbulent mixing of ice
-        t_process = time()
-        if np.any(t_step_mix_mask):  # checking that some mixing takes place.
-            if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
-                ice_fully_mixed = np.nanmean(n_ice_curr, axis=0)
-                ice_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                    (ice_fully_mixed - n_ice_curr)
-                n_ice_curr += ice_mixing
-            else:
-                ice_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_ice_curr, np.nan), axis=0)
-                ice_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                    (ice_fully_mixed - n_ice_curr[t_step_mix_mask])
-                n_ice_curr[t_step_mix_mask] += ice_mixing
-        t_proc += time() - t_process
-        run_stats["mixing_ice"] += (time() - t_process)
+        if ci_model.do_mix_ice:
+            t_process = time()
+            if np.any(t_step_mix_mask):  # checking that some mixing takes place.
+                if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
+                    ice_fully_mixed = np.nanmean(n_ice_curr, axis=0)
+                    ice_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                        (ice_fully_mixed - n_ice_curr)
+                    n_ice_curr += ice_mixing
+                else:
+                    ice_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_ice_curr, np.nan), axis=0)
+                    ice_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                        (ice_fully_mixed - n_ice_curr[t_step_mix_mask])
+                    n_ice_curr[t_step_mix_mask] += ice_mixing
+            t_proc += time() - t_process
+            run_stats["mixing_ice"] += (time() - t_process)
 
         # Place resolved ice
         ci_model.ds["Ni_nuc"][:, it].values = n_ice_curr
