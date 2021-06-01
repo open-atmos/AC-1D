@@ -40,8 +40,10 @@ def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
     ----------
     ci_model: ci_model class
         Containing model run output.
-    which_inp: str or None
+    which_inp: list, str, or None
         Name of INP population to plot. If field_to_plot is "Jhet" then plotting the INP population Jhet.
+        If a list, then adding all inp populations together after checking that the "diam" (ABIFM) or "T"
+        (singular) arrays have the same length and values.
         If None, then plot a field from the ci_model.ds xr.Dataset.
     field_to_plot: str
         Name of field to plot. If "Jhet" then remember to provide 'which_inp'.
@@ -112,13 +114,37 @@ def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
             xf, yf = ci_model.ds[x], ci_model.ds[y]
         else:
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
-    elif which_inp in ci_model.inp.keys():  # Plot either Jhet or the INP concentration
-        if field_to_plot == "Jhet":
-            plot_data = ci_model.inp[which_inp].ds[field_to_plot].copy()
-            xf, yf = ci_model.ds[x], ci_model.ds[y]
-        else:
-            plot_data = ci_model.inp[which_inp].ds["inp"].copy()  # plot INP field
-            xf, yf = ci_model.inp[which_inp].ds[x], ci_model.inp[which_inp].ds[y]
+    elif isinstance(which_inp, (list, str)):
+        if isinstance(which_inp, str):
+            if np.logical_and(which_inp in ci_model.inp.keys(), field_to_plot == "Jhet"):
+                plot_data = ci_model.inp[which_inp].ds[field_to_plot].copy()
+                xf, yf = ci_model.ds[x], ci_model.ds[y]
+            else:
+                which_inp = [which_inp]
+        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_inp]), field_to_plot != "Jhet"):
+            for ii in range(len(which_inp)):
+                if ii == 0:
+                    plot_data = ci_model.inp[which_inp[ii]].ds["inp"].copy()  # plot INP field
+                    if ci_model.use_ABIFM:
+                        inp_dim = "diam"
+                    else:
+                        inp_dim = "T"
+                else:
+                    interp_diams = False
+                    if plot_data[inp_dim].size == ci_model.inp[which_inp[ii]].ds[inp_dim].size:
+                        if np.all(plot_data[inp_dim].values == ci_model.inp[which_inp[ii]].ds[inp_dim].values):
+                            plot_data += ci_model.inp[which_inp[ii]].ds["inp"]
+                        else:
+                            interp_diams = True
+                            raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
+                                               and values (interpolation will be added updated in future \
+                                               updates)" % (inp_dim, inp_dim))
+                    else:
+                        interp_diams = True
+                        raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
+                                           and values (interpolation will be added updated in future updates)" \
+                                           % (inp_dim, inp_dim))
+            xf, yf = plot_data[x], plot_data[y]
             if ci_model.use_ABIFM:
                 possible_fields = {"height", "time", "diam"}
             else:
@@ -129,9 +155,9 @@ def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
                                    (check 'x' and 'y' string values)")
             z = possible_fields.pop()
             plot_data = process_dim(plot_data, z, inp_z, dim_treat)
-    else:
-        raise KeyError("Could not find the INP population name: '%s' in ci_model.inp. Check for typos, \
-                       etc." % which_inp)
+        elif field_to_plot != "Jhet":
+            raise KeyError("Could not find one or more of the requested aerosl population names: \
+                           '%s' in ci_model.inp. Check for typos, etc." % which_inp)
 
     # arrange plot dims
     if x == plot_data.dims[0]:
@@ -259,21 +285,41 @@ def tseries(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
             label = field_to_plot
         else:
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
-    elif which_inp in ci_model.inp.keys():  # Plot either Jhet or the INP concentration
-        if field_to_plot == "Jhet":
-            plot_data = ci_model.inp[which_inp].ds[field_to_plot].copy()
-            label = "%s %s" % (which_inp, "Jhet")
-        else:
-            plot_data = ci_model.inp[which_inp].ds["inp"].copy()  # plot INP field
-            label = "%s %s" % (which_inp, "INP")
-            if ci_model.use_ABIFM:
-                inp_dim = "diam"
+    elif isinstance(which_inp, (list, str)):
+        if isinstance(which_inp, str):
+            if np.logical_and(which_inp in ci_model.inp.keys(), field_to_plot == "Jhet"):
+                plot_data = ci_model.inp[which_inp].ds[field_to_plot].copy()
+                label = "%s %s" % (which_inp, "Jhet")
             else:
-                inp_dim = "T"
+                which_inp = [which_inp]
+        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_inp]), field_to_plot != "Jhet"):
+            for ii in range(len(which_inp)):
+                if ii == 0:
+                    plot_data = ci_model.inp[which_inp[ii]].ds["inp"].copy()  # plot INP field
+                    label = "%s %s" % (which_inp[ii], "INP")
+                    if ci_model.use_ABIFM:
+                        inp_dim = "diam"
+                    else:
+                        inp_dim = "T"
+                else:
+                    interp_diams = False
+                    if plot_data[inp_dim].size == ci_model.inp[which_inp[ii]].ds[inp_dim].size:
+                        if np.all(plot_data[inp_dim].values == ci_model.inp[which_inp[ii]].ds[inp_dim].values):
+                            plot_data += ci_model.inp[which_inp[ii]].ds["inp"]
+                        else:
+                            interp_diams = True
+                            raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
+                                               and values (interpolation will be added updated in future \
+                                               updates)" % (inp_dim, inp_dim))
+                    else:
+                        interp_diams = True
+                        raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
+                                           and values (interpolation will be added updated in future updates)" \
+                                           % (inp_dim, inp_dim))
             plot_data = process_dim(plot_data, inp_dim, inp_z, dim_treat)
-    else:
-        raise KeyError("Could not find the INP population name: '%s' in ci_model.inp. Check for typos, \
-                       etc." % which_inp)
+        elif field_to_plot != "Jhet":
+            raise KeyError("Could not find one or more of the requested aerosl population names: \
+                           '%s' in ci_model.inp. Check for typos, etc." % which_inp)
 
     # Select values or indices from the height dim and treat (mean, sum, as-is).
     if plot_data.ndim == 2:
@@ -394,21 +440,41 @@ def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
             label = field_to_plot
         else:
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
-    elif which_inp in ci_model.inp.keys():  # Plot either Jhet or the INP concentration
-        if field_to_plot == "Jhet":
-            plot_data = ci_model.inp[which_inp].ds[field_to_plot].copy()
-            label = "%s %s" % (which_inp, "Jhet")
-        else:
-            plot_data = ci_model.inp[which_inp].ds["inp"].copy()  # plot INP field
-            label = "%s %s" % (which_inp, "INP")
-            if ci_model.use_ABIFM:
-                inp_dim = "diam"
+    elif isinstance(which_inp, (list, str)):
+        if isinstance(which_inp, str):
+            if np.logical_and(which_inp in ci_model.inp.keys(), field_to_plot == "Jhet"):
+                plot_data = ci_model.inp[which_inp].ds[field_to_plot].copy()
+                label = "%s %s" % (which_inp, "Jhet")
             else:
-                inp_dim = "T"
+                which_inp = [which_inp]
+        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_inp]), field_to_plot != "Jhet"):
+            for ii in range(len(which_inp)):
+                if ii == 0:
+                    plot_data = ci_model.inp[which_inp[ii]].ds["inp"].copy()  # plot INP field
+                    label = "%s %s" % (which_inp[ii], "INP")
+                    if ci_model.use_ABIFM:
+                        inp_dim = "diam"
+                    else:
+                        inp_dim = "T"
+                else:
+                    interp_diams = False
+                    if plot_data[inp_dim].size == ci_model.inp[which_inp[ii]].ds[inp_dim].size:
+                        if np.all(plot_data[inp_dim].values == ci_model.inp[which_inp[ii]].ds[inp_dim].values):
+                            plot_data += ci_model.inp[which_inp[ii]].ds["inp"]
+                        else:
+                            interp_diams = True
+                            raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
+                                               and values (interpolation will be added updated in future \
+                                               updates)" % (inp_dim, inp_dim))
+                    else:
+                        interp_diams = True
+                        raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
+                                           and values (interpolation will be added updated in future updates)" \
+                                           % (inp_dim, inp_dim))
             plot_data = process_dim(plot_data, inp_dim, inp_z, dim_treat)
-    else:
-        raise KeyError("Could not find the INP population name: '%s' in ci_model.inp. Check for typos, \
-                       etc." % which_inp)
+        elif field_to_plot != "Jhet":
+            raise KeyError("Could not find one or more of the requested aerosl population names: \
+                           '%s' in ci_model.inp. Check for typos, etc." % which_inp)
 
     # Select values or indices from the time dim and treat (mean, sum, as-is).
     if plot_data.ndim == 2:
