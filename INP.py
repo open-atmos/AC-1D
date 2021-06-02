@@ -481,9 +481,9 @@ class multi_logn_INP(logn_INP):
         if not np.all([x in psd.keys() for x in ["diam_mean", "geom_sd", "n_bins", "diam_min", "m_ratio"]]):
             raise KeyError('log-normal PSD processing requires the fields' +
                            '"diam_mean", "geom_sd", "n_bins", "diam_min", "m_ratio"')
-        if not np.logical_and(len(n_init_max), np.logical_and(len(psd["diam_mean"]), len(psd["geom_sd"]))):
-            raise IndexError("'n_init_max', 'diam_mean', and 'geom_sd' must have the same length (one" +
-                             "value for each mode")
+        if not len(np.unique((len(n_init_max), len(psd["diam_mean"]), len(psd["geom_sd"])))) == 1:
+            raise IndexError("'n_init_max', 'diam_mean', and 'geom_sd' must have the same length (one " +
+                             "value for each mode)")
         for ii in range(len(n_init_max)):
             psd_tmp = psd.copy()
             psd_tmp["diam_mean"] = psd_tmp["diam_mean"][ii]
