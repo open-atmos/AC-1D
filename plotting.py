@@ -202,7 +202,7 @@ def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
     return ax
 
 
-def tseries(ci_model, which_inp=None, field_to_plot="", x="time", y="height", inp_z=None, dim_treat="sum",
+def tseries(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="sum",
             Height=None, Height_dim_treat="mean", ax=None,
             yscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
             font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
@@ -221,8 +221,6 @@ def tseries(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         If None, then plot a field from the ci_model.ds xr.Dataset.
     field_to_plot: str
         Name of field to plot. If "Jhet" then remember to provide 'which_inp'.
-    y: str
-        coordinate to place on the y-axis - choose between "time", "height", "diam" (ABIFM), or "T" (singular).
     inp_z: float, int, 2-element tuple, or None
         Only for plotting of the INP field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
         for plotting, int for 3rd coordinate index, tuple of floats to define a range of values (plotting a mean
@@ -356,7 +354,7 @@ def tseries(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
     return ax
 
 
-def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", inp_z=None, dim_treat="sum",
+def profile(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="sum",
             Time=None, Time_dim_treat="mean", ax=None,
             xscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
             font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
@@ -376,8 +374,6 @@ def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         If None, then plot a field from the ci_model.ds xr.Dataset.
     field_to_plot: str
         Name of field to plot. If "Jhet" then remember to provide 'which_inp'.
-    y: str
-        coordinate to place on the y-axis - choose between "time", "height", "diam" (ABIFM), or "T" (singular).
     inp_z: float, int, 2-element tuple, or None
         Only for plotting of the INP field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
         for plotting, int for 3rd coordinate index, tuple of floats to define a range of values (plotting a mean
@@ -503,6 +499,164 @@ def profile(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
         ax.plot(plot_data, plot_data["height"], label=label, **kwargs)
 
     ax = fine_tuning(ax, title, xscale, None, grid, xlabel, ylabel, tight_layout, font_size, xtick, xticklabel,
+                     ytick, yticklabel, xlim, ylim)
+
+    if legend is True:
+        ax.legend()
+
+    return ax
+
+
+
+def PSD(ci_model, which_inp=None,
+        Time=None, Time_dim_treat=None, Height=None, Height_dim_treat=None, ax=None,
+        xscale=None, yscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
+        font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
+        xlim=None, ylim=None, **kwargs):
+
+    """
+    Generates an aerosol population PSD plots
+
+    Parameters
+    ----------
+    ci_model: ci_model class
+        Containing model run output.
+    which_inp: str or None
+        Name of INP population to plot. If field_to_plot is "Jhet" then plotting the INP population Jhet.
+        If None, then plot a field from the ci_model.ds xr.Dataset.
+    Time: float, int, 2-element tuple, list, or None
+        Time elements, range, or values to treat from the dim. Options:
+        1. float to specify a dim coordinate value to use for plotting.
+        2. int for coordinate index.
+        3. tuple of floats to define a range of values.
+        4. tuple of ints to define a range of indices.
+        5. list or np.darray of floats to define a specific values.
+        6. list or np.darray of ints to define a specific indices.
+        7. None to take the full coordinate range.
+    Time_dim_treat: str
+        How to treat the time dimension. Use "mean", "sum", "sd", None for mean, sum, standard deviation,
+        non-treatment (keep dim), respectively.
+    Height: float, int, 2-element tuple, list, or None
+        Height elements, range, or values to treat from the dim. Options:
+        1. float to specify a dim coordinate value to use for plotting.
+        2. int for coordinate index.
+        3. tuple of floats to define a range of values.
+        4. tuple of ints to define a range of indices.
+        5. list or np.darray of floats to define a specific values.
+        6. list or np.darray of ints to define a specific indices.
+        7. None to take the full coordinate range.
+    Height_dim_treat: str
+        How to treat the height dimension. Use "mean", "sum", "sd", None for mean, sum, standard deviation,
+        non-treatment (keep dim), respectively.
+    ax: matplotlib axis handle
+        axes to plot on. If None, then creating a new figure.
+    xscale: str or None
+        "linear" or "log" scale for x-axis. If None, using "linear" for "time", "height", or "T" (singular)
+        and "log" for "diam" (ABIFM).
+    yscale: str or None
+        "linear" or "log" scale for y-axis. If None, using "linear" for "time", "height", or "T" (singular)
+        and "log" for "diam" (ABIFM).
+    title: str or None
+        panel (subplot) title if str
+    grid: bool
+        If True, add grid.
+    xlabel: str or None
+        set xlabel with str. Use field name and units if None
+    ylabel: str or None
+        set ylabel with str. Use field name and units if None
+    tight_layout: bool
+        If True, using a tight layout (no text overlap or text cut at figure edges) - typically, the
+        desired behavior).
+    xtick: list, np.ndarray, or None
+        if provided, then used as x-axis ticks.
+    xticklabel: list, np.ndarray, or None
+        if provided, then used as x-axis tick labels.
+    ytick: list, np.ndarray, or None
+        if provided, then used as y-axis ticks
+    yticklabel: list, np.ndarray, or None
+        if provided, then used as y-axis tick labels.
+    xlim: 2-elemnt tuple (or list) or None
+        xlim range
+    ylim: 2-elemnt tuple (or list) or None
+        ylim range
+    legend: bool or None
+        if None, placing legend if processed plot_data has ndim >= 2.
+
+    Returns
+    -------
+    ax: Matplotlib axes handle
+    """
+    if isinstance(which_inp, str):
+        which_inp = [which_inp]
+    if np.all([x in ci_model.inp.keys() for x in which_inp]):
+        for ii in range(len(which_inp)):
+            if ii == 0:
+                plot_data = ci_model.inp[which_inp[ii]].ds["inp"].copy()  # plot INP field
+                label = "%s %s" % (which_inp[ii], "PSD")
+                if ci_model.use_ABIFM:
+                    inp_dim = "diam"
+                else:
+                    inp_dim = "T"
+            else:
+                interp_diams = False
+                if plot_data[inp_dim].size == ci_model.inp[which_inp[ii]].ds[inp_dim].size:
+                    if np.all(plot_data[inp_dim].values == ci_model.inp[which_inp[ii]].ds[inp_dim].values):
+                        plot_data += ci_model.inp[which_inp[ii]].ds["inp"]
+                    else:
+                        interp_diams = True
+                        raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
+                                           and values (interpolation will be added updated in future \
+                                           updates)" % (inp_dim, inp_dim))
+                else:
+                    interp_diams = True
+                    raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
+                                       and values (interpolation will be added updated in future updates)" \
+                                       % (inp_dim, inp_dim))
+    else:
+        raise KeyError("Could not find one or more of the requested aerosl population names: \
+                       '%s' in ci_model.inp. Check for typos, etc." % which_inp)
+
+    # Select values or indices from the time and height dims and treat (mean, sum, as-is).
+    plot_data = process_dim(plot_data, "time", Time, Time_dim_treat)
+    plot_data = process_dim(plot_data, "height", Height, Height_dim_treat)
+
+    if xlabel is None:
+        xlabel = "%s [%s]" % ("Diameter", plot_data["diam"].attrs["units"])
+    if ylabel is None:
+        ylabel = "%s [%s]" % (label, plot_data.attrs["units"])
+
+    if plot_data.ndim == 3:
+        plot_data = plot_data.stack(h_t=("height", "time"))
+        heights = plot_data["height"].values
+        times = plot_data["time"].values
+    elif plot_data.ndim == 2:
+        if "time" in plot_data.dims:
+            times = plot_data["time"].values
+            heights = None
+            plot_data = plot_data.rename({"time": "h_t"})
+        else:
+            times = None
+            heights = plot_data["height"].values
+            plot_data = plot_data.rename({"height": "h_t"})
+    else:
+        heights = None
+        times = None
+        plot_data = plot_data.expand_dims("h_t")
+
+    #return plot_data
+
+    for ii in range(plot_data["h_t"].size):
+        label_p = label
+        if heights is not None:
+            label_p = label_p + "; h = %.0f m" % (heights[ii])
+        if times is not None:
+            label_p = label_p + "; t = %.0f s" % (times[ii])
+
+        ax.plot(plot_data[inp_dim], plot_data.isel({"h_t": ii}).values, label=label_p, **kwargs)
+    if legend is None:
+        legend = True
+
+    ax = fine_tuning(ax, title, xscale, yscale, grid, xlabel, ylabel, tight_layout, font_size, xtick, xticklabel,
                      ytick, yticklabel, xlim, ylim)
 
     if legend is True:

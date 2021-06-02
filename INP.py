@@ -286,16 +286,29 @@ class INP_pop():
                 else:  # assuming 2-element tuple
                     input_2 = np.sum(self.ds["dn_dlogD"].sel({"diam": slice(self.diam_cutoff[0],
                                                                             self.diam_cutoff[1])}).values)
+                input_2 = np.ones((self.ds["height"].size, self.ds["T"].size)) * input_2
+                tmp_n_inp = np.flip(self.singular_fun(np.tile(np.expand_dims(self.ds["T"].values, axis=0),
+                                    (self.ds["height"].size, 1)), input_2), axis=1)  # start at max temperature
             elif 's_area' in self.singular_fun.__code__.co_varnames:  # 2nd argument is surface area
                 input_2 = np.sum(self.ds["surf_area"].values)
 
-            if self.n_init_weight_prof is None:
-                input_2 = np.ones((self.ds["height"].size, self.ds["T"].size)) * input_2
-            else:
-                input_2 = np.tile(np.expand_dims(self._weight_inp_prof(False), axis=1),
-                                  (1, self.ds["T"].size)) * input_2
-            tmp_n_inp = np.flip(self.singular_fun(np.tile(np.expand_dims(self.ds["T"].values, axis=0),
-                                (self.ds["height"].size, 1)), input_2), axis=1)  # start at max temperature
+                # Add initial INP diagnostic field (diameter vs. T) for INAS.
+                self.ds["init_inp"] = \
+                    xr.DataArray(self.singular_fun(np.tile(np.expand_dims(np.flip(self.ds["T"].values), axis=0),
+                                                           (self.ds["diam"].size, 1)),
+                                                   np.tile(np.expand_dims(self.ds["surf_area"].values, axis=1),
+                                                           (1, self.ds["T"].size))),
+                                 dims=("diam", "T")) * self.ds["dn_dlogD"]
+                tmp_n_inp = np.tile(np.expand_dims(self.ds["init_inp"].sum("diam").squeeze(), axis=0),
+                                    (self.ds["height"].size, 1))
+                for ii in range(1, self.ds["T"].size):
+                    self.ds["init_inp"][:, ii] = self.ds["init_inp"][:, ii] - self.ds["init_inp"][:, :ii].sum("T")
+                self.ds["init_inp"].values = np.flip(self.ds["init_inp"].values, axis=1)
+
+            # weight array vertically.
+            if self.n_init_weight_prof is not None:
+                tmp_n_inp = np.tile(np.expand_dims(self._weight_inp_prof(False), axis=1),
+                                  (1, self.ds["T"].size)) * tmp_n_inp
         else:  # single input (temperature)
             tmp_n_inp = np.tile(np.expand_dims(np.flip(self.singular_fun(self.ds["T"].values)), axis=0),
                                 (self.ds["height"].size, 1))  # start at highest temperatures
