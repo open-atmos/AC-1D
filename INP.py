@@ -85,14 +85,18 @@ class INP_pop():
         T_array: list or ndarray
             discrete temperature [K] array for INP parametrization (--singular--).
         singular_fun: str or lambda function
-            If str, then use "D2010" to use eq. 1 in DeMott et al., 2010, "D2015" to use eq. 2 in DeMott et al.,
-            2015, or "D2010fit" to use the temperature dependence fit from fig. 2 caption in DeMott et al., 2010.
+            If str, then:
+                1. use "D2010" to use eq. 1 in DeMott et al., 2010.
+                2. "D2015" to use eq. 2 in DeMott et al..
+                3. "D2010fit" to use the temperature dependence fit from fig. 2 caption in DeMott et al., 2010.
+                4. "ND20212 to use surface area temperature-based fit (eq. 5) in Niemand et al., JAS, 2012.
+                Use a lambda function for INP parametrization typically as a function of T (--singular--).
+            Use "D2010" (default) if None.
+            Notes:
             The D2015 has default values of the five coefficients from eq. 2 (cf - calibration correction factor,
             alpha, beta, gamma, delta); these might be coded as optional input parameters for INP the class in
             the future.
-            Note that "D2010fit" does not consider aerosol PSDs.
-            Use a lambda function for INP parametrization typically as a function of T (--singular--).
-            Use "D2010" (default) if None.
+            "D2010fit" does not consider aerosol PSDs.
         singular_scale: float
             Scale factor for 'singular_fun' (1 by default) (--singular--).
         n_init_max: float
@@ -149,7 +153,6 @@ class INP_pop():
                     self.T_array = T_array
                 if singular_fun is None:
                     singular_fun = "D2010"  # set by default to DeMott et al. (2010)
-                self._set_inp_conc_fun(singular_fun)
                 if singular_scale is None:
                     self.singular_scale = 1.
                 else:
@@ -191,6 +194,7 @@ class INP_pop():
                 if n_init_weight_prof is not None:
                     self._weight_inp_prof()
             elif use_ABIFM is False:
+                self._set_inp_conc_fun(singular_fun)
                 self._init_inp_singular_array()
             self.ds["height"].attrs["units"] = "$m$"
             self.ds["time"].attrs["units"] = "$s$"
@@ -225,13 +229,18 @@ class INP_pop():
         Parameters
         ---------
         singular_fun: str or lambda function
-            If str, then use "D2010" to use eq. 1 in DeMott et al., 2010, "D2015" to use eq. 2 in DeMott et al.,
-            2015, or "D2010fit" to use the temperature dependence fit from fig. 2 caption in DeMott et al., 2010.
+            If str, then:
+                1. use "D2010" to use eq. 1 in DeMott et al., 2010.
+                2. "D2015" to use eq. 2 in DeMott et al..
+                3. "D2010fit" to use the temperature dependence fit from fig. 2 caption in DeMott et al., 2010.
+                4. "ND20212 to use surface area temperature-based fit (eq. 5) in Niemand et al., JAS, 2012.
+            Use a lambda function for INP parametrization typically as a function of T (--singular--).
+            Use "D2010" (default) if None.
+            Notes:
             The D2015 has default values of the five coefficients from eq. 2 (cf - calibration correction factor,
             alpha, beta, gamma, delta); these might be coded as optional input parameters for INP the class in
             the future.
-            Note that "D2010fit" does not consider aerosol PSDs.
-            Use a lambda function for INP parametrization typically as a function of T (--singular--).
+            "D2010fit" does not consider aerosol PSDs.
         """
         if isinstance(singular_fun, str):
             if singular_fun == "D2010":
@@ -245,6 +254,9 @@ class INP_pop():
             elif singular_fun == "D2010fit":
                 self.singular_fun = \
                     lambda Tk: 0.117 * np.exp(-0.125 * (Tk - 273.2))  # DeMott et al. (2010) fig. 2 fit
+            elif singular_fun == "ND2012":
+                self.singular_fun = lambda Tk, s_area: \
+                    np.exp(-0.517 * (Tk - 273.15) + 8.934) * s_area / 1e4  # INAS Niemand et al. (2012)
             else:
                 raise NameError("The singular treatment %s is not implemented in the model. Check the \
                                 input string." % singular_fun)
@@ -267,19 +279,23 @@ class INP_pop():
         """
         self.ds = self.ds.assign_coords({"T": self.T_array})
         tmp_inp_array = np.zeros((self.ds["height"].size, self.ds["T"].size))
-        if self.singular_fun.__code__.co_argcount > 1:  # assume 2nd argument is aerosol conc. above cutoff
-            if isinstance(self.diam_cutoff, float):
-                n_a_tot = np.sum(self.ds["dn_dlogD"].sel({"diam": slice(self.diam_cutoff, None)}).values)
-            else:  # assuming 2-element tuple
-                n_a_tot = np.sum(self.ds["dn_dlogD"].sel({"diam": slice(self.diam_cutoff[0],
-                                                                        self.diam_cutoff[1])}).values)
+        if self.singular_fun.__code__.co_argcount > 1:
+            if 'n_aer05' in self.singular_fun.__code__.co_varnames:  # 2nd argument is aerosol conc. above cutoff
+                if isinstance(self.diam_cutoff, float):
+                    input_2 = np.sum(self.ds["dn_dlogD"].sel({"diam": slice(self.diam_cutoff, None)}).values)
+                else:  # assuming 2-element tuple
+                    input_2 = np.sum(self.ds["dn_dlogD"].sel({"diam": slice(self.diam_cutoff[0],
+                                                                            self.diam_cutoff[1])}).values)
+            elif 's_area' in self.singular_fun.__code__.co_varnames:  # 2nd argument is surface area
+                input_2 = np.sum(self.ds["surf_area"].values)
+
             if self.n_init_weight_prof is None:
-                n_a_tot = np.ones((self.ds["height"].size, self.ds["T"].size)) * n_a_tot
+                input_2 = np.ones((self.ds["height"].size, self.ds["T"].size)) * input_2
             else:
-                n_a_tot = np.tile(np.expand_dims(self._weight_inp_prof(False), axis=1),
-                                  (1, self.ds["T"].size)) * n_a_tot
+                input_2 = np.tile(np.expand_dims(self._weight_inp_prof(False), axis=1),
+                                  (1, self.ds["T"].size)) * input_2
             tmp_n_inp = np.flip(self.singular_fun(np.tile(np.expand_dims(self.ds["T"].values, axis=0),
-                                (self.ds["height"].size, 1)), n_a_tot), axis=1)  # start at highest temperatures
+                                (self.ds["height"].size, 1)), input_2), axis=1)  # start at max temperature
         else:  # single input (temperature)
             tmp_n_inp = np.tile(np.expand_dims(np.flip(self.singular_fun(self.ds["T"].values)), axis=0),
                                 (self.ds["height"].size, 1))  # start at highest temperatures
