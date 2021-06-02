@@ -94,6 +94,9 @@ class ci_model():
                       (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [um]) and
                       bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio
                       equals m_ratio**(1/3).
+                    - "multi_logn": multi-modal log-normal: as in "logn" but diam_mean, geom_sd, and n_init_max
+                      need to be specified as lists or np.ndarrays with the same length (each characterizing
+                      a single mode (bin array is identical and represents the sum of modes).
                     - "custom": custom size distribution with maunally specified bin values and PSD shape.
                       Provide the PSD diameter array (diam) and the number concentration per bin
                       (dn_dlogD). Optional input key includes normalization to n_init (norm_to_n_init_max)
@@ -348,8 +351,8 @@ class ci_model():
                 param_dict["psd"] = inp_info[ii]["psd"]
             else:
                 raise KeyError('INP information requires the keys "n_init_max", "psd"')
-            if not inp_info[ii]["psd"]["type"] in ["mono", "logn", "custom", "default"]:
-                raise ValueError('PSD type must be one of: "mono", "logn", "custom", "default"')
+            if not inp_info[ii]["psd"]["type"] in ["mono", "logn", "multi_logn", "custom", "default"]:
+                raise ValueError('PSD type must be one of: "mono", "logn", "multi_logn", "custom", "default"')
             for key in optional_keys:
                 param_dict[key] = inp_info[ii][key] if key in inp_info[ii].keys() else None
 
@@ -487,6 +490,15 @@ class ci_model():
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
+        elif param_dict["psd"]["type"] == "multi_logn":
+            tmp_inp_pop = INP.multi_logn_INP(use_ABIFM=param_dict["use_ABIFM"],
+                                             n_init_max=param_dict["n_init_max"],
+                                             psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
+                                             name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
+                                             T_array=param_dict["T_array"],
+                                             singular_fun=param_dict["singular_fun"],
+                                             singular_scale=param_dict["singular_scale"],
+                                             n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "custom":
             tmp_inp_pop = INP.custom_INP(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
                                          psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],

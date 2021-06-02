@@ -106,7 +106,7 @@ class INP_pop():
         dn_dlogD: list or ndarray or scalar
             discrete particle number per size bin (sums to n_init_max) [L-1]
         psd_type: str
-            population type e.g., "mono", "logn", "custom".
+            population type e.g., "mono", "logn", "multi_logn", "custom".
         psd: dict
             dictionary providing psd parameter information enabling full psd reproduction.
         name: str
@@ -377,7 +377,7 @@ class mono_INP(INP_pop):
                  psd={}, n_init_weight_prof=None, ci_model=None):
         """
         Parameters as in the 'INP_pop' class (fixed diameter can be specified in the 'psd' dict under the 'diam'
-        key or in the diam.
+        key or in the diam).
         """
         psd.update({"type": "mono"})  # require type key consistency
         if "diam" not in psd.keys():
@@ -449,6 +449,55 @@ class logn_INP(INP_pop):
         dn_dlogD = (1 / denom) * np.exp(-0.5 * argexp**2)
         dn_dlogD = dn_dlogD / dn_dlogD.sum() * n_init_max
         return diam, dn_dlogD
+
+
+class multi_logn_INP(logn_INP):
+    """
+    Multiple log-normal INP PSD.
+    """
+    def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
+                 diam_cutoff=0., T_array=None, singular_fun=None, singular_scale=None,
+                 psd={}, n_init_weight_prof=None, ci_model=None):
+        """
+        Parameters as in the 'INP_pop' class. Note that n_init_max should be a list or np.ndarray
+        of values for each mode with the same length as diam_mean and geom_sd. Array bins are specified
+        using scalars.
+
+        psd parameters
+        --------------
+        diam_mean: list or np.ndarray of float
+            geometric mean diameter [um] for each model
+        geom_sd: list or np.ndarray of float
+            geometric standard deviation for each mode
+        n_bins: int
+            number of bins in psd array
+        diam_min: float
+            minimum diameter [um]
+        m_ratio: float
+            bin-tp-bin mass ratio (smaller numbers give more finely resolved grid).
+            Effectively, the diameter ratio between consecutive bins is m_ratio**(1/3).
+        """
+        psd.update({"type": "multi_logn"})  # require type key consistency
+        if not np.all([x in psd.keys() for x in ["diam_mean", "geom_sd", "n_bins", "diam_min", "m_ratio"]]):
+            raise KeyError('log-normal PSD processing requires the fields' +
+                           '"diam_mean", "geom_sd", "n_bins", "diam_min", "m_ratio"')
+        if not np.logical_and(len(n_init_max), np.logical_and(len(psd["diam_mean"]), len(psd["geom_sd"]))):
+            raise IndexError("'n_init_max', 'diam_mean', and 'geom_sd' must have the same length (one" +
+                             "value for each mode")
+        for ii in range(len(n_init_max)):
+            psd_tmp = psd.copy()
+            psd_tmp["diam_mean"] = psd_tmp["diam_mean"][ii]
+            psd_tmp["geom_sd"] = psd_tmp["geom_sd"][ii]
+            diam_tmp, dn_dlogD_tmp = super()._calc_logn_diam_dn_dlogd(psd_tmp, n_init_max[ii])
+            if ii == 0:
+                diam, dn_dlogD = diam_tmp, dn_dlogD_tmp
+            else:
+                dn_dlogD += dn_dlogD_tmp
+        super(logn_INP, self).__init__(use_ABIFM=use_ABIFM, n_init_max=np.sum(n_init_max),
+                                       nucleus_type=nucleus_type, diam=diam, dn_dlogD=dn_dlogD, name=name,
+                                       diam_cutoff=diam_cutoff, T_array=T_array, singular_fun=singular_fun,
+                                       singular_scale=singular_scale, psd=psd,
+                                       n_init_weight_prof=n_init_weight_prof, ci_model=ci_model)
 
 
 class custom_INP(INP_pop):
