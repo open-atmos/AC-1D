@@ -256,7 +256,7 @@ class INP_pop():
                     lambda Tk: 0.117 * np.exp(-0.125 * (Tk - 273.2))  # DeMott et al. (2010) fig. 2 fit
             elif singular_fun == "ND2012":
                 self.singular_fun = lambda Tk, s_area: \
-                    np.exp(-0.517 * (Tk - 273.15) + 8.934) * s_area / 1e4  # INAS Niemand et al. (2012)
+                    np.exp(-0.517 * (Tk - 273.15) + 8.934) * s_area * 1e-4  # INAS Niemand et al. (2012)
             else:
                 raise NameError("The singular treatment %s is not implemented in the model. Check the \
                                 input string." % singular_fun)

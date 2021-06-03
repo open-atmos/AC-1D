@@ -391,12 +391,12 @@ class ci_model():
 
     def _calc_delta_aw(self):
         """
-        calculate the ∆aw field for ABIFM using:
+        calculate the ∆aw field and S_ice for ABIFM using:
         1. eq. 1 in Knopf and Alpert (2013, https://doi.org/10.1039/C3FD00035D) combined with:
         2. eq. 7 in Koop and Zobrist (2009, https://doi.org/10.1039/B914289D) for a_w(ice)
         Here we assume that our droplets are in equilibrium with the environment at its given RH, hence, RH = a_w.
         """
-        self.ds["delta_aw"] = self.ds['RH'] - \
+        a_ice_w = \
             (
             np.exp(9.550426 - 5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) -
                    0.00728332 * self.ds['T']) /
@@ -405,7 +405,10 @@ class ci_model():
              np.tanh(0.0415 * (self.ds['T'] - 218.8)) * (53.878 - 1331.22 / self.ds['T'] - 9.44523 *
                                                          np.log(self.ds['T']) + 0.014025 * self.ds['T'])))
         )
+        self.ds["delta_aw"] = self.ds['RH'] - a_ice_w
+        self.ds["S_ice"] = self.ds['RH'] / a_ice_w
         self.ds['delta_aw'].attrs['units'] = ""
+        self.ds["S_ice"].attrs['units'] = ""
 
     def _set_1D_or_2D_var_from_input(self, var_in, var_name, units_str=None, long_name_str=None):
         """
