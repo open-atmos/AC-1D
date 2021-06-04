@@ -147,10 +147,6 @@ class INP_pop():
                     self.diam_cutoff = 0.5
                 else:
                     self.diam_cutoff = diam_cutoff
-                if T_array is None:
-                    self.T_array = np.linspace(-35., -5., 301) + 273.15
-                else:
-                    self.T_array = T_array
                 if singular_fun is None:
                     singular_fun = "D2010"  # set by default to DeMott et al. (2010)
                 if singular_scale is None:
@@ -194,6 +190,14 @@ class INP_pop():
                 if n_init_weight_prof is not None:
                     self._weight_inp_prof()
             elif use_ABIFM is False:
+                if T_array is None:  # By default using 1st decimal T to allocate INP array with delta T = 0.1 C
+                    if ci_model.ds["T"].min() - 273.15 >= -5:
+                        raise RuntimeError('Minimum LES-informed temperature must be larger than -5 C in'\
+                            ' singular mode to allow any INP to activate')
+                    T_min = np.maximum(np.floor((ci_model.ds["T"].min().values - 273.15) * 10) / 10, -40)
+                    self.T_array = np.linspace(T_min, -5., int(np.around((-5 - T_min) * 10)) + 1) + 273.15
+                else:
+                    self.T_array = T_array
                 self._set_inp_conc_fun(singular_fun)
                 self._init_inp_singular_array()
             self.ds["height"].attrs["units"] = "$m$"

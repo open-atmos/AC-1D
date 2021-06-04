@@ -116,7 +116,7 @@ class ci_model():
                 diameters to consider.
 
                 4. T_array: [list or np.ndarray; --singular--] discrete temperature array. If not specified, using
-                temperatures between -40 and 0 with delta_T = 0.1 C.
+                temperatures between the smallest LES-informed temperature (or -40 C)  and 0 with delta_T = 0.1 C.
 
                 5. singular_fun: [lambda func. or str; --singular--] INP parametrization (typically as a function
                 of T).
