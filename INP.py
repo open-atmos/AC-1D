@@ -467,7 +467,7 @@ class logn_INP(INP_pop):
         diam = diam * (psd["m_ratio"] ** (1. / 3.)) ** (np.cumsum(np.ones(psd["n_bins"])) - 1)
         if isinstance(psd["diam_min"], tuple):  # remove diameters larger than cutoff
             diam = diam[diam <= psd["diam_min"][1]]
-        denom = np.sqrt(2 * np.pi) * np.log(psd["geom_sd"])
+        denom = np.sqrt(2 * np.pi) * np.log(psd["geom_sd"]) * diam
         argexp = np.log(diam / psd["diam_mean"]) / np.log(psd["geom_sd"])
         dn_dlogD = (1 / denom) * np.exp(-0.5 * argexp**2)
         dn_dlogD = dn_dlogD / dn_dlogD.sum() * n_init_max
