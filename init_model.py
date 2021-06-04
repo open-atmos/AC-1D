@@ -91,7 +91,8 @@ class ci_model():
                     - "mono": fixed-size population, i.e., a single particle diameter should be provided
                       (diam [um]).
                     - "logn": log--normal: provide geometric mean diameter (diam_mean [um]), geometric SD
-                      (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [um]) and
+                      (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [um]; can also be  a
+                      2-element tuple and then the 2nd is the maximum diameter cutoff), and
                       bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio
                       equals m_ratio**(1/3).
                     - "multi_logn": multi-modal log-normal: as in "logn" but diam_mean, geom_sd, and n_init_max

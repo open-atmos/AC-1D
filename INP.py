@@ -425,8 +425,9 @@ class logn_INP(INP_pop):
             geometric standard deviation
         n_bins: int
             number of bins in psd array
-        diam_min: float
-            minimum diameter [um]
+        diam_min: float or 2-element tuple
+            minimum diameter [um]. If a 2-element tuple, then the 1st element is the minimum diameter
+            and the 2nd is the maximum diameter cutoff (large diameters will not be considered).
         m_ratio: float
             bin-tp-bin mass ratio (smaller numbers give more finely resolved grid).
             Effectively, the diameter ratio between consecutive bins is m_ratio**(1/3).
@@ -459,8 +460,13 @@ class logn_INP(INP_pop):
         dn_dlogD: np.ndarray
             Particle number concentration per diameter bin.
         """
-        diam = np.ones(psd["n_bins"]) * psd["diam_min"]
+        if isinstance(psd["diam_min"], float):
+            diam = np.ones(psd["n_bins"]) * psd["diam_min"]
+        elif isinstance(psd["diam_min"], tuple):
+            diam = np.ones(psd["n_bins"]) * psd["diam_min"][0]
         diam = diam * (psd["m_ratio"] ** (1. / 3.)) ** (np.cumsum(np.ones(psd["n_bins"])) - 1)
+        if isinstance(psd["diam_min"], tuple):  # remove diameters larger than cutoff
+            diam = diam[diam <= psd["diam_min"][1]]
         denom = np.sqrt(2 * np.pi) * np.log(psd["geom_sd"])
         argexp = np.log(diam / psd["diam_mean"]) / np.log(psd["geom_sd"])
         dn_dlogD = (1 / denom) * np.exp(-0.5 * argexp**2)
@@ -488,8 +494,9 @@ class multi_logn_INP(logn_INP):
             geometric standard deviation for each mode
         n_bins: int
             number of bins in psd array
-        diam_min: float
-            minimum diameter [um]
+        diam_min: float or 2-element tuple
+            minimum diameter [um]. If a 2-element tuple, then the 1st element is the minimum diameter
+            and the 2nd is the maximum diameter cutoff (large diameters will not be considered).
         m_ratio: float
             bin-tp-bin mass ratio (smaller numbers give more finely resolved grid).
             Effectively, the diameter ratio between consecutive bins is m_ratio**(1/3).
