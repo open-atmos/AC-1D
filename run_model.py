@@ -66,8 +66,7 @@ def run_model(ci_model):
             # Activate INP
             t_process = time()
             if ci_model.use_ABIFM:
-                AA, JJ = np.meshgrid(ci_model.inp[key].ds["surf_area"].values *
-                                     ci_model.inp[key].ds["dn_dlogD"].values,
+                AA, JJ = np.meshgrid(ci_model.inp[key].ds["surf_area"].values,
                                      ci_model.inp[key].ds["Jhet"].values[:, it - 1])
                 inp_act = np.minimum(n_inp_prev * JJ * AA * ci_model.delta_t, n_inp_prev)
             else:
