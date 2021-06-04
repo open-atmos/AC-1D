@@ -210,7 +210,7 @@ class INP_pop():
 
         # Set coordinate attributes
         self.ds["diam"].attrs["units"] = r"$\mu m$"
-        self.ds["diam"].attrs["long_name"] = "Particle diameter"
+        self.ds["diam"].attrs["long_name"] = "Bin-middle particle diameter"
 
     def _random_name(self):
         """
@@ -436,15 +436,17 @@ class logn_INP(INP_pop):
         if not np.all([x in psd.keys() for x in ["diam_mean", "geom_sd", "n_bins", "diam_min", "m_ratio"]]):
             raise KeyError('log-normal PSD processing requires the fields' +
                            '"diam_mean", "geom_sd", "n_bins", "diam_min", "m_ratio"')
-        diam, dn_dlogD = self._calc_logn_diam_dn_dlogd(psd, n_init_max)
+        diam, dn_dlogD, dF, nF = self._calc_logn_diam_dn_dlogd(psd, n_init_max)
+        self.raw_diam, self.raw_dn_dlogD = dF, nF  # raw diameters (bin edges) and dn_dlogD (n(Dp) definition)
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
                          n_init_weight_prof=n_init_weight_prof, ci_model=ci_model)
 
-    def _calc_logn_diam_dn_dlogd(self, psd, n_init_max):
+    def _calc_logn_diam_dn_dlogd(self, psd, n_init_max, integrate_dn_dlogD=True):
         """
         Assign particle diameter array and calculate dn_dlogD for log-normal distribution.
+        Then integrate using trapezoidal rule to get total concentration per bin.
 
         Parameters
         ---------
@@ -452,13 +454,19 @@ class logn_INP(INP_pop):
             Log-normal PSD parameters.
         n_init_max: float
             total initial INP concentration [L-1].
+        integrate_dn_dlogD: bool
+            True - integrate dn_dlogD using the trapezoidal rule, False - normalize instead.
 
         Returns
         -------
+        diam_bin_mid: np.ndarray
+            Particle diameter array (log-scale middle of integrated bin converted back to linear).
+        dn_dlogD_bin: np.ndarray
+            Particle number concentration (integrated) per diameter bin.
         diam: np.ndarray
-            Particle diameter array.
+            Particle diameter array corresponding to dn_dlogD.
         dn_dlogD: np.ndarray
-            Particle number concentration per diameter bin.
+            Particle number concentration per diameter (PSD value in units of L-1 um-1)
         """
         if isinstance(psd["diam_min"], float):
             diam = np.ones(psd["n_bins"]) * psd["diam_min"]
@@ -469,9 +477,16 @@ class logn_INP(INP_pop):
             diam = diam[diam <= psd["diam_min"][1]]
         denom = np.sqrt(2 * np.pi) * np.log(psd["geom_sd"])
         argexp = np.log(diam / psd["diam_mean"]) / np.log(psd["geom_sd"])
-        dn_dlogD = (1 / denom) * np.exp(-0.5 * argexp**2)
-        dn_dlogD = dn_dlogD / dn_dlogD.sum() * n_init_max
-        return diam, dn_dlogD
+        if integrate_dn_dlogD:
+            dn_dlogD = (n_init_max / denom) * np.exp(-0.5 * argexp**2)
+            dn_dlogD_bin = np.diff(diam) * (dn_dlogD[:-1] + dn_dlogD[1:]) / 2  # Trapezoidal rule
+            diam_bin_mid = np.exp((np.log(diam[:-1]) + np.log(diam[1:])) / 2) # bin middle in log scale
+        else:
+            dn_dlogD = (1 / denom) * np.exp(-0.5 * argexp**2)
+            dn_dlogD = dn_dlogD / dn_dlogD.sum() * n_init_max
+            dn_dlogD_bin = dn_dlogD[:]  # in this case same as normalized dn_dlogD
+            diam_bin_mid = diam[:]  # in this case (no integration) represents a bin value.
+        return diam_bin_mid, dn_dlogD_bin, diam, dn_dlogD
 
 
 class multi_logn_INP(logn_INP):
@@ -512,11 +527,13 @@ class multi_logn_INP(logn_INP):
             psd_tmp = psd.copy()
             psd_tmp["diam_mean"] = psd_tmp["diam_mean"][ii]
             psd_tmp["geom_sd"] = psd_tmp["geom_sd"][ii]
-            diam_tmp, dn_dlogD_tmp = super()._calc_logn_diam_dn_dlogd(psd_tmp, n_init_max[ii])
+            diam_tmp, dn_dlogD_tmp, dF_tmp, nF_tmp = super()._calc_logn_diam_dn_dlogd(psd_tmp, n_init_max[ii])
             if ii == 0:
-                diam, dn_dlogD = diam_tmp, dn_dlogD_tmp
+                diam, dn_dlogD, dF, nF = diam_tmp, dn_dlogD_tmp, dF_tmp, nF_tmp
             else:
                 dn_dlogD += dn_dlogD_tmp
+                nF += nF_tmp
+        self.raw_diam, self.raw_dn_dlogD = dF, nF  # raw diameters (bin edges) and dn_dlogD (n(Dp) definition
         super(logn_INP, self).__init__(use_ABIFM=use_ABIFM, n_init_max=np.sum(n_init_max),
                                        nucleus_type=nucleus_type, diam=diam, dn_dlogD=dn_dlogD, name=name,
                                        diam_cutoff=diam_cutoff, T_array=T_array, singular_fun=singular_fun,
