@@ -358,7 +358,7 @@ def profile(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
             Time=None, Time_dim_treat="mean", ax=None,
             xscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
             font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
-            xlim=None, ylim=None, **kwargs):
+            xlim=None, ylim=None, cld_bnd=False, **kwargs):
 
     """
     Generates INP or other model output field's profile
@@ -425,6 +425,12 @@ def profile(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
         ylim range
     legend: bool or None
         if None, placing legend if processed plot_data has ndim = 2.
+    cld_bnd: bool or dict
+        if True, plotting cloud boundary patches and/or lines. If dict, then can include the keys 'p_color',
+        'p_alpha', 'l_color', 'l_width', 'l_style', and 'x_rng' for cloud boundaries' patch color and transparency,
+        and boundary line color, width, and style. If a dict is provided with None key values, default parameters
+        are used. 'x_rng' determines the x-axis values (min and max values) for the patch and/or line
+        set 'p_color' to None to avoid generating a patch and 'l_color' to None to avoid plotting boundaries.
 
     Returns
     -------
@@ -481,6 +487,36 @@ def profile(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
     if xlabel is None:
         xlabel = "%s [%s]" % (label, plot_data.attrs["units"])
 
+    if isinstance(cld_bnd, (bool, dict)):
+        if isinstance(cld_bnd, bool):
+            if cld_bnd:
+                cld_bnd = {}  # setting a dict - values are added below.
+            else:
+                cld_bnd = None
+        if isinstance(cld_bnd, dict):
+            if 'p_color' not in cld_bnd.keys():
+                cld_bnd['p_color'] = 'k'
+            if 'p_alpha' not in cld_bnd.keys():
+                cld_bnd['p_alpha'] = 0.3
+            if 'l_color' not in cld_bnd.keys():
+                cld_bnd['l_color'] = 'k'
+            if 'l_width' not in cld_bnd.keys():
+                cld_bnd['l_width'] = 1
+            if 'l_style' not in cld_bnd.keys():
+                cld_bnd['l_style'] = '-'
+            if 'x_rng' not in cld_bnd.keys():
+                if xlim is not None:
+                    cld_bnd['x_rng'] = xlim
+                else:
+                    cld_bnd['x_rng'] = [plot_data.min(), plot_data.max()]
+
+    if cld_bnd is not None:
+        bounds = [process_dim(ci_model.ds["lowest_cbh"].copy(), "time", Time, Time_dim_treat),
+                  process_dim(ci_model.ds["lowest_cth"].copy(), "time", Time, Time_dim_treat)]
+        if np.logical_and(bounds[0].size == 1, cld_bnd['p_color'] is not None):  # patch only for a single t-step
+            ax.fill_between(cld_bnd['x_rng'], bounds[0], bounds[1], label='_nolegend_',
+                            color=cld_bnd['p_color'], alpha=cld_bnd['p_alpha'])
+
     if plot_data.ndim == 3:
         raise RuntimeError("processed INP field still had 3 dimensions. Consider reducing by selecting \
                            a single values or indices or average/sum")
@@ -493,10 +529,22 @@ def profile(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
             else:
                 label_p = label + " (%s = %.1f)" % (dim_2nd, plot_data[dim_2nd][ii])
             ax.plot(plot_data.isel({dim_2nd: ii}), plot_data["height"], label=label_p, **kwargs)
+            if cld_bnd is not None:
+                if 'l_color' is not None:
+                    for cldii in range(2):
+                        ax.plot(cld_bnd['x_rng'],
+                                np.tile(bounds[cldii][ii], (2)), label='_nolegend_', color=cld_bnd['l_color'],
+                                linewidth=cld_bnd['l_width'], linestyle=cld_bnd['l_style'])
+
         if legend is None:
             legend = True
     else:
         ax.plot(plot_data, plot_data["height"], label=label, **kwargs)
+        if cld_bnd is not None:
+            if 'l_color' is not None:
+                for cldii in range(2):
+                    ax.plot(cld_bnd['x_rng'], np.tile(bounds[cldii], (2)), label='_nolegend_',
+                            color=cld_bnd['l_color'], linewidth=cld_bnd['l_width'], linestyle=cld_bnd['l_style'])
 
     ax = fine_tuning(ax, title, xscale, None, grid, xlabel, ylabel, tight_layout, font_size, xtick, xticklabel,
                      ytick, yticklabel, xlim, ylim)

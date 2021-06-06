@@ -294,14 +294,18 @@ class ci_model():
         self.w_e_ent = w_e_ent
         self.entrain_from_cth = entrain_from_cth
         self._set_1D_or_2D_var_from_input(w_e_ent, "w_e_ent", "$m/s$", "Cloud-top entrainment rate")
-        if entrain_from_cth:  # add cloud-top height for entrainment calculations during model run.
-            if self.les["time"].size > 1:
-                self._set_1D_or_2D_var_from_input({"time": self.les["time"].values,
-                                                   "value": self.les["lowest_cth"].values},
-                                                  "lowest_cth", "$m$", "Lowest cloud top height")
-            else:
-                self._set_1D_or_2D_var_from_input(self.les["lowest_cth"].item(),
-                                                  "lowest_cth", "$m$", "Lowest cloud top height")
+        if self.les["time"].size > 1:
+            self._set_1D_or_2D_var_from_input({"time": self.les["time"].values,
+                                               "value": self.les["lowest_cbh"].values},
+                                              "lowest_cbh", "$m$", "Lowest cloud base height")
+            self._set_1D_or_2D_var_from_input({"time": self.les["time"].values,
+                                               "value": self.les["lowest_cth"].values},
+                                              "lowest_cth", "$m$", "Lowest cloud top height")
+        else:
+            self._set_1D_or_2D_var_from_input(self.les["lowest_cbh"].item(),
+                                              "lowest_cbh", "$m$", "Lowest cloud base height")
+            self._set_1D_or_2D_var_from_input(self.les["lowest_cth"].item(),
+                                              "lowest_cth", "$m$", "Lowest cloud top height")
 
         # init vertical mixing and generate a mixing layer mask for the model
         self.tau_mix = tau_mix

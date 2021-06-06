@@ -466,7 +466,7 @@ class logn_INP(INP_pop):
         diam: np.ndarray
             Particle diameter array corresponding to dn_dlogD.
         dn_dlogD: np.ndarray
-            Particle number concentration per diameter (PSD value in units of L-1 um-1)
+            Particle number concentration per diameter (PSD value in units of L-1)
         """
         if isinstance(psd["diam_min"], float):
             diam = np.ones(psd["n_bins"]) * psd["diam_min"]
