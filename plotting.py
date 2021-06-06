@@ -530,7 +530,7 @@ def profile(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
                 label_p = label + " (%s = %.1f)" % (dim_2nd, plot_data[dim_2nd][ii])
             ax.plot(plot_data.isel({dim_2nd: ii}), plot_data["height"], label=label_p, **kwargs)
             if cld_bnd is not None:
-                if 'l_color' is not None:
+                if cld_bnd['l_color'] is not None:
                     for cldii in range(2):
                         ax.plot(cld_bnd['x_rng'],
                                 np.tile(bounds[cldii][ii], (2)), label='_nolegend_', color=cld_bnd['l_color'],
@@ -541,7 +541,7 @@ def profile(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
     else:
         ax.plot(plot_data, plot_data["height"], label=label, **kwargs)
         if cld_bnd is not None:
-            if 'l_color' is not None:
+            if cld_bnd['l_color'] is not None:
                 for cldii in range(2):
                     ax.plot(cld_bnd['x_rng'], np.tile(bounds[cldii], (2)), label='_nolegend_',
                             color=cld_bnd['l_color'], linewidth=cld_bnd['l_width'], linestyle=cld_bnd['l_style'])
