@@ -8,6 +8,7 @@ pip install sphinx-copybutton
 conda install -c conda-forge nbsphinx
 pip install cloud-sptheme
 pip install insegel
+pip install Jinja2==2.11.3
 cd doc
 make clean
 make html
