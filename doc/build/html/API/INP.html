@@ -6,7 +6,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>INP module &#8212; LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/cloud.css" />
@@ -92,7 +93,7 @@ div.admonition.inline-title p.admonition-title {
     padding-left: .2em;
 }
 </style>
-<div class="section" id="module-INP">
+<section id="module-INP">
 <span id="inp-module"></span><h1>INP module<a class="headerlink" href="#module-INP" title="Permalink to this headline">¶</a></h1>
 <p>This module include INP population class and its sub-classes for different PSDs.
 In addition, it includes the Jhet class.</p>
@@ -141,10 +142,20 @@ Alpert, 2013, DOI: 10.1039/C3FD00035D.</p>
 <dd><p>Bases: <a class="reference internal" href="#INP.INP_pop" title="INP.INP_pop"><code class="xref py py-class docutils literal notranslate"><span class="pre">INP.INP_pop</span></code></a></p>
 <p>Uniform (fixed) INP diameter.</p>
 <p>Parameters as in the ‘INP_pop’ class (fixed diameter can be specified in the ‘psd’ dict under the ‘diam’
-key or in the diam.</p>
+key or in the diam).</p>
 </dd></dl>
 
-</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="INP.multi_logn_INP">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">INP.</span></span><span class="sig-name descname"><span class="pre">multi_logn_INP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_weight_prof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/INP.html#multi_logn_INP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#INP.multi_logn_INP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#INP.logn_INP" title="INP.logn_INP"><code class="xref py py-class docutils literal notranslate"><span class="pre">INP.logn_INP</span></code></a></p>
+<p>Multiple log-normal INP PSD.</p>
+<p>Parameters as in the ‘INP_pop’ class. Note that n_init_max should be a list or np.ndarray
+of values for each mode with the same length as diam_mean and geom_sd. Array bins are specified
+using scalars.</p>
+</dd></dl>
+
+</section>
 
 
             <div class="clearer"></div>

@@ -92,7 +92,7 @@
                  <span class="n">mixing_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_f_ice</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">in_cld_q_thresh</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
                  <span class="n">inp_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">t_harvest</span><span class="o">=</span><span class="mi">10800</span><span class="p">,</span>
                  <span class="n">fields_to_retain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height_ind_2crop</span><span class="o">=</span><span class="s2">&quot;ql_pbl&quot;</span><span class="p">,</span> <span class="n">cbh_det_method</span><span class="o">=</span><span class="s2">&quot;ql_cbh&quot;</span><span class="p">,</span>
-                 <span class="n">run_model</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                 <span class="n">do_entrain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_mix_aer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_mix_ice</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_sedim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">run_model</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Model namelists and unit conversion coefficient required for the 1D model.</span>
 <span class="sd">        The LES class includes methods to processes model output and prepare the out fields for the 1D model.</span>
@@ -161,9 +161,13 @@
 <span class="sd">                    - &quot;mono&quot;: fixed-size population, i.e., a single particle diameter should be provided</span>
 <span class="sd">                      (diam [um]).</span>
 <span class="sd">                    - &quot;logn&quot;: log--normal: provide geometric mean diameter (diam_mean [um]), geometric SD</span>
-<span class="sd">                      (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [um]) and</span>
+<span class="sd">                      (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [um]; can also be  a</span>
+<span class="sd">                      2-element tuple and then the 2nd is the maximum diameter cutoff), and</span>
 <span class="sd">                      bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio</span>
 <span class="sd">                      equals m_ratio**(1/3).</span>
+<span class="sd">                    - &quot;multi_logn&quot;: multi-modal log-normal: as in &quot;logn&quot; but diam_mean, geom_sd, and n_init_max</span>
+<span class="sd">                      need to be specified as lists or np.ndarrays with the same length (each characterizing</span>
+<span class="sd">                      a single mode (bin array is identical and represents the sum of modes).</span>
 <span class="sd">                    - &quot;custom&quot;: custom size distribution with maunally specified bin values and PSD shape.</span>
 <span class="sd">                      Provide the PSD diameter array (diam) and the number concentration per bin</span>
 <span class="sd">                      (dn_dlogD). Optional input key includes normalization to n_init (norm_to_n_init_max)</span>
@@ -174,24 +178,45 @@
 <span class="sd">            optional keys:</span>
 <span class="sd">                1. name: [str] population name (or tag). A default string using nucleus type is used if not</span>
 <span class="sd">                provided.</span>
+
 <span class="sd">                2. nucleus_type: [str; --ABIFM--]  name of substance (e.g., Al2O3) - to initialize Jhet (must be</span>
 <span class="sd">                specified for ABIFM).</span>
-<span class="sd">                3. diam_cutoff: [float; --singular--] minimum particle diameter to consider (--singular--). Using</span>
-<span class="sd">                a value of 0 (all diameters are considered) if not specified.</span>
+
+<span class="sd">                3. diam_cutoff: [float or tuple; --singular--] minimum particle diameter to consider.</span>
+<span class="sd">                Using a value of 0.5 as in D2010 if not specified. Use a 2-element tuple to specify a range of</span>
+<span class="sd">                diameters to consider.</span>
+
 <span class="sd">                4. T_array: [list or np.ndarray; --singular--] discrete temperature array. If not specified, using</span>
-<span class="sd">                temperatures between -40 and 0 with delta_T = 0.1 C.</span>
-<span class="sd">                5. singular_fun: [lambda function; --singular--] INP parametrization (typically as a function of</span>
-<span class="sd">                T).</span>
-<span class="sd">                Uses DeMott et al., 2010 if None.</span>
+<span class="sd">                temperatures between the smallest LES-informed temperature (or -40 C)  and 0 with delta_T = 0.1 C.</span>
+
+<span class="sd">                5. singular_fun: [lambda func. or str; --singular--] INP parametrization (typically as a function</span>
+<span class="sd">                of T).</span>
+<span class="sd">                str: use &quot;D2010&quot; to use eq. 1 in DeMott et al., 2010, &quot;D2015&quot; to use eq. 2 in DeMott et al.,</span>
+<span class="sd">                2015, or &quot;D2010fit&quot; to use the temperature dependence fit from fig. 2 in DeMott et al., 2010.</span>
+<span class="sd">                The D2015 has default values of the five coeff. from eq. 2 (cf - calibration correction factor,</span>
+<span class="sd">                alpha, beta, gamma, delta); these might be coded as optional input for INP the class in</span>
+<span class="sd">                the future.</span>
+<span class="sd">                Note that &quot;D2010fit&quot; does not consider aerosol PSDs.</span>
+<span class="sd">                Use &quot;D2010&quot; (default) if None.</span>
+
 <span class="sd">                6. singular_scale: [float; --singular--] Scale factor for &#39;singular_fun&#39; (1 by default).</span>
-<span class="sd">                7. n_init_weight_prof: [dict; --ABIFM--] a dict with keys &quot;height&quot; and &quot;weight&quot;. Each key contains</span>
+
+<span class="sd">                7. n_init_weight_prof: [dict] a dict with keys &quot;height&quot; and &quot;weight&quot;. Each key contains</span>
 <span class="sd">                a list or np.ndarray of length s (s &gt; 1) determining PSD heights [m] and weighting profiles.</span>
 <span class="sd">                Weights are applied on n_init such that n_init(z) = n_init_max * weighting_factor(z), i.e., a</span>
 <span class="sd">                weighted_inp_prof filled with ones means that n_init(z) = n_init_max.</span>
-<span class="sd">                All weighting values greater (smaller) than 1 (0) are set to 1 (0). heights are interpolated</span>
+<span class="sd">                if weights &gt; 1 are specified, the profile is normalized to max value == 1. heights are interpolated</span>
 <span class="sd">                between the specified heights, and the edge values are used for extrapolation (can be used to set</span>
 <span class="sd">                different INP source layers at model initialization, and combined with turbulence weighting,</span>
 <span class="sd">                allows the emulation of cloud-driven mixing.</span>
+<span class="sd">        do_entrain: bool</span>
+<span class="sd">            determines whether aerosols (INP) entrainment will be performed.</span>
+<span class="sd">        do_mix_aer: bool</span>
+<span class="sd">            determines whether mixing of aerosols (INP) will be performed.</span>
+<span class="sd">        do_mix_ice: bool</span>
+<span class="sd">            determines whether mixing of ice will be performed.</span>
+<span class="sd">        do_sedim: bool</span>
+<span class="sd">            determines whether ice sedimentation will be performed.</span>
 <span class="sd">        run_model: bool</span>
 <span class="sd">            True - run model once initialization is done.</span>
 
@@ -339,14 +364,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">w_e_ent</span> <span class="o">=</span> <span class="n">w_e_ent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entrain_from_cth</span> <span class="o">=</span> <span class="n">entrain_from_cth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_input</span><span class="p">(</span><span class="n">w_e_ent</span><span class="p">,</span> <span class="s2">&quot;w_e_ent&quot;</span><span class="p">,</span> <span class="s2">&quot;$m/s$&quot;</span><span class="p">,</span> <span class="s2">&quot;Cloud-top entrainment rate&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">entrain_from_cth</span><span class="p">:</span>  <span class="c1"># add cloud-top height for entrainment calculations during model run.</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_input</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                                                   <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;lowest_cth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">},</span>
-                                                  <span class="s2">&quot;lowest_cth&quot;</span><span class="p">,</span> <span class="s2">&quot;$m$&quot;</span><span class="p">,</span> <span class="s2">&quot;Lowest cloud top height&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;lowest_cth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-                                                  <span class="s2">&quot;lowest_cth&quot;</span><span class="p">,</span> <span class="s2">&quot;$m$&quot;</span><span class="p">,</span> <span class="s2">&quot;Lowest cloud top height&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_input</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                               <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;lowest_cbh&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">},</span>
+                                              <span class="s2">&quot;lowest_cbh&quot;</span><span class="p">,</span> <span class="s2">&quot;$m$&quot;</span><span class="p">,</span> <span class="s2">&quot;Lowest cloud base height&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_input</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                               <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;lowest_cth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">},</span>
+                                              <span class="s2">&quot;lowest_cth&quot;</span><span class="p">,</span> <span class="s2">&quot;$m$&quot;</span><span class="p">,</span> <span class="s2">&quot;Lowest cloud top height&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;lowest_cbh&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                                              <span class="s2">&quot;lowest_cbh&quot;</span><span class="p">,</span> <span class="s2">&quot;$m$&quot;</span><span class="p">,</span> <span class="s2">&quot;Lowest cloud base height&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;lowest_cth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                                              <span class="s2">&quot;lowest_cth&quot;</span><span class="p">,</span> <span class="s2">&quot;$m$&quot;</span><span class="p">,</span> <span class="s2">&quot;Lowest cloud top height&quot;</span><span class="p">)</span>
 
         <span class="c1"># init vertical mixing and generate a mixing layer mask for the model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tau_mix</span> <span class="o">=</span> <span class="n">tau_mix</span>
@@ -397,8 +426,8 @@
                 <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inp_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s2">&quot;psd&quot;</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;INP information requires the keys &quot;n_init_max&quot;, &quot;psd&quot;&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">inp_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mono&quot;</span><span class="p">,</span> <span class="s2">&quot;logn&quot;</span><span class="p">,</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;PSD type must be one of: &quot;mono&quot;, &quot;logn&quot;, &quot;custom&quot;, &quot;default&quot;&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">inp_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mono&quot;</span><span class="p">,</span> <span class="s2">&quot;logn&quot;</span><span class="p">,</span> <span class="s2">&quot;multi_logn&quot;</span><span class="p">,</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;PSD type must be one of: &quot;mono&quot;, &quot;logn&quot;, &quot;multi_logn&quot;, &quot;custom&quot;, &quot;default&quot;&#39;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">optional_keys</span><span class="p">:</span>
                 <span class="n">param_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">inp_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">inp_info</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
 
@@ -428,17 +457,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="n">plotting</span>
 
         <span class="c1"># Run the model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do_entrain</span> <span class="o">=</span> <span class="n">do_entrain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do_mix_aer</span> <span class="o">=</span> <span class="n">do_mix_aer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do_mix_ice</span> <span class="o">=</span> <span class="n">do_mix_ice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do_sedim</span> <span class="o">=</span> <span class="n">do_sedim</span>
         <span class="k">if</span> <span class="n">run_model</span><span class="p">:</span>
             <span class="n">Run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_calc_delta_aw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        calculate the ∆aw field for ABIFM using:</span>
+<span class="sd">        calculate the ∆aw field and S_ice for ABIFM using:</span>
 <span class="sd">        1. eq. 1 in Knopf and Alpert (2013, https://doi.org/10.1039/C3FD00035D) combined with:</span>
 <span class="sd">        2. eq. 7 in Koop and Zobrist (2009, https://doi.org/10.1039/B914289D) for a_w(ice)</span>
 <span class="sd">        Here we assume that our droplets are in equilibrium with the environment at its given RH, hence, RH = a_w.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;delta_aw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;RH&#39;</span><span class="p">]</span> <span class="o">-</span> \
+        <span class="n">a_ice_w</span> <span class="o">=</span> \
             <span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">9.550426</span> <span class="o">-</span> <span class="mf">5723.265</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">3.53068</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])</span> <span class="o">-</span>
                    <span class="mf">0.00728332</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])</span> <span class="o">/</span>
@@ -447,7 +480,10 @@
              <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="mf">0.0415</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mf">218.8</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mf">53.878</span> <span class="o">-</span> <span class="mf">1331.22</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mf">9.44523</span> <span class="o">*</span>
                                                          <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="mf">0.014025</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])))</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;delta_aw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;RH&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">a_ice_w</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;S_ice&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;RH&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">a_ice_w</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;delta_aw&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;S_ice&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_set_1D_or_2D_var_from_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_in</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">units_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">long_name_str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -532,6 +568,15 @@
                                        <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span> <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
                                        <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
                                        <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;multi_logn&quot;</span><span class="p">:</span>
+            <span class="n">tmp_inp_pop</span> <span class="o">=</span> <span class="n">INP</span><span class="o">.</span><span class="n">multi_logn_INP</span><span class="p">(</span><span class="n">use_ABIFM</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;use_ABIFM&quot;</span><span class="p">],</span>
+                                             <span class="n">n_init_max</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_max&quot;</span><span class="p">],</span>
+                                             <span class="n">psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">],</span> <span class="n">nucleus_type</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;nucleus_type&quot;</span><span class="p">],</span>
+                                             <span class="n">name</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">diam_cutoff</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span>
+                                             <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span>
+                                             <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
+                                             <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
+                                             <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;custom&quot;</span><span class="p">:</span>
             <span class="n">tmp_inp_pop</span> <span class="o">=</span> <span class="n">INP</span><span class="o">.</span><span class="n">custom_INP</span><span class="p">(</span><span class="n">use_ABIFM</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;use_ABIFM&quot;</span><span class="p">],</span> <span class="n">n_init_max</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_max&quot;</span><span class="p">],</span>
                                          <span class="n">psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">],</span> <span class="n">nucleus_type</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;nucleus_type&quot;</span><span class="p">],</span>
