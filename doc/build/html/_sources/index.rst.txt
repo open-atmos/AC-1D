@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)'s documentation!
-=========================================================================================
+Welcome to the LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)'s documentation!
+=============================================================================================
 
 .. toctree::
    :maxdepth: 3

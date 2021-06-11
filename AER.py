@@ -71,6 +71,8 @@ class AER_pop():
 
         Parameters and Attributes
         -------------------------
+        self.is_INAS: bool
+            True - using INAS (aerosol are prognosed like in ABIFM).
         use_ABIFM: bool
             True - use ABIFM, False - use singular.
         scheme: str
@@ -133,6 +135,7 @@ class AER_pop():
             singular: height x time x T
         """
         # set attributes
+        self.is_INAS = False  # Only becomes True in case of INAS
         if use_ABIFM is not None:
             if not np.logical_or(not use_ABIFM,
                                  np.logical_and(nucleus_type is not None, diam is not None)):
@@ -195,7 +198,7 @@ class AER_pop():
                 else:
                     self.T_array = T_array
                 self._set_aer_conc_fun(singular_fun)
-                self._init_aer_singular_array()
+                self._init_aer_singular_array(ci_model)
             self.ds["height"].attrs["units"] = "$m$"
             self.ds["time"].attrs["units"] = "$s$"
             self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
@@ -288,22 +291,16 @@ class AER_pop():
         else:  # assuming lambda function
             self.singular_fun = singular_fun
 
-    def _init_aer_singular_array(self):
+    def _init_aer_singular_array(self, ci_model):
         """
         initialize the aerosol concentration array for singular (height x time x temperature).
         Parameters
         ---------
-        param_dict: dict
-            Keys include all possible input parameters for the AER sub-classes.
-
-        Returns
-        -------
-        tmp_aer_pop: AER class object
-            AER class object that includes the aerosol array with dims height x time x diameter (ABIFM) or
-            height x time x temperature (singular).
+        ci_model: ci_model class object
+            Cloud-ice nucleation model object including all model initialization and prognosed field datasets.
         """
         self.ds = self.ds.assign_coords({"T": self.T_array})
-        tmp_aer_array = np.zeros((self.ds["height"].size, self.ds["T"].size))
+        tmp_inp_array = np.zeros((self.ds["height"].size, self.ds["T"].size))
         if self.singular_fun.__code__.co_argcount > 1:
             if 'n_aer05' in self.singular_fun.__code__.co_varnames:  # 2nd argument is aerosol conc. above cutoff
                 if isinstance(self.diam_cutoff, float):
@@ -312,58 +309,74 @@ class AER_pop():
                     input_2 = np.sum(self.ds["dn_dlogD"].sel({"diam": slice(self.diam_cutoff[0],
                                                                             self.diam_cutoff[1])}).values)
                 input_2 = np.ones((self.ds["height"].size, self.ds["T"].size)) * input_2
-                tmp_n_aer = np.flip(self.singular_fun(np.tile(np.expand_dims(self.ds["T"].values, axis=0),
+                tmp_n_inp = np.flip(self.singular_fun(np.tile(np.expand_dims(self.ds["T"].values, axis=0),
                                     (self.ds["height"].size, 1)), input_2), axis=1)  # start at max temperature
+
+                # weight array vertically.
+                if self.n_init_weight_prof is not None:
+                    tmp_n_inp = np.tile(np.expand_dims(self._weight_aer_prof(False), axis=1),
+                                      (1, self.ds["T"].size)) * tmp_n_inp
+
             elif 's_area' in self.singular_fun.__code__.co_varnames:  # 2nd argument is surface area
-                input_2 = np.sum(self.ds["surf_area"].values)
+                tmp_inp_array = np.zeros((self.ds["height"].size, self.ds["diam"].size, self.ds["T"].size))
+                self.is_INAS = True
+                self._init_aer_Jhet_ABIFM_arrays(ci_model)  # Also alocate aerosol concentration array
+                tmp_n_inp = self.singular_fun(np.tile(np.expand_dims(np.flip(self.ds["T"].values), axis=0),
+                                                      (self.ds["diam"].size, 1)),
+                                              np.tile(np.expand_dims((self.ds["surf_area"] *
+                                                                      self.ds["dn_dlogD"]).values, axis=1),
+                                                      (1, self.ds["T"].size)))
+                tmp_n_inp = np.tile(np.expand_dims(tmp_n_inp, axis=0), (self.ds["height"].size, 1, 1))
 
-                # Add initial INP diagnostic field (diameter vs. T) for INAS.
-                self.ds["init_aer"] = \
-                    xr.DataArray(self.singular_fun(np.tile(np.expand_dims(np.flip(self.ds["T"].values), axis=0),
-                                                           (self.ds["diam"].size, 1)),
-                                                   np.tile(np.expand_dims(self.ds["surf_area"].values, axis=1),
-                                                           (1, self.ds["T"].size))),
-                                 dims=("diam", "T")) * self.ds["dn_dlogD"]
-                tmp_n_aer = np.tile(np.expand_dims(self.ds["init_aer"].sum("diam").squeeze(), axis=0),
-                                    (self.ds["height"].size, 1))
-                for ii in range(1, self.ds["T"].size):
-                    self.ds["init_aer"][:, ii] = self.ds["init_aer"][:, ii] - self.ds["init_aer"][:, :ii].sum("T")
-                self.ds["init_aer"].values = np.flip(self.ds["init_aer"].values, axis=1)
+                # weight array vertically.
+                if self.n_init_weight_prof is not None:
+                    tmp_n_inp = np.tile(np.expand_dims(self._weight_aer_prof(False), axis=(1, 2)),
+                                      (1, self.ds["diam"].size, self.ds["T"].size)) * tmp_n_inp
 
-            # weight array vertically.
-            if self.n_init_weight_prof is not None:
-                tmp_n_aer = np.tile(np.expand_dims(self._weight_aer_prof(False), axis=1),
-                                  (1, self.ds["T"].size)) * tmp_n_aer
         else:  # single input (temperature)
-            tmp_n_aer = np.tile(np.expand_dims(np.flip(self.singular_fun(self.ds["T"].values)), axis=0),
+            tmp_n_inp = np.tile(np.expand_dims(np.flip(self.singular_fun(self.ds["T"].values)), axis=0),
                                 (self.ds["height"].size, 1))  # start at highest temperatures
-        tmp_aer_array[:, 0] = tmp_n_aer[:, 0]
-        for ii in range(1, self.ds["T"].size):
-            tmp_aer_array[:, ii] = tmp_n_aer[:, ii] - tmp_aer_array[:, :ii].sum(axis=1)
+        if not self.is_INAS:
+            tmp_inp_array[:, 0] = tmp_n_inp[:, 0]
+            for ii in range(1, self.ds["T"].size):
+                tmp_inp_array[:, ii] = tmp_n_inp[:, ii] - tmp_inp_array[:, :ii].sum(axis=1)
+        else:
+            tmp_inp_array[:, :, 0] = tmp_n_inp[:, :, 0]
+            for ii in range(1, self.ds["T"].size):
+                tmp_inp_array[:, :, ii] = tmp_n_inp[:, :, ii] - tmp_inp_array[:, :, :ii].sum(axis=2)
         if self.singular_scale != 1.:
-            tmp_aer_array *= self.singular_scale
+            tmp_inp_array *= self.singular_scale
 
         self.ds["T"].attrs["units"] = "$K$"  # set coordinate attributes.
 
-        self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size, self.ds["T"].size)),
-                                      dims=("height", "time", "T"))
-        self.ds["n_aer"].loc[{"time": 0}] = np.flip(tmp_aer_array, axis=1)
-        self.ds["n_aer"].attrs["units"] = "$L^{-1}$"
-        self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration per temperature bin"
+        if not self.is_INAS:
+            self.ds["inp"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
+                                                      self.ds["T"].size)), dims=("height", "time", "T"))
+            self.ds["inp"].loc[{"time": 0}] = np.flip(tmp_inp_array, axis=-1)
+            self.ds["inp"].attrs["units"] = "$L^{-1}$"
+            self.ds["inp"].attrs["long_name"] = "INP number concentration per temperature bin"
+        else:
+            self.ds["inp_snap"] = xr.DataArray(tmp_inp_array, dims=("height", "diam", "T"))
+            self.ds["inp_snap"].values = np.flip(self.ds["inp_snap"].values, axis=-1)
+            self.ds["inp_snap"].attrs["units"] = "$L^{-1}$"
+            self.ds["inp_snap"].attrs["long_name"] = "prognosed INP number concentration (snapshot)"
+            self.ds["inp_init"] = self.ds["inp_snap"].copy()  # copy of initial INP (might be used for entrainment)
+            self.ds["inp_init"].attrs["long_name"] = "prognosed INP number concentration (initial)"
 
     def _init_aer_Jhet_ABIFM_arrays(self, ci_model):
         """
-        initialize the aerosol and Jhet arrays for ABIFM (height x time x diameter) assuming that dn_dlogD has been
-        calculated and that the ci_model object was already generated (with delta_aw, etc.).
+        initialize the aerosol array (height x time x diameter) and the Jhet arrays (for ABIFM) assuming that
+        dn_dlogD has been calculated and that the ci_model object was already generated (with delta_aw, etc.).
 
         Parameters
         ---------
         ci_model: ci_model class object
             Cloud-ice nucleation model object including all model initialization and prognosed field datasets.
         """
-        self.ds["Jhet"] = 10.**(self.Jhet.c + self.Jhet.m * ci_model.ds["delta_aw"])  # calc Jhet
-        self.ds["Jhet"].attrs["units"] = "$cm^{-2} s{-1}$"
-        self.ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
+        if ci_model.use_ABIFM:
+            self.ds["Jhet"] = 10.**(self.Jhet.c + self.Jhet.m * ci_model.ds["delta_aw"])  # calc Jhet
+            self.ds["Jhet"].attrs["units"] = "$cm^{-2} s{-1}$"
+            self.ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
         self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
                                                 self.ds["diam"].size)),
                                       dims=("height", "time", "diam"))

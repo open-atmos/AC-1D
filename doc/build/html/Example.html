@@ -43,7 +43,7 @@
 
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Welcome to LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!" href="index.html" /> 
+    <link rel="prev" title="Welcome to the LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!" href="index.html" /> 
         <meta name="viewport" content="width=device-width, initial-scale=1">
   </head><body>
     <div class="relbar-top">
@@ -58,7 +58,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!"
+          <a href="index.html" title="Welcome to the LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!"
              accesskey="P">previous</a> &nbsp; &nbsp;</li>
     <li><a href="index.html">LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</a> &#187;</li>
 
@@ -359,7 +359,7 @@ div.admonition.inline-title p.admonition-title {
 <span class="c1"># ABIFM</span>
 <span class="n">model_abifm</span> <span class="o">=</span> <span class="n">ci_model</span><span class="p">(</span><span class="n">use_ABIFM</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">entrain_from_cth</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">inp_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3_1&quot;</span><span class="p">,</span>                <span class="c1"># INP population #1 properties</span>
+                 <span class="n">aer_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3_1&quot;</span><span class="p">,</span>                <span class="c1"># INP population #1 properties</span>
                             <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="mf">2.</span><span class="p">,</span>
                             <span class="s2">&quot;psd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;mono&quot;</span><span class="p">,</span>
                                    <span class="s2">&quot;diam&quot;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">},</span>
@@ -369,7 +369,7 @@ div.admonition.inline-title p.admonition-title {
 <span class="c1"># Singular</span>
 <span class="n">model_singular</span> <span class="o">=</span> <span class="n">ci_model</span><span class="p">(</span><span class="n">use_ABIFM</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">entrain_from_cth</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">inp_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3_1&quot;</span><span class="p">,</span>                <span class="c1"># INP population #1 properties</span>
+                 <span class="n">aer_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3_1&quot;</span><span class="p">,</span>                <span class="c1"># INP population #1 properties</span>
                             <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="mf">2.</span><span class="p">,</span>
                             <span class="s2">&quot;psd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;mono&quot;</span><span class="p">,</span>
                                    <span class="s2">&quot;diam&quot;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">},</span>
@@ -383,46 +383,46 @@ div.admonition.inline-title p.admonition-title {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Model initalization done! Total processing time = 0.369729 s
-10% of model run completed. Elapsed time: 0.54 s.
-20% of model run completed. Elapsed time: 1.07 s.
-30% of model run completed. Elapsed time: 1.61 s.
-40% of model run completed. Elapsed time: 2.14 s.
-50% of model run completed. Elapsed time: 2.68 s.
-60% of model run completed. Elapsed time: 3.21 s.
-70% of model run completed. Elapsed time: 3.75 s.
-80% of model run completed. Elapsed time: 4.29 s.
-90% of model run completed. Elapsed time: 4.83 s.
+Model initalization done! Total processing time = 0.497022 s
+10% of model run completed. Elapsed time: 0.48 s.
+20% of model run completed. Elapsed time: 0.96 s.
+30% of model run completed. Elapsed time: 1.44 s.
+40% of model run completed. Elapsed time: 1.92 s.
+50% of model run completed. Elapsed time: 2.40 s.
+60% of model run completed. Elapsed time: 2.88 s.
+70% of model run completed. Elapsed time: 3.36 s.
+80% of model run completed. Elapsed time: 3.84 s.
+90% of model run completed. Elapsed time: 4.32 s.
 
-Model run finished! Total run time = 5.372252 s
+Model run finished! Total run time = 4.808468 s
 Model run time stats:
-Process: activation_inp: 0.83 s (15.42% of of total time)
-Process: entrainment_inp: 0.54 s (10.04% of of total time)
-Process: mixing_inp: 0.65 s (12.14% of of total time)
-Process: sedimentation_ice: 0.57 s (10.67% of of total time)
-Process: mixing_ice: 0.52 s (9.66% of of total time)
-Process: data_allocation: 2.26 s (42.00% of of total time)
+Process: activation_aer: 0.69 s (14.42% of of total time)
+Process: entrainment_aer: 0.40 s (8.32% of of total time)
+Process: mixing_aer: 0.60 s (12.46% of of total time)
+Process: sedimentation_ice: 0.44 s (9.18% of of total time)
+Process: mixing_ice: 0.47 s (9.77% of of total time)
+Process: data_allocation: 2.20 s (45.78% of of total time)
 
 
-Model initalization done! Total processing time = 0.352265 s
-10% of model run completed. Elapsed time: 0.69 s.
-20% of model run completed. Elapsed time: 1.39 s.
-30% of model run completed. Elapsed time: 2.07 s.
-40% of model run completed. Elapsed time: 2.76 s.
-50% of model run completed. Elapsed time: 3.45 s.
-60% of model run completed. Elapsed time: 4.13 s.
-70% of model run completed. Elapsed time: 4.80 s.
-80% of model run completed. Elapsed time: 5.48 s.
-90% of model run completed. Elapsed time: 6.16 s.
+Model initalization done! Total processing time = 0.490563 s
+10% of model run completed. Elapsed time: 0.44 s.
+20% of model run completed. Elapsed time: 0.89 s.
+30% of model run completed. Elapsed time: 1.34 s.
+40% of model run completed. Elapsed time: 1.79 s.
+50% of model run completed. Elapsed time: 2.24 s.
+60% of model run completed. Elapsed time: 2.69 s.
+70% of model run completed. Elapsed time: 3.14 s.
+80% of model run completed. Elapsed time: 3.58 s.
+90% of model run completed. Elapsed time: 4.02 s.
 
-Model run finished! Total run time = 6.832876 s
+Model run finished! Total run time = 4.464958 s
 Model run time stats:
-Process: activation_inp: 1.53 s (22.38% of of total time)
-Process: entrainment_inp: 0.57 s (8.30% of of total time)
-Process: mixing_inp: 1.00 s (14.68% of of total time)
-Process: sedimentation_ice: 0.59 s (8.59% of of total time)
-Process: mixing_ice: 0.51 s (7.46% of of total time)
-Process: data_allocation: 2.63 s (38.53% of of total time)
+Process: activation_aer: 1.01 s (22.71% of of total time)
+Process: entrainment_aer: 0.42 s (9.30% of of total time)
+Process: mixing_aer: 0.67 s (14.92% of of total time)
+Process: sedimentation_ice: 0.41 s (9.19% of of total time)
+Process: mixing_ice: 0.45 s (10.09% of of total time)
+Process: data_allocation: 1.50 s (33.70% of of total time)
 
 
 </pre></div></div>
@@ -452,7 +452,7 @@ Process: data_allocation: 2.63 s (38.53% of of total time)
 </div>
 <p>Let’s see the output fields in our model i/o xr.Dataset:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[57]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -461,20 +461,18 @@ Process: data_allocation: 2.63 s (38.53% of of total time)
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[57]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
 <div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
 <defs>
 <symbol id="icon-database" viewBox="0 0 32 32">
-<title>Show/Hide data repr</title>
 <path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
 <path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
 <path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
 </symbol>
 <symbol id="icon-file-text2" viewBox="0 0 32 32">
-<title>Show/Hide attributes</title>
 <path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
 <path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
 <path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
@@ -497,9 +495,27 @@ Process: data_allocation: 2.63 s (38.53% of of total time)
   --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
 }
 
+html[theme=dark],
+body.vscode-dark {
+  --xr-font-color0: rgba(255, 255, 255, 1);
+  --xr-font-color2: rgba(255, 255, 255, 0.54);
+  --xr-font-color3: rgba(255, 255, 255, 0.38);
+  --xr-border-color: #1F1F1F;
+  --xr-disabled-color: #515151;
+  --xr-background-color: #111111;
+  --xr-background-color-row-even: #111111;
+  --xr-background-color-row-odd: #313131;
+}
+
 .xr-wrap {
+  display: block;
   min-width: 300px;
   max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
 }
 
 .xr-header {
@@ -764,7 +780,8 @@ dl.xr-attrs {
   grid-template-columns: 125px auto;
 }
 
-.xr-attrs dt, dd {
+.xr-attrs dt,
+.xr-attrs dd {
   padding: 0;
   margin: 0;
   float: left;
@@ -799,22 +816,40 @@ dl.xr-attrs {
   stroke: currentColor;
   fill: currentColor;
 }
-</style><div class='xr-wrap'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-8303a666-3f7e-4355-899b-d3a430989b02' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-8303a666-3f7e-4355-899b-d3a430989b02' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>height</span>: 43</li><li><span class='xr-has-index'>time</span>: 2161</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-43f7a3c9-7a71-445c-8c25-4ca996993294' class='xr-section-summary-in' type='checkbox'  checked><label for='section-43f7a3c9-7a71-445c-8c25-4ca996993294' class='xr-section-summary' >Coordinates: <span>(2)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>height</span></div><div class='xr-var-dims'>(height)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>5.208 15.62 26.04 ... 432.3 442.7</div><input id='attrs-e9490293-4987-43f9-a81d-7794a85a078e' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-e9490293-4987-43f9-a81d-7794a85a078e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c0c5cac5-acdd-4ede-9b60-80cca9939a53' class='xr-var-data-in' type='checkbox'><label for='data-c0c5cac5-acdd-4ede-9b60-80cca9939a53' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m$</dd></dl></div><pre class='xr-var-data'>array([  5.208333,  15.625   ,  26.041668,  36.458336,  46.875   ,  57.291668,
-        67.708336,  78.125   ,  88.541672,  98.958336, 109.375   , 119.791672,
-       130.208344, 140.625   , 151.041672, 161.458344, 171.875   , 182.291672,
-       192.708344, 203.125   , 213.541672, 223.958344, 234.375   , 244.791672,
-       255.208344, 265.625   , 276.041687, 286.458344, 296.875   , 307.291687,
-       317.708344, 328.125   , 338.541687, 348.958344, 359.375   , 369.791687,
-       380.208344, 390.625   , 401.041687, 411.458344, 421.875   , 432.291687,
-       442.708344])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 10 20 30 ... 21580 21590 21600</div><input id='attrs-9cd99807-4d54-467f-a6dd-ddacd997a840' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-9cd99807-4d54-467f-a6dd-ddacd997a840' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-477fcfa4-4b6b-4a4f-9141-b54964438d34' class='xr-var-data-in' type='checkbox'><label for='data-477fcfa4-4b6b-4a4f-9141-b54964438d34' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$s$</dd></dl></div><pre class='xr-var-data'>array([    0,    10,    20, ..., 21580, 21590, 21600])</pre></li></ul></div></li><li class='xr-section-item'><input id='section-0fff631e-1c70-4b5c-9298-73753d2e34ee' class='xr-section-summary-in' type='checkbox'  checked><label for='section-0fff631e-1c70-4b5c-9298-73753d2e34ee' class='xr-section-summary' >Data variables: <span>(14)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>delta_z</span></div><div class='xr-var-dims'>(height)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>10.42 10.42 10.42 ... 10.42 10.42</div><input id='attrs-c49f3e2e-9303-4c5c-a8d0-f6b21cb6a11a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-c49f3e2e-9303-4c5c-a8d0-f6b21cb6a11a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-bd4ae23d-681d-4a87-a597-90b3b34165b4' class='xr-var-data-in' type='checkbox'><label for='data-bd4ae23d-681d-4a87-a597-90b3b34165b4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m$</dd></dl></div><pre class='xr-var-data'>array([10.41666651, 10.41666794, 10.41666794, 10.41666412, 10.41666794,
-       10.41666794, 10.41666412, 10.41667175, 10.41666412, 10.41666412,
-       10.41667175, 10.41667175, 10.41665649, 10.41667175, 10.41667175,
-       10.41665649, 10.41667175, 10.41667175, 10.41665649, 10.41667175,
-       10.41667175, 10.41665649, 10.41667175, 10.41667175, 10.41665649,
-       10.41668701, 10.41665649, 10.41665649, 10.41668701, 10.41665649,
-       10.41665649, 10.41668701, 10.41665649, 10.41665649, 10.41668701,
-       10.41665649, 10.41665649, 10.41668701, 10.41665649, 10.41665649,
-       10.41668701, 10.41665649, 10.41665649])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>RH</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.8398 0.8398 ... 0.8329 0.8329</div><input id='attrs-94e89c88-e465-40af-b10e-1f45c06cc97f' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-94e89c88-e465-40af-b10e-1f45c06cc97f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8cd3de9a-f3b2-44f0-b504-679e8dc01b09' class='xr-var-data-in' type='checkbox'><label for='data-8cd3de9a-f3b2-44f0-b504-679e8dc01b09' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd></dd></dl></div><pre class='xr-var-data'>array([[0.83984634, 0.83984634, 0.83984634, ..., 0.83984634, 0.83984634,
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt;
+Dimensions:      (height: 43, time: 2161)
+Coordinates:
+  * height       (height) float32 5.208 15.62 26.04 36.46 ... 421.9 432.3 442.7
+  * time         (time) int64 0 10 20 30 40 50 ... 21560 21570 21580 21590 21600
+Data variables: (12/17)
+    delta_z      (height) float32 10.42 10.42 10.42 10.42 ... 10.42 10.42 10.42
+    RH           (height, time) float64 0.8398 0.8398 0.8398 ... 0.8329 0.8329
+    ql           (height, time) float64 3.337e-07 3.337e-07 ... 0.001123
+    T            (height, time) float64 256.8 256.8 256.8 ... 255.3 255.3 255.3
+    Ni           (height, time) float64 0.02164 0.02164 ... 0.0006757 0.0006757
+    prec         (height, time) float64 0.0001015 0.0001015 ... 2.327e-08
+    ...           ...
+    v_f_ice      (time) float64 0.3 0.3 0.3 0.3 0.3 0.3 ... 0.3 0.3 0.3 0.3 0.3
+    delta_aw     (height, time) float64 -0.01277 -0.01277 ... -0.007703
+    S_ice        (height, time) float64 0.985 0.985 0.985 ... 0.9908 0.9908
+    Ni_nuc       (height, time) float64 0.0 4.258e-05 ... 0.000273 0.0002726
+    nuc_rate     (height, time) float64 0.0 1.636e-06 ... 1.26e-07 1.258e-07
+    time_h       (time) float64 0.0 0.002778 0.005556 ... 5.994 5.997 6.0</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-11c3ff43-393c-4e06-9173-9bd5112a7e3b' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-11c3ff43-393c-4e06-9173-9bd5112a7e3b' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>height</span>: 43</li><li><span class='xr-has-index'>time</span>: 2161</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-199612f9-7786-4167-bfeb-acd6ec00c0f3' class='xr-section-summary-in' type='checkbox'  checked><label for='section-199612f9-7786-4167-bfeb-acd6ec00c0f3' class='xr-section-summary' >Coordinates: <span>(2)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>height</span></div><div class='xr-var-dims'>(height)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>5.208 15.62 26.04 ... 432.3 442.7</div><input id='attrs-a0119fb7-c94e-48da-842f-8ad79696f63a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-a0119fb7-c94e-48da-842f-8ad79696f63a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-37ba64ec-9c1c-453b-8612-5709afb4f250' class='xr-var-data-in' type='checkbox'><label for='data-37ba64ec-9c1c-453b-8612-5709afb4f250' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m$</dd></dl></div><div class='xr-var-data'><pre>array([  5.208333,  15.625   ,  26.041668,  36.458336,  46.875   ,  57.291668,
+        67.708336,  78.125   ,  88.54167 ,  98.958336, 109.375   , 119.79167 ,
+       130.20834 , 140.625   , 151.04167 , 161.45834 , 171.875   , 182.29167 ,
+       192.70834 , 203.125   , 213.54167 , 223.95834 , 234.375   , 244.79167 ,
+       255.20834 , 265.625   , 276.0417  , 286.45834 , 296.875   , 307.2917  ,
+       317.70834 , 328.125   , 338.5417  , 348.95834 , 359.375   , 369.7917  ,
+       380.20834 , 390.625   , 401.0417  , 411.45834 , 421.875   , 432.2917  ,
+       442.70834 ], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 10 20 30 ... 21580 21590 21600</div><input id='attrs-2de7165e-3e3f-49f8-910f-dc5c09805060' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-2de7165e-3e3f-49f8-910f-dc5c09805060' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-cdf5cd44-6745-4b02-8425-42d213d03e37' class='xr-var-data-in' type='checkbox'><label for='data-cdf5cd44-6745-4b02-8425-42d213d03e37' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$s$</dd></dl></div><div class='xr-var-data'><pre>array([    0,    10,    20, ..., 21580, 21590, 21600])</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-010981f7-9ee2-4d65-aa21-0dcc6bdf578b' class='xr-section-summary-in' type='checkbox'  ><label for='section-010981f7-9ee2-4d65-aa21-0dcc6bdf578b' class='xr-section-summary' >Data variables: <span>(17)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>delta_z</span></div><div class='xr-var-dims'>(height)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>10.42 10.42 10.42 ... 10.42 10.42</div><input id='attrs-708de735-0d04-445f-a554-158ede9a7c92' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-708de735-0d04-445f-a554-158ede9a7c92' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8221194d-0394-4499-a03d-ab1e954ff5f4' class='xr-var-data-in' type='checkbox'><label for='data-8221194d-0394-4499-a03d-ab1e954ff5f4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m$</dd></dl></div><div class='xr-var-data'><pre>array([10.416666 , 10.416668 , 10.416668 , 10.416664 , 10.416668 ,
+       10.416668 , 10.416664 , 10.416672 , 10.416664 , 10.416664 ,
+       10.416672 , 10.416672 , 10.4166565, 10.416672 , 10.416672 ,
+       10.4166565, 10.416672 , 10.416672 , 10.4166565, 10.416672 ,
+       10.416672 , 10.4166565, 10.416672 , 10.416672 , 10.4166565,
+       10.416687 , 10.4166565, 10.4166565, 10.416687 , 10.4166565,
+       10.4166565, 10.416687 , 10.4166565, 10.4166565, 10.416687 ,
+       10.4166565, 10.4166565, 10.416687 , 10.4166565, 10.4166565,
+       10.416687 , 10.4166565, 10.4166565], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>RH</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.8398 0.8398 ... 0.8329 0.8329</div><input id='attrs-b6eec173-fdc4-4dc4-9c69-c9ba8a379efc' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-b6eec173-fdc4-4dc4-9c69-c9ba8a379efc' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-fb428dd7-2b55-4cc5-9978-11343dbb4bc8' class='xr-var-data-in' type='checkbox'><label for='data-fb428dd7-2b55-4cc5-9978-11343dbb4bc8' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd></dd></dl></div><div class='xr-var-data'><pre>array([[0.83984634, 0.83984634, 0.83984634, ..., 0.83984634, 0.83984634,
         0.83984634],
        [0.84531708, 0.84531708, 0.84531708, ..., 0.84531708, 0.84531708,
         0.84531708],
@@ -826,7 +861,7 @@ dl.xr-attrs {
        [0.95714996, 0.95714996, 0.95714996, ..., 0.95714996, 0.95714996,
         0.95714996],
        [0.83286148, 0.83286148, 0.83286148, ..., 0.83286148, 0.83286148,
-        0.83286148]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>ql</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>3.337e-07 3.337e-07 ... 0.001123</div><input id='attrs-53d93ab5-6252-4db2-8d0d-889de975b772' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-53d93ab5-6252-4db2-8d0d-889de975b772' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6125f0df-5826-49e8-9279-1ef355e648b6' class='xr-var-data-in' type='checkbox'><label for='data-6125f0df-5826-49e8-9279-1ef355e648b6' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$g\:kg^{-1}$</dd></dl></div><pre class='xr-var-data'>array([[3.33709838e-07, 3.33709838e-07, 3.33709838e-07, ...,
+        0.83286148]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>ql</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>3.337e-07 3.337e-07 ... 0.001123</div><input id='attrs-4d2191f7-f027-401c-9b91-c02cac2e048e' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-4d2191f7-f027-401c-9b91-c02cac2e048e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-83251824-3bf4-45d7-8328-cf2077952046' class='xr-var-data-in' type='checkbox'><label for='data-83251824-3bf4-45d7-8328-cf2077952046' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$g\:kg^{-1}$</dd></dl></div><div class='xr-var-data'><pre>array([[3.33709838e-07, 3.33709838e-07, 3.33709838e-07, ...,
         3.33709838e-07, 3.33709838e-07, 3.33709838e-07],
        [3.85450200e-07, 3.85450200e-07, 3.85450200e-07, ...,
         3.85450200e-07, 3.85450200e-07, 3.85450200e-07],
@@ -838,7 +873,7 @@ dl.xr-attrs {
        [1.33425456e-02, 1.33425456e-02, 1.33425456e-02, ...,
         1.33425456e-02, 1.33425456e-02, 1.33425456e-02],
        [1.12262137e-03, 1.12262137e-03, 1.12262137e-03, ...,
-        1.12262137e-03, 1.12262137e-03, 1.12262137e-03]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>T</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>256.8 256.8 256.8 ... 255.3 255.3</div><input id='attrs-bd84eb0e-da26-4d53-8f9a-c814501b2f8a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-bd84eb0e-da26-4d53-8f9a-c814501b2f8a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c5247520-fac8-4bd3-bf45-e6bc56365a77' class='xr-var-data-in' type='checkbox'><label for='data-c5247520-fac8-4bd3-bf45-e6bc56365a77' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$K$</dd></dl></div><pre class='xr-var-data'>array([[256.79629517, 256.79629517, 256.79629517, ..., 256.79629517,
+        1.12262137e-03, 1.12262137e-03, 1.12262137e-03]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>T</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>256.8 256.8 256.8 ... 255.3 255.3</div><input id='attrs-6ff1c49b-b50b-4d89-aee1-1f56cdae80b8' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-6ff1c49b-b50b-4d89-aee1-1f56cdae80b8' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1b2b7be4-1c0d-4325-864a-0b5dbcb4cfcc' class='xr-var-data-in' type='checkbox'><label for='data-1b2b7be4-1c0d-4325-864a-0b5dbcb4cfcc' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$K$</dd></dl></div><div class='xr-var-data'><pre>array([[256.79629517, 256.79629517, 256.79629517, ..., 256.79629517,
         256.79629517, 256.79629517],
        [256.68988037, 256.68988037, 256.68988037, ..., 256.68988037,
         256.68988037, 256.68988037],
@@ -850,7 +885,7 @@ dl.xr-attrs {
        [253.87742615, 253.87742615, 253.87742615, ..., 253.87742615,
         253.87742615, 253.87742615],
        [255.3427887 , 255.3427887 , 255.3427887 , ..., 255.3427887 ,
-        255.3427887 , 255.3427887 ]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>Ni</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.02164 0.02164 ... 0.0006757</div><input id='attrs-3adb87b9-9630-4a48-b269-f8519249d41a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-3adb87b9-9630-4a48-b269-f8519249d41a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-29af6d4a-a963-4924-830b-addad5b2b0d0' class='xr-var-data-in' type='checkbox'><label for='data-29af6d4a-a963-4924-830b-addad5b2b0d0' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd></dl></div><pre class='xr-var-data'>array([[0.02163903, 0.02163903, 0.02163903, ..., 0.02163903, 0.02163903,
+        255.3427887 , 255.3427887 ]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>Ni</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.02164 0.02164 ... 0.0006757</div><input id='attrs-1d330202-8e3c-47d7-95aa-88bfbe8f6553' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-1d330202-8e3c-47d7-95aa-88bfbe8f6553' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f570e094-e1c9-4300-a6b0-3b28686f7414' class='xr-var-data-in' type='checkbox'><label for='data-f570e094-e1c9-4300-a6b0-3b28686f7414' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd></dl></div><div class='xr-var-data'><pre>array([[0.02163903, 0.02163903, 0.02163903, ..., 0.02163903, 0.02163903,
         0.02163903],
        [0.02199175, 0.02199175, 0.02199175, ..., 0.02199175, 0.02199175,
         0.02199175],
@@ -862,7 +897,7 @@ dl.xr-attrs {
        [0.00265046, 0.00265046, 0.00265046, ..., 0.00265046, 0.00265046,
         0.00265046],
        [0.00067567, 0.00067567, 0.00067567, ..., 0.00067567, 0.00067567,
-        0.00067567]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>prec</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0001015 0.0001015 ... 2.327e-08</div><input id='attrs-2fd6a308-f56c-4e91-8e16-55e49afe8883' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-2fd6a308-f56c-4e91-8e16-55e49afe8883' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-3738f70d-fec6-42c7-847e-5bf5a549f532' class='xr-var-data-in' type='checkbox'><label for='data-3738f70d-fec6-42c7-847e-5bf5a549f532' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$mm\:h^{-1}$</dd></dl></div><pre class='xr-var-data'>array([[1.01465179e-04, 1.01465179e-04, 1.01465179e-04, ...,
+        0.00067567]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>prec</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0001015 0.0001015 ... 2.327e-08</div><input id='attrs-f4cc216d-b018-49a3-9a02-b755b6bab53e' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-f4cc216d-b018-49a3-9a02-b755b6bab53e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-eb81fefe-eb44-4d72-8e4c-9ee11f75d00f' class='xr-var-data-in' type='checkbox'><label for='data-eb81fefe-eb44-4d72-8e4c-9ee11f75d00f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$mm\:h^{-1}$</dd></dl></div><div class='xr-var-data'><pre>array([[1.01465179e-04, 1.01465179e-04, 1.01465179e-04, ...,
         1.01465179e-04, 1.01465179e-04, 1.01465179e-04],
        [1.06041523e-04, 1.06041523e-04, 1.06041523e-04, ...,
         1.06041523e-04, 1.06041523e-04, 1.06041523e-04],
@@ -874,13 +909,15 @@ dl.xr-attrs {
        [3.21811740e-07, 3.21811740e-07, 3.21811740e-07, ...,
         3.21811740e-07, 3.21811740e-07, 3.21811740e-07],
        [2.32664394e-08, 2.32664394e-08, 2.32664394e-08, ...,
-        2.32664394e-08, 2.32664394e-08, 2.32664394e-08]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>w_e_ent</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0001 0.0001 ... 0.0001 0.0001</div><input id='attrs-a94ac145-df56-4f84-b03d-b79aec701d07' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-a94ac145-df56-4f84-b03d-b79aec701d07' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c959c1be-507d-44cb-bf23-4b9b8c4b353e' class='xr-var-data-in' type='checkbox'><label for='data-c959c1be-507d-44cb-bf23-4b9b8c4b353e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m/s$</dd><dt><span>long_name :</span></dt><dd>Cloud-top entrainment rate</dd></dl></div><pre class='xr-var-data'>array([0.0001, 0.0001, 0.0001, ..., 0.0001, 0.0001, 0.0001])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>tau_mix</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.8e+03 1.8e+03 ... 1.8e+03 1.8e+03</div><input id='attrs-db3a0ba3-f135-4366-ac9e-8e4bfc8a4b78' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-db3a0ba3-f135-4366-ac9e-8e4bfc8a4b78' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f1d3d529-b8e5-44b6-9e43-63f64eb1cad8' class='xr-var-data-in' type='checkbox'><label for='data-f1d3d529-b8e5-44b6-9e43-63f64eb1cad8' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$s$</dd><dt><span>long_name :</span></dt><dd>Boundary-layer mixing time scale</dd></dl></div><pre class='xr-var-data'>array([1800., 1800., 1800., ..., 1800., 1800., 1800.])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>mixing_mask</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>bool</div><div class='xr-var-preview xr-preview'>True True True ... True True True</div><input id='attrs-0048199d-8807-4fa1-af7a-cbb60a21207c' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0048199d-8807-4fa1-af7a-cbb60a21207c' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7a188fe2-e78f-4195-a587-0c15e6f881c2' class='xr-var-data-in' type='checkbox'><label for='data-7a188fe2-e78f-4195-a587-0c15e6f881c2' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>Mixing-layer mask (True --&gt; mixed)</dd></dl></div><pre class='xr-var-data'>array([[ True,  True,  True, ...,  True,  True,  True],
+        2.32664394e-08, 2.32664394e-08, 2.32664394e-08]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>w_e_ent</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0001 0.0001 ... 0.0001 0.0001</div><input id='attrs-aff7d525-67b7-4fb5-ab7d-d74227a60343' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-aff7d525-67b7-4fb5-ab7d-d74227a60343' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5bad9ce0-363d-458a-a229-2180e7132d30' class='xr-var-data-in' type='checkbox'><label for='data-5bad9ce0-363d-458a-a229-2180e7132d30' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m/s$</dd><dt><span>long_name :</span></dt><dd>Cloud-top entrainment rate</dd></dl></div><div class='xr-var-data'><pre>array([0.0001, 0.0001, 0.0001, ..., 0.0001, 0.0001, 0.0001])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>lowest_cbh</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>255.2 255.2 255.2 ... 255.2 255.2</div><input id='attrs-0a9dbaaa-19a5-4632-bb98-dcec5a5e3bd6' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0a9dbaaa-19a5-4632-bb98-dcec5a5e3bd6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-221c0c13-ab0a-4344-837c-d35e4bb9113d' class='xr-var-data-in' type='checkbox'><label for='data-221c0c13-ab0a-4344-837c-d35e4bb9113d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m$</dd><dt><span>long_name :</span></dt><dd>Lowest cloud base height</dd></dl></div><div class='xr-var-data'><pre>array([255.20834351, 255.20834351, 255.20834351, ..., 255.20834351,
+       255.20834351, 255.20834351])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>lowest_cth</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>442.7 442.7 442.7 ... 442.7 442.7</div><input id='attrs-0280417a-a05f-499f-84fa-4290b8559257' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0280417a-a05f-499f-84fa-4290b8559257' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9675eb7f-f618-4538-9f2c-bb9811839e71' class='xr-var-data-in' type='checkbox'><label for='data-9675eb7f-f618-4538-9f2c-bb9811839e71' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m$</dd><dt><span>long_name :</span></dt><dd>Lowest cloud top height</dd></dl></div><div class='xr-var-data'><pre>array([442.70834351, 442.70834351, 442.70834351, ..., 442.70834351,
+       442.70834351, 442.70834351])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>tau_mix</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.8e+03 1.8e+03 ... 1.8e+03 1.8e+03</div><input id='attrs-255b7ee2-4a77-4aae-9d7a-941621272eee' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-255b7ee2-4a77-4aae-9d7a-941621272eee' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-10ede215-fbc5-4988-b65f-67e354855b6d' class='xr-var-data-in' type='checkbox'><label for='data-10ede215-fbc5-4988-b65f-67e354855b6d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$s$</dd><dt><span>long_name :</span></dt><dd>Boundary-layer mixing time scale</dd></dl></div><div class='xr-var-data'><pre>array([1800., 1800., 1800., ..., 1800., 1800., 1800.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>mixing_mask</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>bool</div><div class='xr-var-preview xr-preview'>True True True ... True True True</div><input id='attrs-6321a101-551e-42ce-9ef3-1cd6887624a4' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-6321a101-551e-42ce-9ef3-1cd6887624a4' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c593041e-f7ab-44e3-8be2-4cd09ed6ca59' class='xr-var-data-in' type='checkbox'><label for='data-c593041e-f7ab-44e3-8be2-4cd09ed6ca59' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>Mixing-layer mask (True --&gt; mixed)</dd></dl></div><div class='xr-var-data'><pre>array([[ True,  True,  True, ...,  True,  True,  True],
        [ True,  True,  True, ...,  True,  True,  True],
        [ True,  True,  True, ...,  True,  True,  True],
        ...,
        [ True,  True,  True, ...,  True,  True,  True],
        [ True,  True,  True, ...,  True,  True,  True],
-       [ True,  True,  True, ...,  True,  True,  True]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>v_f_ice</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.3 0.3 0.3 0.3 ... 0.3 0.3 0.3 0.3</div><input id='attrs-0c30b5be-f352-4e51-b95e-e1f32a175cda' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0c30b5be-f352-4e51-b95e-e1f32a175cda' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-839c646d-5ebe-4b36-b7a0-b559f4df880b' class='xr-var-data-in' type='checkbox'><label for='data-839c646d-5ebe-4b36-b7a0-b559f4df880b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m/s$</dd><dt><span>long_name :</span></dt><dd>Number-weighted ice crystal fall velocity</dd></dl></div><pre class='xr-var-data'>array([0.3, 0.3, 0.3, ..., 0.3, 0.3, 0.3])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>delta_aw</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-0.01277 -0.01277 ... -0.007703</div><input id='attrs-53b316dc-3e60-4490-8bbb-a9957c19f306' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-53b316dc-3e60-4490-8bbb-a9957c19f306' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5e2754bb-1a00-4cb8-a40a-557c48ef3006' class='xr-var-data-in' type='checkbox'><label for='data-5e2754bb-1a00-4cb8-a40a-557c48ef3006' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd></dd></dl></div><pre class='xr-var-data'>array([[-1.27699807e-02, -1.27699807e-02, -1.27699807e-02, ...,
+       [ True,  True,  True, ...,  True,  True,  True]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>v_f_ice</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.3 0.3 0.3 0.3 ... 0.3 0.3 0.3 0.3</div><input id='attrs-582fef6d-851c-47b5-93f2-a2b60708a6e3' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-582fef6d-851c-47b5-93f2-a2b60708a6e3' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8c03b261-38cd-4f3b-8a31-731d9bf23f96' class='xr-var-data-in' type='checkbox'><label for='data-8c03b261-38cd-4f3b-8a31-731d9bf23f96' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m/s$</dd><dt><span>long_name :</span></dt><dd>Number-weighted ice crystal fall velocity</dd></dl></div><div class='xr-var-data'><pre>array([0.3, 0.3, 0.3, ..., 0.3, 0.3, 0.3])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>delta_aw</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-0.01277 -0.01277 ... -0.007703</div><input id='attrs-e967b8b3-a5d5-4754-81a3-3475142250a6' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-e967b8b3-a5d5-4754-81a3-3475142250a6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-4d25f2ac-fb8a-408c-b9de-f6d575126aad' class='xr-var-data-in' type='checkbox'><label for='data-4d25f2ac-fb8a-408c-b9de-f6d575126aad' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd></dd></dl></div><div class='xr-var-data'><pre>array([[-1.27699807e-02, -1.27699807e-02, -1.27699807e-02, ...,
         -1.27699807e-02, -1.27699807e-02, -1.27699807e-02],
        [-6.41115251e-03, -6.41115251e-03, -6.41115251e-03, ...,
         -6.41115251e-03, -6.41115251e-03, -6.41115251e-03],
@@ -892,19 +929,31 @@ dl.xr-attrs {
        [ 1.28565634e-01,  1.28565634e-01,  1.28565634e-01, ...,
          1.28565634e-01,  1.28565634e-01,  1.28565634e-01],
        [-7.70253734e-03, -7.70253734e-03, -7.70253734e-03, ...,
-        -7.70253734e-03, -7.70253734e-03, -7.70253734e-03]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>Ni_nuc</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 4.258e-05 ... 0.0002726</div><input id='attrs-00586745-7d89-4351-afac-02d50432afb6' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-00586745-7d89-4351-afac-02d50432afb6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-4ed41fdf-2bb4-4f4e-96da-85c11195ca62' class='xr-var-data-in' type='checkbox'><label for='data-4ed41fdf-2bb4-4f4e-96da-85c11195ca62' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd><dt><span>long_name :</span></dt><dd>Nucleated ice</dd></dl></div><pre class='xr-var-data'>array([[0.00000000e+00, 4.25764424e-05, 1.11183275e-04, ...,
-        1.92508227e-02, 1.92227534e-02, 1.91947265e-02],
+        -7.70253734e-03, -7.70253734e-03, -7.70253734e-03]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>S_ice</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.985 0.985 0.985 ... 0.9908 0.9908</div><input id='attrs-7f63cb17-7bdc-4628-892d-9d8c15c20eeb' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-7f63cb17-7bdc-4628-892d-9d8c15c20eeb' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9a8925b6-bb4f-4083-a897-d27d319b02cb' class='xr-var-data-in' type='checkbox'><label for='data-9a8925b6-bb4f-4083-a897-d27d319b02cb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd></dd></dl></div><div class='xr-var-data'><pre>array([[0.98502259, 0.98502259, 0.98502259, ..., 0.98502259, 0.98502259,
+        0.98502259],
+       [0.99247277, 0.99247277, 0.99247277, ..., 0.99247277, 0.99247277,
+        0.99247277],
+       [0.99999056, 0.99999056, 0.99999056, ..., 0.99999056, 0.99999056,
+        0.99999056],
+       ...,
+       [1.20838411, 1.20838411, 1.20838411, ..., 1.20838411, 1.20838411,
+        1.20838411],
+       [1.155163  , 1.155163  , 1.155163  , ..., 1.155163  , 1.155163  ,
+        1.155163  ],
+       [0.99083647, 0.99083647, 0.99083647, ..., 0.99083647, 0.99083647,
+        0.99083647]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>Ni_nuc</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 4.258e-05 ... 0.0002726</div><input id='attrs-98b6798a-cc58-44c7-852a-fa62c3c92cf4' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-98b6798a-cc58-44c7-852a-fa62c3c92cf4' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-3834b573-2c95-41d4-837b-4e6edbedbc35' class='xr-var-data-in' type='checkbox'><label for='data-3834b573-2c95-41d4-837b-4e6edbedbc35' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd><dt><span>long_name :</span></dt><dd>Nucleated ice</dd></dl></div><div class='xr-var-data'><pre>array([[0.00000000e+00, 4.25764422e-05, 1.11183274e-04, ...,
+        1.92508218e-02, 1.92227525e-02, 1.91947256e-02],
        [0.00000000e+00, 4.68545453e-05, 1.20039652e-04, ...,
-        1.92490636e-02, 1.92210009e-02, 1.91929805e-02],
+        1.92490636e-02, 1.92210008e-02, 1.91929804e-02],
        [0.00000000e+00, 5.22641950e-05, 1.31269186e-04, ...,
         1.92465616e-02, 1.92185065e-02, 1.91904938e-02],
        ...,
        [0.00000000e+00, 7.29124692e-03, 1.28883819e-02, ...,
-        1.60964854e-03, 1.60731233e-03, 1.60497966e-03],
+        1.60964853e-03, 1.60731233e-03, 1.60497966e-03],
        [0.00000000e+00, 1.54121461e-03, 2.66703959e-03, ...,
-        7.43543109e-04, 7.42463366e-04, 7.41385252e-04],
+        7.43543108e-04, 7.42463364e-04, 7.41385251e-04],
        [0.00000000e+00, 3.89533421e-05, 9.15757736e-05, ...,
-        2.73399643e-04, 2.73003150e-04, 2.72607255e-04]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>nuc_rate</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 1.636e-06 ... 1.258e-07</div><input id='attrs-c67ce9f9-27b3-42d2-af4b-8c6a73ff61e7' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-c67ce9f9-27b3-42d2-af4b-8c6a73ff61e7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-fafcb18e-9cfc-40db-828c-8fd019bf8fb4' class='xr-var-data-in' type='checkbox'><label for='data-fafcb18e-9cfc-40db-828c-8fd019bf8fb4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}\:s^{-1}$</dd><dt><span>long_name :</span></dt><dd>Ice nucleation rate</dd></dl></div><pre class='xr-var-data'>array([[0.00000000e+00, 1.63594748e-06, 1.63591359e-06, ...,
+        2.73399642e-04, 2.73003149e-04, 2.72607255e-04]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>nuc_rate</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 1.636e-06 ... 1.258e-07</div><input id='attrs-c2cb0efc-02df-44f2-8582-30d9648c636d' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-c2cb0efc-02df-44f2-8582-30d9648c636d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b8e7225a-04fb-465d-8497-65284e8f5498' class='xr-var-data-in' type='checkbox'><label for='data-b8e7225a-04fb-465d-8497-65284e8f5498' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}\:s^{-1}$</dd><dt><span>long_name :</span></dt><dd>Ice nucleation rate</dd></dl></div><div class='xr-var-data'><pre>array([[0.00000000e+00, 1.63594748e-06, 1.63591359e-06, ...,
         8.01774544e-08, 8.00606890e-08, 7.99440999e-08],
        [0.00000000e+00, 2.03675157e-06, 2.03670532e-06, ...,
         9.97722174e-08, 9.96269161e-08, 9.94818341e-08],
@@ -916,34 +965,32 @@ dl.xr-attrs {
        [0.00000000e+00, 2.13330662e-04, 2.13101692e-04, ...,
         8.31769318e-06, 8.30560455e-06, 8.29353416e-06],
        [0.00000000e+00, 1.94809751e-06, 1.94805413e-06, ...,
-        1.26120026e-07, 1.25984229e-07, 1.25848637e-07]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>time_h</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.002778 0.005556 ... 5.997 6.0</div><input id='attrs-6d99db59-c7c9-4291-8cef-564d10e1e76e' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-6d99db59-c7c9-4291-8cef-564d10e1e76e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a72d03dc-45d9-46e3-8897-5dd050a06df8' class='xr-var-data-in' type='checkbox'><label for='data-a72d03dc-45d9-46e3-8897-5dd050a06df8' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$h$</dd></dl></div><pre class='xr-var-data'>array([0.00000000e+00, 2.77777778e-03, 5.55555556e-03, ...,
-       5.99444444e+00, 5.99722222e+00, 6.00000000e+00])</pre></li></ul></div></li><li class='xr-section-item'><input id='section-af48ca2f-5b9e-4303-a177-90750593e84e' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-af48ca2f-5b9e-4303-a177-90750593e84e' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
+        1.26120026e-07, 1.25984229e-07, 1.25848637e-07]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>time_h</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.002778 0.005556 ... 5.997 6.0</div><input id='attrs-a4433ba9-21ca-4114-b0f8-ee4aa2c064d5' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-a4433ba9-21ca-4114-b0f8-ee4aa2c064d5' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-177897ed-b01a-42e7-8619-532138b6f1d6' class='xr-var-data-in' type='checkbox'><label for='data-177897ed-b01a-42e7-8619-532138b6f1d6' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$h$</dd></dl></div><div class='xr-var-data'><pre>array([0.00000000e+00, 2.77777778e-03, 5.55555556e-03, ...,
+       5.99444444e+00, 5.99722222e+00, 6.00000000e+00])</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-c9e716f8-55e5-4f28-923e-d3f0ba88fab8' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-c9e716f8-55e5-4f28-923e-d3f0ba88fab8' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
 </div>
 <p>To examine the INP dataset we need to specify the population name (that way, we can call an xr.Dataset of each INP populationin, in the case of multiple INP populations). Let’s examine the difference in INP xr.Dataset fields for ABIFM and singular. Note that particle diameter currently has no impact on the singular approach (moreoever, in that case, nucleus type specification is not required).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model_abifm</span><span class="o">.</span><span class="n">inp</span><span class="p">[</span><span class="s2">&quot;Al2O3_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span>
+<span></span><span class="n">model_abifm</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="s2">&quot;Al2O3_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
 <div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
 <defs>
 <symbol id="icon-database" viewBox="0 0 32 32">
-<title>Show/Hide data repr</title>
 <path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
 <path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
 <path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
 </symbol>
 <symbol id="icon-file-text2" viewBox="0 0 32 32">
-<title>Show/Hide attributes</title>
 <path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
 <path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
 <path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
@@ -966,9 +1013,27 @@ dl.xr-attrs {
   --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
 }
 
+html[theme=dark],
+body.vscode-dark {
+  --xr-font-color0: rgba(255, 255, 255, 1);
+  --xr-font-color2: rgba(255, 255, 255, 0.54);
+  --xr-font-color3: rgba(255, 255, 255, 0.38);
+  --xr-border-color: #1F1F1F;
+  --xr-disabled-color: #515151;
+  --xr-background-color: #111111;
+  --xr-background-color-row-even: #111111;
+  --xr-background-color-row-odd: #313131;
+}
+
 .xr-wrap {
+  display: block;
   min-width: 300px;
   max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
 }
 
 .xr-header {
@@ -1233,7 +1298,8 @@ dl.xr-attrs {
   grid-template-columns: 125px auto;
 }
 
-.xr-attrs dt, dd {
+.xr-attrs dt,
+.xr-attrs dd {
   padding: 0;
   margin: 0;
   float: left;
@@ -1268,14 +1334,25 @@ dl.xr-attrs {
   stroke: currentColor;
   fill: currentColor;
 }
-</style><div class='xr-wrap'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-22c30b07-12e9-4d2e-a387-12567931a59b' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-22c30b07-12e9-4d2e-a387-12567931a59b' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>diam</span>: 1</li><li><span class='xr-has-index'>height</span>: 43</li><li><span class='xr-has-index'>time</span>: 2161</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-b8f0cea7-2bbb-4e64-9aa0-137c6943452e' class='xr-section-summary-in' type='checkbox'  checked><label for='section-b8f0cea7-2bbb-4e64-9aa0-137c6943452e' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>diam</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.0</div><input id='attrs-e1e53298-ea2f-4431-a2d9-e5c9863a019f' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-e1e53298-ea2f-4431-a2d9-e5c9863a019f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0dbbdbac-6ad7-4ec9-a713-e0bb477c62d4' class='xr-var-data-in' type='checkbox'><label for='data-0dbbdbac-6ad7-4ec9-a713-e0bb477c62d4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$\mu m$</dd><dt><span>long_name :</span></dt><dd>Particle diameter</dd></dl></div><pre class='xr-var-data'>array([1.])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>height</span></div><div class='xr-var-dims'>(height)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>5.208 15.62 26.04 ... 432.3 442.7</div><input id='attrs-73636c27-a313-4ad9-8223-df56a4edac1a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-73636c27-a313-4ad9-8223-df56a4edac1a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9a800138-a10f-4317-9534-7f8572a9e139' class='xr-var-data-in' type='checkbox'><label for='data-9a800138-a10f-4317-9534-7f8572a9e139' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m$</dd></dl></div><pre class='xr-var-data'>array([  5.208333,  15.625   ,  26.041668,  36.458336,  46.875   ,  57.291668,
-        67.708336,  78.125   ,  88.541672,  98.958336, 109.375   , 119.791672,
-       130.208344, 140.625   , 151.041672, 161.458344, 171.875   , 182.291672,
-       192.708344, 203.125   , 213.541672, 223.958344, 234.375   , 244.791672,
-       255.208344, 265.625   , 276.041687, 286.458344, 296.875   , 307.291687,
-       317.708344, 328.125   , 338.541687, 348.958344, 359.375   , 369.791687,
-       380.208344, 390.625   , 401.041687, 411.458344, 421.875   , 432.291687,
-       442.708344])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 10 20 30 ... 21580 21590 21600</div><input id='attrs-2463ffd4-d6ed-4a1d-b2ae-d1382fd30c63' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-2463ffd4-d6ed-4a1d-b2ae-d1382fd30c63' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1216e992-8fb7-4c33-8109-d7544db120c8' class='xr-var-data-in' type='checkbox'><label for='data-1216e992-8fb7-4c33-8109-d7544db120c8' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$s$</dd></dl></div><pre class='xr-var-data'>array([    0,    10,    20, ..., 21580, 21590, 21600])</pre></li></ul></div></li><li class='xr-section-item'><input id='section-a228077b-c7bc-44ac-8a4e-3c8c01abce40' class='xr-section-summary-in' type='checkbox'  checked><label for='section-a228077b-c7bc-44ac-8a4e-3c8c01abce40' class='xr-section-summary' >Data variables: <span>(5)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>dn_dlogD</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>2.0</div><input id='attrs-3a166309-9a96-437f-81d0-aa63c9bd98a8' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-3a166309-9a96-437f-81d0-aa63c9bd98a8' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1aef95e0-8a0b-4a4a-a765-617c555ead84' class='xr-var-data-in' type='checkbox'><label for='data-1aef95e0-8a0b-4a4a-a765-617c555ead84' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd><dt><span>long_name :</span></dt><dd>Particle number concentration per diameter bin</dd></dl></div><pre class='xr-var-data'>array([2.])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>surf_area</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>3.142e-08</div><input id='attrs-a26b3309-138e-4056-8128-cd9439ace5d0' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-a26b3309-138e-4056-8128-cd9439ace5d0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-abaf24d5-2ef8-40c4-af4d-8e1a46388cad' class='xr-var-data-in' type='checkbox'><label for='data-abaf24d5-2ef8-40c4-af4d-8e1a46388cad' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$cm^2$</dd><dt><span>long_name :</span></dt><dd>Surface area per particle diameter</dd></dl></div><pre class='xr-var-data'>array([3.14159265e-08])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>Jhet</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>26.04 26.04 26.04 ... 31.0 31.0</div><input id='attrs-8f854358-64c2-4012-800f-6fd7878b1116' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-8f854358-64c2-4012-800f-6fd7878b1116' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9ebdef86-8406-4f74-8499-7f17c626901a' class='xr-var-data-in' type='checkbox'><label for='data-9ebdef86-8406-4f74-8499-7f17c626901a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$cm^{-2} s{-1}$</dd><dt><span>long_name :</span></dt><dd>Heterogeneous ice nucleation rate coefficient</dd></dl></div><pre class='xr-var-data'>array([[   26.0369128 ,    26.0369128 ,    26.0369128 , ...,
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt;
+Dimensions:    (diam: 1, height: 43, time: 2161)
+Coordinates:
+  * diam       (diam) float64 1.0
+  * height     (height) float32 5.208 15.62 26.04 36.46 ... 421.9 432.3 442.7
+  * time       (time) int64 0 10 20 30 40 50 ... 21560 21570 21580 21590 21600
+Data variables:
+    dn_dlogD   (diam) float64 2.0
+    surf_area  (diam) float64 3.142e-08
+    Jhet       (height, time) float64 26.04 26.04 26.04 26.04 ... 31.0 31.0 31.0
+    n_aer      (height, time, diam) float64 2.0 2.0 2.0 ... 0.1293 0.1292 0.1291
+    time_h     (time) float64 0.0 0.002778 0.005556 0.008333 ... 5.994 5.997 6.0</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-2af77a0e-d6cb-46c6-8a1c-f399f0bb4fed' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-2af77a0e-d6cb-46c6-8a1c-f399f0bb4fed' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>diam</span>: 1</li><li><span class='xr-has-index'>height</span>: 43</li><li><span class='xr-has-index'>time</span>: 2161</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-1cf4ed25-9543-4778-82f8-1e5f71588eb6' class='xr-section-summary-in' type='checkbox'  checked><label for='section-1cf4ed25-9543-4778-82f8-1e5f71588eb6' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>diam</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.0</div><input id='attrs-3438e2c8-5b15-40e0-baba-7d4cfdf50bc1' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-3438e2c8-5b15-40e0-baba-7d4cfdf50bc1' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a935f9cf-d0f0-4d72-b3eb-9c04edf16ae4' class='xr-var-data-in' type='checkbox'><label for='data-a935f9cf-d0f0-4d72-b3eb-9c04edf16ae4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$\mu m$</dd><dt><span>long_name :</span></dt><dd>Bin-middle particle diameter</dd></dl></div><div class='xr-var-data'><pre>array([1.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>height</span></div><div class='xr-var-dims'>(height)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>5.208 15.62 26.04 ... 432.3 442.7</div><input id='attrs-3013e377-6a62-4d71-bbeb-d13f13b7a411' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-3013e377-6a62-4d71-bbeb-d13f13b7a411' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7465bdae-e24a-477e-8a43-b21af168f297' class='xr-var-data-in' type='checkbox'><label for='data-7465bdae-e24a-477e-8a43-b21af168f297' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m$</dd></dl></div><div class='xr-var-data'><pre>array([  5.208333,  15.625   ,  26.041668,  36.458336,  46.875   ,  57.291668,
+        67.708336,  78.125   ,  88.54167 ,  98.958336, 109.375   , 119.79167 ,
+       130.20834 , 140.625   , 151.04167 , 161.45834 , 171.875   , 182.29167 ,
+       192.70834 , 203.125   , 213.54167 , 223.95834 , 234.375   , 244.79167 ,
+       255.20834 , 265.625   , 276.0417  , 286.45834 , 296.875   , 307.2917  ,
+       317.70834 , 328.125   , 338.5417  , 348.95834 , 359.375   , 369.7917  ,
+       380.20834 , 390.625   , 401.0417  , 411.45834 , 421.875   , 432.2917  ,
+       442.70834 ], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 10 20 30 ... 21580 21590 21600</div><input id='attrs-4c157a1e-d05c-432f-8e55-2d1e64cbb6fc' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-4c157a1e-d05c-432f-8e55-2d1e64cbb6fc' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-3581d908-b7cb-4d69-8454-536282a3b366' class='xr-var-data-in' type='checkbox'><label for='data-3581d908-b7cb-4d69-8454-536282a3b366' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$s$</dd></dl></div><div class='xr-var-data'><pre>array([    0,    10,    20, ..., 21580, 21590, 21600])</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-6704d7ed-9932-4098-83fe-fcc5f58e1f2d' class='xr-section-summary-in' type='checkbox'  checked><label for='section-6704d7ed-9932-4098-83fe-fcc5f58e1f2d' class='xr-section-summary' >Data variables: <span>(5)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>dn_dlogD</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>2.0</div><input id='attrs-2e7c05dd-fc88-41b4-8a96-9c0b793afb08' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-2e7c05dd-fc88-41b4-8a96-9c0b793afb08' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-296a14cd-d0d9-4fc1-a64e-9ac58524867c' class='xr-var-data-in' type='checkbox'><label for='data-296a14cd-d0d9-4fc1-a64e-9ac58524867c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd><dt><span>long_name :</span></dt><dd>Particle number concentration per diameter bin</dd></dl></div><div class='xr-var-data'><pre>array([2.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>surf_area</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>3.142e-08</div><input id='attrs-b27b20f4-b76c-44c3-9076-cd42340e8247' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-b27b20f4-b76c-44c3-9076-cd42340e8247' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b4e86323-16df-457f-b63d-33c0254f8cf1' class='xr-var-data-in' type='checkbox'><label for='data-b4e86323-16df-457f-b63d-33c0254f8cf1' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$cm^2$</dd><dt><span>long_name :</span></dt><dd>Surface area per particle diameter</dd></dl></div><div class='xr-var-data'><pre>array([3.14159265e-08])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>Jhet</span></div><div class='xr-var-dims'>(height, time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>26.04 26.04 26.04 ... 31.0 31.0</div><input id='attrs-622d5af2-8094-407c-9845-143112bcadb7' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-622d5af2-8094-407c-9845-143112bcadb7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f3e3219a-5a50-44cc-a146-4502cbae0562' class='xr-var-data-in' type='checkbox'><label for='data-f3e3219a-5a50-44cc-a146-4502cbae0562' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$cm^{-2} s{-1}$</dd><dt><span>long_name :</span></dt><dd>Heterogeneous ice nucleation rate coefficient</dd></dl></div><div class='xr-var-data'><pre>array([[   26.0369128 ,    26.0369128 ,    26.0369128 , ...,
            26.0369128 ,    26.0369128 ,    26.0369128 ],
        [   32.41590801,    32.41590801,    32.41590801, ...,
            32.41590801,    32.41590801,    32.41590801],
@@ -1287,7 +1364,7 @@ dl.xr-attrs {
        [ 3395.26293437,  3395.26293437,  3395.26293437, ...,
          3395.26293437,  3395.26293437,  3395.26293437],
        [   31.00493478,    31.00493478,    31.00493478, ...,
-           31.00493478,    31.00493478,    31.00493478]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>inp</span></div><div class='xr-var-dims'>(height, time, diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>2.0 2.0 2.0 ... 0.1292 0.1291</div><input id='attrs-2147781e-ccdd-4021-bf83-a2cca09adc4b' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-2147781e-ccdd-4021-bf83-a2cca09adc4b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-bb169652-28ee-4561-ad98-e8bd4a8935d7' class='xr-var-data-in' type='checkbox'><label for='data-bb169652-28ee-4561-ad98-e8bd4a8935d7' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd><dt><span>long_name :</span></dt><dd>INP concentration per diameter bin</dd></dl></div><pre class='xr-var-data'>array([[[2.        ],
+           31.00493478,    31.00493478,    31.00493478]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>n_aer</span></div><div class='xr-var-dims'>(height, time, diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>2.0 2.0 2.0 ... 0.1292 0.1291</div><input id='attrs-9f294361-806d-49b6-91a1-d8dbb1fa2b6d' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-9f294361-806d-49b6-91a1-d8dbb1fa2b6d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ff257eb0-f2ea-4689-94dd-b9e327e8ad38' class='xr-var-data-in' type='checkbox'><label for='data-ff257eb0-f2ea-4689-94dd-b9e327e8ad38' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd><dt><span>long_name :</span></dt><dd>aerosol number concentration per diameter bin</dd></dl></div><div class='xr-var-data'><pre>array([[[2.        ],
         [1.99995857],
         [1.99989233],
         ...,
@@ -1307,15 +1384,7 @@ dl.xr-attrs {
         [1.99994958],
         [1.99987441],
         ...,
-        [0.09776955],
-        [0.09762717],
-        [0.09748501]],
-
-       ...,
-
-       [[2.        ],
-        [1.99062779],
-        [1.9813264 ],
+...
         ...,
         [0.0457809 ],
         [0.04571462],
@@ -1335,33 +1404,31 @@ dl.xr-attrs {
         ...,
         [0.12934078],
         [0.12920158],
-        [0.12906258]]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>time_h</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.002778 0.005556 ... 5.997 6.0</div><input id='attrs-4de44b33-c49e-4e86-832e-9b813c1d8c0b' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-4de44b33-c49e-4e86-832e-9b813c1d8c0b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6158bed4-1143-4ee3-9046-082bb61897d4' class='xr-var-data-in' type='checkbox'><label for='data-6158bed4-1143-4ee3-9046-082bb61897d4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$h$</dd></dl></div><pre class='xr-var-data'>array([0.00000000e+00, 2.77777778e-03, 5.55555556e-03, ...,
-       5.99444444e+00, 5.99722222e+00, 6.00000000e+00])</pre></li></ul></div></li><li class='xr-section-item'><input id='section-6e63c3e2-84bf-4f74-ae27-5e91573a2347' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-6e63c3e2-84bf-4f74-ae27-5e91573a2347' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
+        [0.12906258]]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>time_h</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.002778 0.005556 ... 5.997 6.0</div><input id='attrs-6e5459e3-db08-4351-b3ff-1a0cda2bba3f' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-6e5459e3-db08-4351-b3ff-1a0cda2bba3f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-67237a98-4fdd-48b1-9c6f-a4abdc75fd78' class='xr-var-data-in' type='checkbox'><label for='data-67237a98-4fdd-48b1-9c6f-a4abdc75fd78' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$h$</dd></dl></div><div class='xr-var-data'><pre>array([0.00000000e+00, 2.77777778e-03, 5.55555556e-03, ...,
+       5.99444444e+00, 5.99722222e+00, 6.00000000e+00])</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-9ee2cabb-d3fe-4bcd-ab13-22f90854854d' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-9ee2cabb-d3fe-4bcd-ab13-22f90854854d' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model_singular</span><span class="o">.</span><span class="n">inp</span><span class="p">[</span><span class="s2">&quot;Al2O3_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span>
+<span></span><span class="n">model_singular</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="s2">&quot;Al2O3_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
 <div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
 <defs>
 <symbol id="icon-database" viewBox="0 0 32 32">
-<title>Show/Hide data repr</title>
 <path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
 <path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
 <path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
 </symbol>
 <symbol id="icon-file-text2" viewBox="0 0 32 32">
-<title>Show/Hide attributes</title>
 <path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
 <path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
 <path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
@@ -1384,9 +1451,27 @@ dl.xr-attrs {
   --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
 }
 
+html[theme=dark],
+body.vscode-dark {
+  --xr-font-color0: rgba(255, 255, 255, 1);
+  --xr-font-color2: rgba(255, 255, 255, 0.54);
+  --xr-font-color3: rgba(255, 255, 255, 0.38);
+  --xr-border-color: #1F1F1F;
+  --xr-disabled-color: #515151;
+  --xr-background-color: #111111;
+  --xr-background-color-row-even: #111111;
+  --xr-background-color-row-odd: #313131;
+}
+
 .xr-wrap {
+  display: block;
   min-width: 300px;
   max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
 }
 
 .xr-header {
@@ -1651,7 +1736,8 @@ dl.xr-attrs {
   grid-template-columns: 125px auto;
 }
 
-.xr-attrs dt, dd {
+.xr-attrs dt,
+.xr-attrs dd {
   padding: 0;
   margin: 0;
   float: left;
@@ -1686,108 +1772,82 @@ dl.xr-attrs {
   stroke: currentColor;
   fill: currentColor;
 }
-</style><div class='xr-wrap'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-6c5cc158-05cb-4164-b133-3af6441b0d3f' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-6c5cc158-05cb-4164-b133-3af6441b0d3f' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>T</span>: 301</li><li><span class='xr-has-index'>diam</span>: 1</li><li><span class='xr-has-index'>height</span>: 43</li><li><span class='xr-has-index'>time</span>: 2161</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-0ae1bae8-1eef-4994-9863-a7f2b5ce82e8' class='xr-section-summary-in' type='checkbox'  checked><label for='section-0ae1bae8-1eef-4994-9863-a7f2b5ce82e8' class='xr-section-summary' >Coordinates: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>T</span></div><div class='xr-var-dims'>(T)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>238.1 238.2 238.3 ... 268.0 268.1</div><input id='attrs-1cce0202-4d05-4d93-b444-2e705f63fd72' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-1cce0202-4d05-4d93-b444-2e705f63fd72' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f25c75a0-6801-4ee5-8c95-42b6264acabc' class='xr-var-data-in' type='checkbox'><label for='data-f25c75a0-6801-4ee5-8c95-42b6264acabc' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><pre class='xr-var-data'>array([238.15, 238.25, 238.35, ..., 267.95, 268.05, 268.15])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>height</span></div><div class='xr-var-dims'>(height)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>5.208 15.62 26.04 ... 432.3 442.7</div><input id='attrs-9704f4a7-db3c-4b7e-9088-cc740012b6b9' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-9704f4a7-db3c-4b7e-9088-cc740012b6b9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8f05fbf0-ddd5-4c9f-940e-4578198e8488' class='xr-var-data-in' type='checkbox'><label for='data-8f05fbf0-ddd5-4c9f-940e-4578198e8488' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m$</dd></dl></div><pre class='xr-var-data'>array([  5.208333,  15.625   ,  26.041668,  36.458336,  46.875   ,  57.291668,
-        67.708336,  78.125   ,  88.541672,  98.958336, 109.375   , 119.791672,
-       130.208344, 140.625   , 151.041672, 161.458344, 171.875   , 182.291672,
-       192.708344, 203.125   , 213.541672, 223.958344, 234.375   , 244.791672,
-       255.208344, 265.625   , 276.041687, 286.458344, 296.875   , 307.291687,
-       317.708344, 328.125   , 338.541687, 348.958344, 359.375   , 369.791687,
-       380.208344, 390.625   , 401.041687, 411.458344, 421.875   , 432.291687,
-       442.708344])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 10 20 30 ... 21580 21590 21600</div><input id='attrs-3dbb4b07-8aae-4a0f-9b15-bcbd2ab38082' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-3dbb4b07-8aae-4a0f-9b15-bcbd2ab38082' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9ffcb6b0-67f8-4a7d-9418-0f39e78aad90' class='xr-var-data-in' type='checkbox'><label for='data-9ffcb6b0-67f8-4a7d-9418-0f39e78aad90' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$s$</dd></dl></div><pre class='xr-var-data'>array([    0,    10,    20, ..., 21580, 21590, 21600])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>diam</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.0</div><input id='attrs-d4613270-fbb0-42ef-a89a-484808199ddd' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-d4613270-fbb0-42ef-a89a-484808199ddd' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2517a4df-82a4-4502-b0ea-065e0c3e40a4' class='xr-var-data-in' type='checkbox'><label for='data-2517a4df-82a4-4502-b0ea-065e0c3e40a4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$\mu m$</dd><dt><span>long_name :</span></dt><dd>Particle diameter</dd></dl></div><pre class='xr-var-data'>array([1.])</pre></li></ul></div></li><li class='xr-section-item'><input id='section-89c7723b-b487-401a-84b3-75f5218c5c7e' class='xr-section-summary-in' type='checkbox'  checked><label for='section-89c7723b-b487-401a-84b3-75f5218c5c7e' class='xr-section-summary' >Data variables: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>dn_dlogD</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>2.0</div><input id='attrs-813cb359-7471-4649-bc4f-357caa18aeec' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-813cb359-7471-4649-bc4f-357caa18aeec' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e8dc4382-e6b6-49e4-b2d2-fd41a3bc8791' class='xr-var-data-in' type='checkbox'><label for='data-e8dc4382-e6b6-49e4-b2d2-fd41a3bc8791' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd><dt><span>long_name :</span></dt><dd>Particle number concentration per diameter bin</dd></dl></div><pre class='xr-var-data'>array([2.])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>surf_area</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>3.142e-08</div><input id='attrs-3a0fdfda-75f2-42db-bf38-23b7d89560b0' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-3a0fdfda-75f2-42db-bf38-23b7d89560b0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-588a29d5-2435-48cc-acee-b202d8b80894' class='xr-var-data-in' type='checkbox'><label for='data-588a29d5-2435-48cc-acee-b202d8b80894' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$cm^2$</dd><dt><span>long_name :</span></dt><dd>Surface area per particle diameter</dd></dl></div><pre class='xr-var-data'>array([3.14159265e-08])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>inp</span></div><div class='xr-var-dims'>(height, time, T)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.177 0.1754 ... 1.548e-06</div><input id='attrs-bb7a1dc8-29ea-4790-a8a0-ccd68b79f9d8' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-bb7a1dc8-29ea-4790-a8a0-ccd68b79f9d8' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-4df95d15-d6b1-42ed-ae26-3cb15d4d8b2c' class='xr-var-data-in' type='checkbox'><label for='data-4df95d15-d6b1-42ed-ae26-3cb15d4d8b2c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd><dt><span>long_name :</span></dt><dd>INP concentration per temperature bin</dd></dl></div><pre class='xr-var-data'>array([[[1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02535350e-03, 9.77337543e-04, 1.39654490e-02],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02283650e-03, 9.74938406e-04, 1.39311670e-02],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02032567e-03, 9.72545159e-04, 1.38969693e-02],
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt;
+Dimensions:    (T: 45, diam: 1, height: 43, time: 2161)
+Coordinates:
+  * T          (T) float64 253.0 253.1 253.3 253.4 ... 265.8 266.6 267.3 268.2
+  * height     (height) float32 5.208 15.62 26.04 36.46 ... 421.9 432.3 442.7
+  * time       (time) int64 0 10 20 30 40 50 ... 21560 21570 21580 21590 21600
+  * diam       (diam) float64 1.0
+Data variables:
+    dn_dlogD   (diam) float64 2.0
+    surf_area  (diam) float64 3.142e-08
+    inp        (height, time, T) float64 0.03439 0.0356 ... 1.041e-06 1.533e-06
+    time_h     (time) float64 0.0 0.002778 0.005556 0.008333 ... 5.994 5.997 6.0</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-af297c83-6d8f-43aa-bb45-9ec45a7d65d6' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-af297c83-6d8f-43aa-bb45-9ec45a7d65d6' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>T</span>: 45</li><li><span class='xr-has-index'>diam</span>: 1</li><li><span class='xr-has-index'>height</span>: 43</li><li><span class='xr-has-index'>time</span>: 2161</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-b264728c-3fa4-4fd1-88dc-ae5d5555f856' class='xr-section-summary-in' type='checkbox'  checked><label for='section-b264728c-3fa4-4fd1-88dc-ae5d5555f856' class='xr-section-summary' >Coordinates: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>T</span></div><div class='xr-var-dims'>(T)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>253.0 253.1 253.3 ... 267.3 268.2</div><input id='attrs-40a79f2f-0970-487a-a36f-1b631822961d' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-40a79f2f-0970-487a-a36f-1b631822961d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-fc67c992-daa0-4688-8216-a530212f6e1c' class='xr-var-data-in' type='checkbox'><label for='data-fc67c992-daa0-4688-8216-a530212f6e1c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([253.05    , 253.15    , 253.255   , 253.36525 , 253.481012, 253.602563,
+       253.730191, 253.864201, 254.004911, 254.152656, 254.307789, 254.470679,
+       254.641713, 254.821298, 255.009863, 255.207856, 255.415749, 255.634037,
+       255.863238, 256.1039  , 256.356595, 256.621925, 256.900521, 257.193048,
+       257.5002  , 257.82271 , 258.161345, 258.516913, 258.890258, 259.282271,
+       259.693885, 260.126079, 260.579883, 261.056377, 261.556696, 262.082031,
+       262.633632, 263.212814, 263.820955, 264.459502, 265.129977, 265.833976,
+       266.573175, 267.349334, 268.164301])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>height</span></div><div class='xr-var-dims'>(height)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>5.208 15.62 26.04 ... 432.3 442.7</div><input id='attrs-141a9d9a-4606-4c93-bb5d-7519d53f211d' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-141a9d9a-4606-4c93-bb5d-7519d53f211d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d611576e-4beb-47b7-b6fa-e80b8d758531' class='xr-var-data-in' type='checkbox'><label for='data-d611576e-4beb-47b7-b6fa-e80b8d758531' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$m$</dd></dl></div><div class='xr-var-data'><pre>array([  5.208333,  15.625   ,  26.041668,  36.458336,  46.875   ,  57.291668,
+        67.708336,  78.125   ,  88.54167 ,  98.958336, 109.375   , 119.79167 ,
+       130.20834 , 140.625   , 151.04167 , 161.45834 , 171.875   , 182.29167 ,
+       192.70834 , 203.125   , 213.54167 , 223.95834 , 234.375   , 244.79167 ,
+       255.20834 , 265.625   , 276.0417  , 286.45834 , 296.875   , 307.2917  ,
+       317.70834 , 328.125   , 338.5417  , 348.95834 , 359.375   , 369.7917  ,
+       380.20834 , 390.625   , 401.0417  , 411.45834 , 421.875   , 432.2917  ,
+       442.70834 ], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 10 20 30 ... 21580 21590 21600</div><input id='attrs-dd50dd0e-4428-4a23-ada2-f11bc458a222' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-dd50dd0e-4428-4a23-ada2-f11bc458a222' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ea0a9ebe-5600-4961-9d3a-16d01805fd8c' class='xr-var-data-in' type='checkbox'><label for='data-ea0a9ebe-5600-4961-9d3a-16d01805fd8c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$s$</dd></dl></div><div class='xr-var-data'><pre>array([    0,    10,    20, ..., 21580, 21590, 21600])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>diam</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.0</div><input id='attrs-29b42194-7db9-4aeb-a97e-4d2804cf5bf8' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-29b42194-7db9-4aeb-a97e-4d2804cf5bf8' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8fe1d064-cca5-44a5-a552-b5977113aba8' class='xr-var-data-in' type='checkbox'><label for='data-8fe1d064-cca5-44a5-a552-b5977113aba8' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$\mu m$</dd><dt><span>long_name :</span></dt><dd>Bin-middle particle diameter</dd></dl></div><div class='xr-var-data'><pre>array([1.])</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-ef978140-6ad8-4b1e-b622-8903e90293d6' class='xr-section-summary-in' type='checkbox'  checked><label for='section-ef978140-6ad8-4b1e-b622-8903e90293d6' class='xr-section-summary' >Data variables: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>dn_dlogD</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>2.0</div><input id='attrs-217be83e-685a-47c6-9dfe-f8d81ba4b940' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-217be83e-685a-47c6-9dfe-f8d81ba4b940' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-96e6989c-044b-4601-8b9d-c34c07baab23' class='xr-var-data-in' type='checkbox'><label for='data-96e6989c-044b-4601-8b9d-c34c07baab23' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd><dt><span>long_name :</span></dt><dd>Particle number concentration per diameter bin</dd></dl></div><div class='xr-var-data'><pre>array([2.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>surf_area</span></div><div class='xr-var-dims'>(diam)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>3.142e-08</div><input id='attrs-57970784-e830-4fc8-87d1-da0c338f72ee' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-57970784-e830-4fc8-87d1-da0c338f72ee' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-898d1dac-3c25-4244-b60e-e5731e92edf2' class='xr-var-data-in' type='checkbox'><label for='data-898d1dac-3c25-4244-b60e-e5731e92edf2' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$cm^2$</dd><dt><span>long_name :</span></dt><dd>Surface area per particle diameter</dd></dl></div><div class='xr-var-data'><pre>array([3.14159265e-08])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>inp</span></div><div class='xr-var-dims'>(height, time, T)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.03439 0.0356 ... 1.533e-06</div><input id='attrs-9195ec03-40e1-48ba-a1a3-68e7b1f3d8b7' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-9195ec03-40e1-48ba-a1a3-68e7b1f3d8b7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-61669d04-9dee-4e14-962b-840a144d7a48' class='xr-var-data-in' type='checkbox'><label for='data-61669d04-9dee-4e14-962b-840a144d7a48' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$L^{-1}$</dd><dt><span>long_name :</span></dt><dd>INP number concentration per temperature bin</dd></dl></div><div class='xr-var-data'><pre>array([[[3.43948048e-02, 3.56011219e-02, 3.68209307e-02, ...,
+         1.25351480e-02, 9.38878563e-03, 1.38295265e-02],
+        [3.43948048e-02, 3.55873230e-02, 3.67971445e-02, ...,
+         1.25043771e-02, 9.36573834e-03, 1.37955782e-02],
+        [3.43948048e-02, 3.55735295e-02, 3.67733738e-02, ...,
+         1.24736818e-02, 9.34274763e-03, 1.37617133e-02],
         ...,
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         5.10323518e-06, 4.86425736e-06, 6.95067313e-05],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         5.09072057e-06, 4.85232880e-06, 6.93362807e-05],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         5.07823669e-06, 4.84042952e-06, 6.91662486e-05]],
+        [3.43948048e-02, 1.54580580e-02, 9.17566316e-03, ...,
+         6.23880524e-05, 4.67284511e-05, 6.88302384e-05],
+        [3.43948048e-02, 1.54521083e-02, 9.16979384e-03, ...,
+         6.22350589e-05, 4.66138595e-05, 6.86614468e-05],
+        [3.43948048e-02, 1.54461608e-02, 9.16392834e-03, ...,
+         6.20824409e-05, 4.64995492e-05, 6.84930696e-05]],
 
-       [[1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02535350e-03, 9.77337543e-04, 1.39654490e-02],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02283650e-03, 9.74938406e-04, 1.39311670e-02],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02032567e-03, 9.72545159e-04, 1.38969693e-02],
+       [[3.43948048e-02, 3.56011219e-02, 3.68209307e-02, ...,
+         1.25351480e-02, 9.38878563e-03, 1.38295265e-02],
+        [3.43948048e-02, 3.55873230e-02, 3.67971445e-02, ...,
+         1.25043771e-02, 9.36573834e-03, 1.37955782e-02],
+        [3.43948048e-02, 3.55735295e-02, 3.67733738e-02, ...,
+         1.24736818e-02, 9.34274763e-03, 1.37617133e-02],
+...
+        [3.43948048e-02, 1.54580580e-02, 9.17566316e-03, ...,
+         1.94082366e-07, 1.45367070e-07, 2.14123298e-07],
+        [3.43948048e-02, 1.54521083e-02, 9.16979384e-03, ...,
+         1.93606800e-07, 1.45010872e-07, 2.13598625e-07],
+        [3.43948048e-02, 1.54461608e-02, 9.16392834e-03, ...,
+         1.93132402e-07, 1.44655549e-07, 2.13075240e-07]],
+
+       [[3.43948048e-02, 3.56011219e-02, 3.68209307e-02, ...,
+         1.25351480e-02, 9.38878563e-03, 1.38295265e-02],
+        [3.43948048e-02, 3.55873230e-02, 3.67971445e-02, ...,
+         4.00655213e-05, 3.00089470e-05, 4.42026843e-05],
+        [3.43948048e-02, 3.55735308e-02, 3.67733761e-02, ...,
+         3.99701078e-05, 2.99374825e-05, 4.40974184e-05],
         ...,
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         5.10323518e-06, 4.86425736e-06, 6.95067313e-05],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         5.09072057e-06, 4.85232880e-06, 6.93362807e-05],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         5.07823669e-06, 4.84042952e-06, 6.91662486e-05]],
-
-       [[1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02535350e-03, 9.77337543e-04, 1.39654490e-02],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02283650e-03, 9.74938406e-04, 1.39311670e-02],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02032567e-03, 9.72545159e-04, 1.38969693e-02],
-        ...,
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         5.10323518e-06, 4.86425736e-06, 6.95067313e-05],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         5.09072057e-06, 4.85232880e-06, 6.93362807e-05],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         5.07823669e-06, 4.84042952e-06, 6.91662486e-05]],
-
-       ...,
-
-       [[1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02535350e-03, 9.77337543e-04, 1.39654490e-02],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         3.17940343e-06, 3.03051613e-06, 4.33038910e-05],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         3.17159876e-06, 3.02307695e-06, 4.31975904e-05],
-        ...,
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.58756031e-08, 1.51321694e-08, 2.16227793e-07],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.58367026e-08, 1.50950906e-08, 2.15697963e-07],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.57978976e-08, 1.50581028e-08, 2.15169434e-07]],
-
-       [[1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02535350e-03, 9.77337543e-04, 1.39654490e-02],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         3.17940343e-06, 3.03051613e-06, 4.33038910e-05],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         3.17159876e-06, 3.02307695e-06, 4.31975904e-05],
-        ...,
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.58756031e-08, 1.51321694e-08, 2.16227793e-07],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.58367026e-08, 1.50950906e-08, 2.15697963e-07],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.57978976e-08, 1.50581028e-08, 2.15169434e-07]],
-
-       [[1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.02535350e-03, 9.77337543e-04, 1.39654490e-02],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         3.27729061e-06, 3.12381938e-06, 4.46371271e-05],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         3.26948594e-06, 3.11638020e-06, 4.45308266e-05],
-        ...,
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.13762780e-07, 1.08435418e-07, 1.54946396e-06],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.13723879e-07, 1.08398339e-07, 1.54893413e-06],
-        [1.76969255e-01, 1.75389767e-01, 1.73821006e-01, ...,
-         1.13685074e-07, 1.08361351e-07, 1.54840560e-06]]])</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>time_h</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.002778 0.005556 ... 5.997 6.0</div><input id='attrs-87089596-7c4b-4a0c-bf39-b3a405608c67' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-87089596-7c4b-4a0c-bf39-b3a405608c67' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c9ed58da-739b-4361-9576-bbcd922d2381' class='xr-var-data-in' type='checkbox'><label for='data-c9ed58da-739b-4361-9576-bbcd922d2381' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$h$</dd></dl></div><pre class='xr-var-data'>array([0.00000000e+00, 2.77777778e-03, 5.55555556e-03, ...,
-       5.99444444e+00, 5.99722222e+00, 6.00000000e+00])</pre></li></ul></div></li><li class='xr-section-item'><input id='section-7cc7aa44-5ec3-4ba8-88ee-98d8d442b167' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-7cc7aa44-5ec3-4ba8-88ee-98d8d442b167' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
+        [3.43948048e-02, 1.57792443e-02, 9.62287402e-03, ...,
+         1.39077233e-06, 1.04168401e-06, 1.53438338e-06],
+        [3.43948048e-02, 1.57734025e-02, 9.61711672e-03, ...,
+         1.39029676e-06, 1.04132782e-06, 1.53385871e-06],
+        [3.43948048e-02, 1.57675630e-02, 9.61136314e-03, ...,
+         1.38982236e-06, 1.04097249e-06, 1.53333533e-06]]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>time_h</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.002778 0.005556 ... 5.997 6.0</div><input id='attrs-0d81d578-5e33-4cc1-8790-b675dad500db' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0d81d578-5e33-4cc1-8790-b675dad500db' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2740310d-667e-4d4d-8433-e5ad46713ad4' class='xr-var-data-in' type='checkbox'><label for='data-2740310d-667e-4d4d-8433-e5ad46713ad4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>$h$</dd></dl></div><div class='xr-var-data'><pre>array([0.00000000e+00, 2.77777778e-03, 5.55555556e-03, ...,
+       5.99444444e+00, 5.99722222e+00, 6.00000000e+00])</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-fb1d837b-f3a4-4410-a012-d25951cec515' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-fb1d837b-f3a4-4410-a012-d25951cec515' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
 </div>
 <p>When using ABIFM, we can see below how to print the ABIFM coefficient for a given INP population and where ABIFM coefficient table is stored:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;m = </span><span class="si">%f</span><span class="s2">, c = </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model_abifm</span><span class="o">.</span><span class="n">inp</span><span class="p">[</span><span class="s2">&quot;Al2O3_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">Jhet</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">model_abifm</span><span class="o">.</span><span class="n">inp</span><span class="p">[</span><span class="s2">&quot;Al2O3_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">Jhet</span><span class="o">.</span><span class="n">c</span><span class="p">))</span>
-<span class="n">model_abifm</span><span class="o">.</span><span class="n">inp</span><span class="p">[</span><span class="s2">&quot;Al2O3_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">Jhet</span><span class="o">.</span><span class="n">Jhet_coeff_table</span>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;m = </span><span class="si">%f</span><span class="s2">, c = </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model_abifm</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="s2">&quot;Al2O3_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">Jhet</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">model_abifm</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="s2">&quot;Al2O3_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">Jhet</span><span class="o">.</span><span class="n">c</span><span class="p">))</span>
+<span class="n">model_abifm</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="s2">&quot;Al2O3_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">Jhet</span><span class="o">.</span><span class="n">Jhet_coeff_table</span>
 </pre></div>
 </div>
 </div>
@@ -1800,7 +1860,7 @@ m = 14.966390, c = 1.606710
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1965,6 +2025,72 @@ m = 14.966390, c = 1.606710
       <td>0.50162</td>
       <td>30.45549</td>
     </tr>
+    <tr>
+      <th>Desert Dust</th>
+      <td>-1.35</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22.62</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>Feldspar (Herbert)</th>
+      <td>-12.98</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>122.83</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>soot (Schill)</th>
+      <td>-2.08</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>18.07</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>Upper tropos, At., china</th>
+      <td>0.66</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2.98</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>ACE-ENA gnd (Knopf)</th>
+      <td>1.93</td>
+      <td>0</td>
+      <td>1.16</td>
+      <td>2.7</td>
+      <td>4.69</td>
+      <td>0</td>
+      <td>1.27</td>
+      <td>8.11</td>
+    </tr>
+    <tr>
+      <th>Fluka Kaolinite (Wex)</th>
+      <td>-8.61</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>53.32</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
   </tbody>
 </table>
 </div></div>
@@ -1972,7 +2098,7 @@ m = 14.966390, c = 1.606710
 <p>As mentioned above, we can also use xarray to examine the model output. While we can still use the two model objects from above, let us run two additional simulations using the model’s default PSD (<span class="math notranslate nohighlight">\(D_{mean}\ =\ 1\ \mu m\)</span>, SD = 2.5, 35 PSD bins, <span class="math notranslate nohighlight">\(D_{min}\ =\ 0.01\ \mu m\)</span>, and bin mass ratio of 2). Here, we use 6 h long model run. in the first simulation, the LES sounding we use represents the simulation mean between 3-6 h (after steady state), while in the second we inform the model
 with the full (un-averaged) LES output. Note that ABIFM, LES output temporal averaging, and the PSD parameters are all used by default, so these can be specified when calling the model, but are not required in this case. Note that in both simulations we specified the mixing layer as only occurring within cloud boundaries (see figures below).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1981,23 +2107,25 @@ with the full (un-averaged) LES output. Note that ABIFM, LES output temporal ave
 <span class="c1"># Average LES in time</span>
 <span class="n">model_def</span> <span class="o">=</span> <span class="n">ci_model</span><span class="p">(</span><span class="n">final_t</span><span class="o">=</span><span class="mi">3600</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span>                           <span class="c1"># 1D model simulation time</span>
                  <span class="n">mixing_bounds</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;ql_cbh&quot;</span><span class="p">,</span> <span class="s2">&quot;ql_cbh&quot;</span><span class="p">),</span>           <span class="c1"># Mixing layer bounds (base, top) in m (&quot;ql_cbh&quot; for cloud base/top)</span>
-                 <span class="n">inp_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span>           <span class="c1"># INP population #4 properties</span>
+                 <span class="n">aer_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span>           <span class="c1"># INP population #4 properties</span>
                             <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
                             <span class="s2">&quot;psd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">},</span>
                             <span class="s2">&quot;nucleus_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">}</span>
                           <span class="p">],</span>
-                 <span class="n">t_harvest</span><span class="o">=</span><span class="p">(</span><span class="mi">3600</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3600</span><span class="o">*</span><span class="mi">6</span><span class="p">))</span>                   <span class="c1"># time(s) to harvest from the LES model output</span>
+                 <span class="n">t_harvest</span><span class="o">=</span><span class="p">(</span><span class="mi">3600</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3600</span><span class="o">*</span><span class="mi">6</span><span class="p">),</span>                   <span class="c1"># time(s) to harvest from the LES model output</span>
+                 <span class="n">run_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="c1"># Use full LES output to inform the model</span>
 <span class="n">model_def_no_les_ave</span> <span class="o">=</span>   <span class="n">ci_model</span><span class="p">(</span><span class="n">final_t</span><span class="o">=</span><span class="mi">3600</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span>                      <span class="c1"># 1D model simulation time</span>
                          <span class="n">mixing_bounds</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;ql_cbh&quot;</span><span class="p">,</span> <span class="s2">&quot;ql_cbh&quot;</span><span class="p">),</span>           <span class="c1"># Mixing layer bounds (base, top) in m (&quot;ql_cbh&quot; for cloud base/top)</span>
                          <span class="n">t_averaged_les</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>                         <span class="c1"># True - time-averaged LES, False - LES evolution informs 1d model</span>
-                         <span class="n">inp_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span>           <span class="c1"># INP population #4 properties</span>
+                         <span class="n">aer_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span>           <span class="c1"># INP population #4 properties</span>
                                     <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
                                     <span class="s2">&quot;psd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">},</span>
                                     <span class="s2">&quot;nucleus_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">}</span>
                                   <span class="p">],</span>
-                         <span class="n">t_harvest</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3600</span><span class="o">*</span><span class="mi">6</span><span class="p">))</span>                   <span class="c1"># time(s) to harvest from the LES model output</span>
+                         <span class="n">t_harvest</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3600</span><span class="o">*</span><span class="mi">6</span><span class="p">),</span>                        <span class="c1"># time(s) to harvest from the LES model output</span>
+                         <span class="n">run_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2006,48 +2134,12 @@ with the full (un-averaged) LES output. Note that ABIFM, LES output temporal ave
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Model initalization done! Total processing time = 1.290617 s
-10% of model run completed. Elapsed time: 0.59 s.
-20% of model run completed. Elapsed time: 1.18 s.
-30% of model run completed. Elapsed time: 1.77 s.
-40% of model run completed. Elapsed time: 2.37 s.
-50% of model run completed. Elapsed time: 2.96 s.
-60% of model run completed. Elapsed time: 3.54 s.
-70% of model run completed. Elapsed time: 4.14 s.
-80% of model run completed. Elapsed time: 4.73 s.
-90% of model run completed. Elapsed time: 5.32 s.
-
-Model run finished! Total run time = 5.910939 s
-Model run time stats:
-Process: activation_inp: 0.96 s (16.26% of of total time)
-Process: entrainment_inp: 0.03 s (0.49% of of total time)
-Process: mixing_inp: 1.26 s (21.40% of of total time)
-Process: sedimentation_ice: 0.64 s (10.84% of of total time)
-Process: mixing_ice: 0.56 s (9.43% of of total time)
-Process: data_allocation: 2.45 s (41.50% of of total time)
-Model initalization done! Total processing time = 2.971385 s
-10% of model run completed. Elapsed time: 0.62 s.
-20% of model run completed. Elapsed time: 1.20 s.
-30% of model run completed. Elapsed time: 1.80 s.
-40% of model run completed. Elapsed time: 2.40 s.
-50% of model run completed. Elapsed time: 3.00 s.
-60% of model run completed. Elapsed time: 3.63 s.
-70% of model run completed. Elapsed time: 4.26 s.
-80% of model run completed. Elapsed time: 4.90 s.
-90% of model run completed. Elapsed time: 5.53 s.
-
-Model run finished! Total run time = 6.178920 s
-Model run time stats:
-Process: activation_inp: 0.96 s (15.60% of of total time)
-Process: entrainment_inp: 0.27 s (4.39% of of total time)
-Process: mixing_inp: 1.27 s (20.48% of of total time)
-Process: sedimentation_ice: 0.65 s (10.47% of of total time)
-Process: mixing_ice: 0.56 s (9.01% of of total time)
-Process: data_allocation: 2.47 s (39.97% of of total time)
+Model initalization done! Total processing time = 1.179468 s
+Model initalization done! Total processing time = 2.632711 s
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -2065,10 +2157,10 @@ Process: data_allocation: 2.47 s (39.97% of of total time)
 <img alt="_images/Example_14_0.png" src="_images/Example_14_0.png" />
 </div>
 </div>
-<p>The simulation below shows all model input options and capabilities of handling multiple INP populations that can be weighted vertically (introducing INP layers). Note that if weights larger than 1 are specified, the weight profile is normalized to have a maximum value of 1 (a message is printed on the screen to let the user know). In this simulation we use the full LES output, and specify 4 INP populations of different types (nucleus type, PSD, etc.). Here, our mixed layer goes from the surface
+<p>The simulation below shows all model input options and capabilities of handling multiple INP populations that can be weighted vertically (introducing INP layers). Note that if weights larger than 1 are specified, the weight profile is normalized to have a maximum value of 1 (a message is printed on the screen to let the user know). In this simulation we use the full LES output, and specify 5 INP populations of different types (nucleus type, PSD, etc.). Here, our mixed layer goes from the surface
 up to cloud top (note that “ql_cbh” applies to cloud base or cloud top, depending on the ‘mixing_bounds’ element (first or second).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -2086,7 +2178,7 @@ up to cloud top (note that “ql_cbh” applies to cloud base or cloud top, depe
                  <span class="n">tau_mix</span><span class="o">=</span><span class="mf">1800.</span><span class="p">,</span>                                <span class="c1"># Mixing time scale value or time series</span>
                  <span class="n">v_f_ice</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>                                  <span class="c1"># number-weighted fall velocity (value, t-series, or curtain)</span>
                  <span class="n">in_cld_q_thresh</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>                         <span class="c1"># mixing ratio threshold for determining a cloud [g/kg]</span>
-                 <span class="n">inp_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Illite_mono&quot;</span><span class="p">,</span>             <span class="c1"># INP population #1 properties</span>
+                 <span class="n">aer_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Illite_mono&quot;</span><span class="p">,</span>             <span class="c1"># INP population #1 properties</span>
                             <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="mf">2.</span><span class="p">,</span>
                             <span class="s2">&quot;psd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;mono&quot;</span><span class="p">,</span>
                                    <span class="s2">&quot;diam&quot;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">},</span>
@@ -2097,11 +2189,11 @@ up to cloud top (note that “ql_cbh” applies to cloud base or cloud top, depe
                            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Kaolinite&quot;</span><span class="p">,</span>               <span class="c1"># INP population #2 properties</span>
                             <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
                             <span class="s2">&quot;psd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;logn&quot;</span><span class="p">,</span>
-                                   <span class="s2">&quot;diam_mean&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
-                                   <span class="s2">&quot;geom_sd&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
-                                   <span class="s2">&quot;n_bins&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
-                                   <span class="s2">&quot;diam_min&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
-                                   <span class="s2">&quot;m_ratio&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">},</span>
+                                    <span class="s2">&quot;diam_mean&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+                                    <span class="s2">&quot;geom_sd&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+                                    <span class="s2">&quot;n_bins&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+                                    <span class="s2">&quot;diam_min&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+                                    <span class="s2">&quot;m_ratio&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">},</span>
                             <span class="s2">&quot;nucleus_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Kaolinite&quot;</span><span class="p">},</span>
                            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span>            <span class="c1"># INP population #3 properties</span>
                             <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
@@ -2110,12 +2202,21 @@ up to cloud top (note that “ql_cbh” applies to cloud base or cloud top, depe
                             <span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">:</span>
                             <span class="p">{</span><span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">350</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">500</span><span class="p">]),</span>
                             <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])}},</span>
-                           <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3_custom&quot;</span><span class="p">,</span>            <span class="c1"># INP population #4 properties</span>
+                           <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;DesertDust&quot;</span><span class="p">,</span>               <span class="c1"># INP population #4 properties</span>
+                            <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4329777</span><span class="p">,</span> <span class="mi">640</span><span class="p">],</span>
+                            <span class="s2">&quot;psd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;multi_logn&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;diam_mean&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0744</span><span class="p">,</span> <span class="mf">2.251</span><span class="p">],</span>
+                                    <span class="s2">&quot;geom_sd&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.76</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">],</span>
+                                    <span class="s2">&quot;n_bins&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+                                    <span class="s2">&quot;diam_min&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.014</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+                                    <span class="s2">&quot;m_ratio&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">},</span>
+                            <span class="s2">&quot;nucleus_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Desert Dust&quot;</span><span class="p">},</span>
+                           <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3_custom&quot;</span><span class="p">,</span>            <span class="c1"># INP population #5 properties</span>
                             <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                             <span class="s2">&quot;psd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                                   <span class="s2">&quot;diam&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span>
-                                   <span class="s2">&quot;dn_dlogD&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span>
-                                   <span class="s2">&quot;norm_to_n_init_max&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                                    <span class="s2">&quot;diam&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span>
+                                    <span class="s2">&quot;dn_dlogD&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span>
+                                    <span class="s2">&quot;norm_to_n_init_max&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
                             <span class="s2">&quot;nucleus_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">}</span>
                             <span class="p">],</span>
                  <span class="n">les_out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>                            <span class="c1"># path of LES output sounding file to inform the model</span>
@@ -2123,8 +2224,11 @@ up to cloud top (note that “ql_cbh” applies to cloud base or cloud top, depe
                  <span class="n">t_harvest</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3600</span><span class="o">*</span><span class="mi">6</span><span class="p">),</span>                        <span class="c1"># time(s) to harvest from the LES model output</span>
                  <span class="n">height_ind_2crop</span><span class="o">=</span><span class="mf">600.</span><span class="p">,</span>                        <span class="c1"># height indices or vals for LES cropping (&quot;ql_pbl&quot;: use ql thresh)</span>
                  <span class="n">cbh_det_method</span><span class="o">=</span><span class="s2">&quot;ql_cbh&quot;</span><span class="p">,</span>                      <span class="c1"># Method to detect cloud base (currently, only with a ql thresh)</span>
+                 <span class="n">do_entrain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                              <span class="c1"># do entrainment in model run</span>
+                 <span class="n">do_mix_aer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                              <span class="c1"># do aerosol mixing in model run</span>
+                 <span class="n">do_mix_ice</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                              <span class="c1"># do ice mixing in model run</span>
+                 <span class="n">do_sedim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                                <span class="c1"># do sedimentation in model run</span>
                  <span class="n">run_model</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>                               <span class="c1"># True - run model after initialization</span>
-<span class="c1">#model.ds</span>
 </pre></div>
 </div>
 </div>
@@ -2134,42 +2238,42 @@ up to cloud top (note that “ql_cbh” applies to cloud base or cloud top, depe
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Some heights were omitted because they are outside the processed LES dataset grid
-Model initalization done! Total processing time = 1.421295 s
-10% of model run completed. Elapsed time: 0.56 s.
-20% of model run completed. Elapsed time: 1.12 s.
-30% of model run completed. Elapsed time: 1.70 s.
-40% of model run completed. Elapsed time: 2.28 s.
-50% of model run completed. Elapsed time: 2.85 s.
-60% of model run completed. Elapsed time: 3.42 s.
-70% of model run completed. Elapsed time: 3.99 s.
-80% of model run completed. Elapsed time: 4.56 s.
-90% of model run completed. Elapsed time: 5.12 s.
+Model initalization done! Total processing time = 1.440409 s
+10% of model run completed. Elapsed time: 0.58 s.
+20% of model run completed. Elapsed time: 1.18 s.
+30% of model run completed. Elapsed time: 1.79 s.
+40% of model run completed. Elapsed time: 2.40 s.
+50% of model run completed. Elapsed time: 3.01 s.
+60% of model run completed. Elapsed time: 3.63 s.
+70% of model run completed. Elapsed time: 4.23 s.
+80% of model run completed. Elapsed time: 4.85 s.
+90% of model run completed. Elapsed time: 5.46 s.
 
-Model run finished! Total run time = 5.695382 s
+Model run finished! Total run time = 6.065369 s
 Model run time stats:
-Process: activation_inp: 1.18 s (20.78% of of total time)
-Process: entrainment_inp: 0.58 s (10.13% of of total time)
-Process: mixing_inp: 1.58 s (27.73% of of total time)
-Process: sedimentation_ice: 0.20 s (3.56% of of total time)
-Process: mixing_ice: 0.18 s (3.14% of of total time)
-Process: data_allocation: 1.97 s (34.53% of of total time)
+Process: activation_aer: 1.26 s (20.85% of of total time)
+Process: entrainment_aer: 0.55 s (9.14% of of total time)
+Process: mixing_aer: 1.42 s (23.36% of of total time)
+Process: sedimentation_ice: 0.15 s (2.46% of of total time)
+Process: mixing_ice: 0.16 s (2.70% of of total time)
+Process: data_allocation: 2.51 s (41.34% of of total time)
 
 
 </pre></div></div>
 </div>
 <p>Let’s plot curtain plots of the model output for the INP population we named: “Al2O3_default”. Here, we show the population’s Jhet (depends on nucleus type and RH + T from the LES), temporal evoluation of the INP PSD at an altitude of 400 m (in-cloud), and the PSD profiles at initialization (t = 0 s) and 1 h into the simulation. Note the layer structure of the population at initialization as we used vertical weighting).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">cb</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="n">xticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">generate_figure</span><span class="p">(</span><span class="n">subplot_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">cb</span><span class="p">[</span><span class="s2">&quot;sub0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">curtain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">which_inp</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">field_to_plot</span><span class="o">=</span><span class="s2">&quot;Jhet&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xtick</span><span class="o">=</span><span class="n">xticks</span><span class="o">*</span><span class="mi">3600</span><span class="p">,</span> <span class="n">xticklabel</span><span class="o">=</span><span class="n">xticks</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;time [h]&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Jhet for Al2O3_default&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">cb</span><span class="p">[</span><span class="s2">&quot;sub1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">curtain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">which_inp</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;diam&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">inp_z</span><span class="o">=</span><span class="mf">400.</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;h = 400 m for Al2O3_default&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">cb</span><span class="p">[</span><span class="s2">&quot;sub2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">curtain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">which_inp</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;diam&quot;</span><span class="p">,</span> <span class="n">inp_z</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;t = 0 h for Al2O3_default&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">cb</span><span class="p">[</span><span class="s2">&quot;sub3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">curtain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">which_inp</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;diam&quot;</span><span class="p">,</span> <span class="n">inp_z</span><span class="o">=</span><span class="mf">3600.</span><span class="p">,</span><span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;t = 1 h for Al2O3_default&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">cb</span><span class="p">[</span><span class="s2">&quot;sub0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">curtain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">which_pop</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">field_to_plot</span><span class="o">=</span><span class="s2">&quot;Jhet&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xtick</span><span class="o">=</span><span class="n">xticks</span><span class="o">*</span><span class="mi">3600</span><span class="p">,</span> <span class="n">xticklabel</span><span class="o">=</span><span class="n">xticks</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;time [h]&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Jhet for Al2O3_default&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">cb</span><span class="p">[</span><span class="s2">&quot;sub1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">curtain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">which_pop</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;diam&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">aer_z</span><span class="o">=</span><span class="mf">400.</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;h = 400 m for Al2O3_default&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">cb</span><span class="p">[</span><span class="s2">&quot;sub2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">curtain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">which_pop</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;diam&quot;</span><span class="p">,</span> <span class="n">aer_z</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;t = 0 h for Al2O3_default&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">cb</span><span class="p">[</span><span class="s2">&quot;sub3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">curtain</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">which_pop</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;diam&quot;</span><span class="p">,</span> <span class="n">aer_z</span><span class="o">=</span><span class="mf">3600.</span><span class="p">,</span><span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;t = 1 h for Al2O3_default&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2182,7 +2286,7 @@ Process: data_allocation: 1.97 s (34.53% of of total time)
 </div>
 <p>We can also produce time series of different variables at specific heights, for example.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -2192,8 +2296,8 @@ Process: data_allocation: 1.97 s (34.53% of of total time)
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">generate_figure</span><span class="p">(</span><span class="n">subplot_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">tseries</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">field_to_plot</span><span class="o">=</span><span class="s2">&quot;Ni_nuc&quot;</span><span class="p">,</span> <span class="n">Height</span><span class="o">=</span><span class="n">Height</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;time [h]&quot;</span><span class="p">,</span> <span class="n">xtick</span><span class="o">=</span><span class="n">xticks</span><span class="o">*</span><span class="mi">3600</span><span class="p">,</span> <span class="n">xticklabel</span><span class="o">=</span><span class="n">xticks</span><span class="p">,</span> <span class="n">Height_dim_treat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;ice number concentration&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">tseries</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">field_to_plot</span><span class="o">=</span><span class="s2">&quot;nuc_rate&quot;</span><span class="p">,</span> <span class="n">Height</span><span class="o">=</span><span class="n">Height</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;time [h]&quot;</span><span class="p">,</span> <span class="n">xtick</span><span class="o">=</span><span class="n">xticks</span><span class="o">*</span><span class="mi">3600</span><span class="p">,</span> <span class="n">xticklabel</span><span class="o">=</span><span class="n">xticks</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">Height_dim_treat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;nucleation rate&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">tseries</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">which_inp</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">Height</span><span class="o">=</span><span class="n">Height</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;time [h]&quot;</span><span class="p">,</span> <span class="n">xtick</span><span class="o">=</span><span class="n">xticks</span><span class="o">*</span><span class="mi">3600</span><span class="p">,</span> <span class="n">xticklabel</span><span class="o">=</span><span class="n">xticks</span><span class="p">,</span> <span class="n">Height_dim_treat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;INP conc.&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">tseries</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">which_inp</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">Height</span><span class="o">=</span><span class="n">Height</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;time [h]&quot;</span><span class="p">,</span> <span class="n">xtick</span><span class="o">=</span><span class="n">xticks</span><span class="o">*</span><span class="mi">3600</span><span class="p">,</span> <span class="n">xticklabel</span><span class="o">=</span><span class="n">xticks</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;mean INP conc. (based on 200, 300, and 400 m)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">tseries</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">which_pop</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">Height</span><span class="o">=</span><span class="n">Height</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;time [h]&quot;</span><span class="p">,</span> <span class="n">xtick</span><span class="o">=</span><span class="n">xticks</span><span class="o">*</span><span class="mi">3600</span><span class="p">,</span> <span class="n">xticklabel</span><span class="o">=</span><span class="n">xticks</span><span class="p">,</span> <span class="n">Height_dim_treat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;INP conc.&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">tseries</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">which_pop</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">,</span> <span class="n">Height</span><span class="o">=</span><span class="n">Height</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;time [h]&quot;</span><span class="p">,</span> <span class="n">xtick</span><span class="o">=</span><span class="n">xticks</span><span class="o">*</span><span class="mi">3600</span><span class="p">,</span> <span class="n">xticklabel</span><span class="o">=</span><span class="n">xticks</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;mean INP conc. (based on 200, 300, and 400 m)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2206,7 +2310,7 @@ Process: data_allocation: 1.97 s (34.53% of of total time)
 </div>
 <p>Finally, we can also plot profiles at different times. In the example below to the right, a simulation average profile of total INP concentration for each of the INP populations is shown (note that dn_dlogD is summed over all diameters in each population).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -2216,10 +2320,10 @@ Process: data_allocation: 1.97 s (34.53% of of total time)
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">field_to_plot</span><span class="o">=</span><span class="s2">&quot;Ni_nuc&quot;</span><span class="p">,</span> <span class="n">Time</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1800.</span><span class="p">,</span> <span class="mf">3600.</span><span class="p">,</span> <span class="mf">7200.</span><span class="p">],</span> <span class="n">Time_dim_treat</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">field_to_plot</span><span class="o">=</span><span class="s2">&quot;nuc_rate&quot;</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">Time</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1800.</span><span class="p">,</span> <span class="mf">3600.</span><span class="p">,</span> <span class="mf">7200.</span><span class="p">],</span> <span class="n">Time_dim_treat</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">field_to_plot</span><span class="o">=</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="n">Time</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1800.</span><span class="p">,</span> <span class="mf">3600.</span><span class="p">,</span> <span class="mf">7200.</span><span class="p">],</span> <span class="n">Time_dim_treat</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">which_inp</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">which_inp</span><span class="o">=</span><span class="s2">&quot;Al2O3_custom&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">which_inp</span><span class="o">=</span><span class="s2">&quot;Kaolinite&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">which_inp</span><span class="o">=</span><span class="s2">&quot;Illite_mono&quot;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">which_pop</span><span class="o">=</span><span class="s2">&quot;Al2O3_default&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">which_pop</span><span class="o">=</span><span class="s2">&quot;Al2O3_custom&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">which_pop</span><span class="o">=</span><span class="s2">&quot;Kaolinite&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">which_pop</span><span class="o">=</span><span class="s2">&quot;Illite_mono&quot;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2242,7 +2346,7 @@ Process: data_allocation: 1.97 s (34.53% of of total time)
   <div class="sphinxprev">
     <h4>Previous page</h4>
     <p class="topless"><a href="index.html"
-                          title="Previous page">&larr; Welcome to LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!</a></p>
+                          title="Previous page">&larr; Welcome to the LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -2294,7 +2398,7 @@ Process: data_allocation: 1.97 s (34.53% of of total time)
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!"
+          <a href="index.html" title="Welcome to the LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!"
              >previous</a> &nbsp; &nbsp;</li>
     <li><a href="index.html">LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</a> &#187;</li>
 
