@@ -190,12 +190,8 @@ class INP_pop():
                 if n_init_weight_prof is not None:
                     self._weight_inp_prof()
             elif use_ABIFM is False:
-                if T_array is None:  # By default using 1st decimal T to allocate INP array with delta T = 0.1 C
-                    if ci_model.ds["T"].min() - 273.15 >= -5:
-                        raise RuntimeError('Minimum LES-informed temperature must be larger than -5 C in'\
-                            ' singular mode to allow any INP to activate')
-                    T_min = np.maximum(np.floor((ci_model.ds["T"].min().values - 273.15) * 10) / 10, -40)
-                    self.T_array = np.linspace(T_min, -5., int(np.around((-5 - T_min) * 10)) + 1) + 273.15
+                if T_array is None:
+                    self._set_T_array(ci_model)  # set T bin array with ∆T that follows a geometric progression.
                 else:
                     self.T_array = T_array
                 self._set_inp_conc_fun(singular_fun)
@@ -226,6 +222,31 @@ class INP_pop():
         self.ds["surf_area"] = xr.DataArray(np.pi * (self.ds["diam"] * 1e-4) ** 2, dims=self.ds["diam"].dims)
         self.ds["surf_area"].attrs["units"] = "$cm^2$"
         self.ds["surf_area"].attrs["long_name"] = "Surface area per particle diameter"
+
+    def _set_T_array(self, ci_model, dT0=0.1, dT_exp=1.05, T_max=-5.):
+        """
+        Sets the temperature array for singular using geometric progression bins (considering that n_INP(T)
+        parameterizations typically follow a power law).
+        The minimum temperature (leftmost bin edge) is set based on the minimum temperature of the model
+        domain (floored to the 1st decimal).
+
+        Parameters
+        ---------
+        dT0: float
+            ∆T between the first and second temperature bin edges
+        dT_exp: float
+            exponent for ∆T (the ratio of ∆T between consecutive bins).
+        T_max: float
+            maximum temperature (in C) for T array (the edge of the final bin can be larger than T_max).
+        """
+        if ci_model.ds["T"].min() - 273.15 >= T_max:
+            raise RuntimeError('Minimum LES-informed temperature must be larger than %.1f C in'\
+                ' singular mode to allow any INP to activate' % T_max)
+        T_min = np.maximum(np.floor((ci_model.ds["T"].min().values - 273.15) * 10) / 10, -40)
+        T_array = np.array([T_min + 273.15])
+        while T_array[-1] < T_max + 273.15:
+            T_array = np.append(T_array, [T_array[-1] + dT0 * dT_exp ** (len(T_array) - 1)])
+        self.T_array = T_array
 
     def _set_inp_conc_fun(self, singular_fun):
         """
