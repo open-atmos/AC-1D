@@ -28,36 +28,36 @@ def generate_figure(subplot_shape=(1,), figsize=(15, 10), **kwargs):
     return fig, ax
 
 
-def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", inp_z=None, dim_treat="sum",
+def curtain(ci_model, which_pop=None, field_to_plot="", x="time", y="height", aer_z=None, dim_treat="sum",
             cmap="cubehelix", vmin="auto", vmax="auto", ax=None, colorbar=True, cbar_label=None,
             xscale=None, yscale=None, log_plot=False, title=None, grid=False, xlabel=None, ylabel=None,
             tight_layout=True, font_size=None, xtick=None, xticklabel=None, ytick=None, yticklabel=None,
             xlim=None, ylim=None, **kwargs):
     """
-    Generate a curtain plot of an INP population or another model field.
+    Generate a curtain plot of an aerosol population or another model field.
 
     Parameters
     ----------
     ci_model: ci_model class
         Containing model run output.
-    which_inp: list, str, or None
-        Name of INP population to plot. If field_to_plot is "Jhet" then plotting the INP population Jhet.
-        If a list, then adding all inp populations together after checking that the "diam" (ABIFM) or "T"
+    which_pop: list, str, or None
+        Name of aerosol population to plot. If field_to_plot is "Jhet" then plotting the population's Jhet.
+        If a list, then adding all aerosol populations together after checking that the "diam" (ABIFM) or "T"
         (singular) arrays have the same length and values.
         If None, then plot a field from the ci_model.ds xr.Dataset.
     field_to_plot: str
-        Name of field to plot. If "Jhet" then remember to provide 'which_inp'.
+        Name of field to plot. If "Jhet" then remember to provide 'which_pop'.
     x: str
         coordinate to place on the x-axis - choose between "time", "height", "diam" (ABIFM), or "T" (singular).
     y: str
         coordinate to place on the y-axis - choose between "time", "height", "diam" (ABIFM), or "T" (singular).
-    inp_z: float, int, 2-element tuple, or None
-        Only for plotting of the INP field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
+    aer_z: float, int, 2-element tuple, or None
+        Only for plotting of the aerosol field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
         for plotting, int for 3rd coordinate index, tuple of floats to define a range of values (plotting a mean
         of that coordinate range), tuple of ints to define a range of indices (plotting a mean of that coordinate
         indices range), and None to plot mean over the full coordinate range.
     dim_treat: str
-        Relevant if inp_z is a tuple or None. Use "mean", "sum", or "sd" for mean, sum, or standard deviation,
+        Relevant if aer_z is a tuple or None. Use "mean", "sum", or "sd" for mean, sum, or standard deviation,
         respectively.
     cmap: str or matplotlib.cm.cmap
         colormap to use to use
@@ -108,42 +108,42 @@ def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
     ax: Matplotlib axes handle
     cb: Matplotlib colorbar handle (if 'colorbar' is True).
     """
-    if which_inp is None:  # plot a field from ci_model.ds
+    if which_pop is None:  # plot a field from ci_model.ds
         if field_to_plot in ci_model.ds.keys():
             plot_data = ci_model.ds[field_to_plot].copy()
             xf, yf = ci_model.ds[x], ci_model.ds[y]
         else:
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
-    elif isinstance(which_inp, (list, str)):
-        if isinstance(which_inp, str):
-            if np.logical_and(which_inp in ci_model.inp.keys(), field_to_plot == "Jhet"):
-                plot_data = ci_model.inp[which_inp].ds[field_to_plot].copy()
+    elif isinstance(which_pop, (list, str)):
+        if isinstance(which_pop, str):
+            if np.logical_and(which_pop in ci_model.inp.keys(), field_to_plot == "Jhet"):
+                plot_data = ci_model.inp[which_pop].ds[field_to_plot].copy()
                 xf, yf = ci_model.ds[x], ci_model.ds[y]
             else:
-                which_inp = [which_inp]
-        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_inp]), field_to_plot != "Jhet"):
-            for ii in range(len(which_inp)):
+                which_pop = [which_pop]
+        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_pop]), field_to_plot != "Jhet"):
+            for ii in range(len(which_pop)):
                 if ii == 0:
-                    plot_data = ci_model.inp[which_inp[ii]].ds["inp"].copy()  # plot INP field
+                    plot_data = ci_model.inp[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
                     if ci_model.use_ABIFM:
-                        inp_dim = "diam"
+                        aer_dim = "diam"
                     else:
-                        inp_dim = "T"
+                        aer_dim = "T"
                 else:
                     interp_diams = False
-                    if plot_data[inp_dim].size == ci_model.inp[which_inp[ii]].ds[inp_dim].size:
-                        if np.all(plot_data[inp_dim].values == ci_model.inp[which_inp[ii]].ds[inp_dim].values):
-                            plot_data += ci_model.inp[which_inp[ii]].ds["inp"]
+                    if plot_data[aer_dim].size == ci_model.inp[which_pop[ii]].ds[aer_dim].size:
+                        if np.all(plot_data[aer_dim].values == ci_model.inp[which_pop[ii]].ds[aer_dim].values):
+                            plot_data += ci_model.inp[which_pop[ii]].ds["n_aer"]
                         else:
                             interp_diams = True
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                                and values (interpolation will be added updated in future \
-                                               updates)" % (inp_dim, inp_dim))
+                                               updates)" % (aer_dim, aer_dim))
                     else:
                         interp_diams = True
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                            and values (interpolation will be added updated in future updates)" \
-                                           % (inp_dim, inp_dim))
+                                           % (aer_dim, aer_dim))
             xf, yf = plot_data[x], plot_data[y]
             if ci_model.use_ABIFM:
                 possible_fields = {"height", "time", "diam"}
@@ -154,10 +154,10 @@ def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
                 raise RuntimeError("something is not right - too many optional fields \
                                    (check 'x' and 'y' string values)")
             z = possible_fields.pop()
-            plot_data = process_dim(plot_data, z, inp_z, dim_treat)
+            plot_data = process_dim(plot_data, z, aer_z, dim_treat)
         elif field_to_plot != "Jhet":
             raise KeyError("Could not find one or more of the requested aerosl population names: \
-                           '%s' in ci_model.inp. Check for typos, etc." % which_inp)
+                           '%s' in ci_model.inp. Check for typos, etc." % which_pop)
 
     # arrange plot dims
     if x == plot_data.dims[0]:
@@ -202,32 +202,32 @@ def curtain(ci_model, which_inp=None, field_to_plot="", x="time", y="height", in
     return ax
 
 
-def tseries(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="sum",
+def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="sum",
             Height=None, Height_dim_treat="mean", ax=None,
             yscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
             font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
             xlim=None, ylim=None, **kwargs):
     """
-    Generates INP or other model output field's time series
+    Generates aerosol or other model output field's time series
 
     Parameters
     ----------
     ci_model: ci_model class
         Containing model run output.
     field_to_plot: str
-        Name of field to plot. If "Jhet" then remember to provide 'which_inp'.
-    which_inp: str or None
-        Name of INP population to plot. If field_to_plot is "Jhet" then plotting the INP population Jhet.
+        Name of field to plot. If "Jhet" then remember to provide 'which_pop'.
+    which_pop: str or None
+        Name of aerosol population to plot. If field_to_plot is "Jhet" then plotting the population's Jhet.
         If None, then plot a field from the ci_model.ds xr.Dataset.
     field_to_plot: str
-        Name of field to plot. If "Jhet" then remember to provide 'which_inp'.
-    inp_z: float, int, 2-element tuple, or None
-        Only for plotting of the INP field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
+        Name of field to plot. If "Jhet" then remember to provide 'which_pop'.
+    aer_z: float, int, 2-element tuple, or None
+        Only for plotting of the aerosol field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
         for plotting, int for 3rd coordinate index, tuple of floats to define a range of values (plotting a mean
         of that coordinate range), tuple of ints to define a range of indices (plotting a mean of that coordinate
         indices range), and None to plot mean over the full coordinate range.
     dim_treat: str
-        Relevant if inp_z is a tuple or None. Use "mean", "sum", or "sd" for mean, sum, or standard deviation,
+        Relevant if aer_z is a tuple or None. Use "mean", "sum", or "sd" for mean, sum, or standard deviation,
         respectively.
     Height: float, int, 2-element tuple, list, or None
         Height elements, range, or values to treat from the dim. Options:
@@ -277,47 +277,47 @@ def tseries(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
     -------
     ax: Matplotlib axes handle
     """
-    if which_inp is None:  # plot a field from ci_model.ds
+    if which_pop is None:  # plot a field from ci_model.ds
         if field_to_plot in ci_model.ds.keys():
             plot_data = ci_model.ds[field_to_plot].copy()
             label = field_to_plot
         else:
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
-    elif isinstance(which_inp, (list, str)):
-        if isinstance(which_inp, str):
-            if np.logical_and(which_inp in ci_model.inp.keys(), field_to_plot == "Jhet"):
-                plot_data = ci_model.inp[which_inp].ds[field_to_plot].copy()
-                label = "%s %s" % (which_inp, "Jhet")
+    elif isinstance(which_pop, (list, str)):
+        if isinstance(which_pop, str):
+            if np.logical_and(which_pop in ci_model.inp.keys(), field_to_plot == "Jhet"):
+                plot_data = ci_model.inp[which_pop].ds[field_to_plot].copy()
+                label = "%s %s" % (which_pop, "Jhet")
             else:
-                which_inp = [which_inp]
-        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_inp]), field_to_plot != "Jhet"):
-            for ii in range(len(which_inp)):
+                which_pop = [which_pop]
+        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_pop]), field_to_plot != "Jhet"):
+            for ii in range(len(which_pop)):
                 if ii == 0:
-                    plot_data = ci_model.inp[which_inp[ii]].ds["inp"].copy()  # plot INP field
-                    label = "%s %s" % (which_inp[ii], "INP")
+                    plot_data = ci_model.inp[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
+                    label = "%s %s" % (which_pop[ii], "n")
                     if ci_model.use_ABIFM:
-                        inp_dim = "diam"
+                        aer_dim = "diam"
                     else:
-                        inp_dim = "T"
+                        aer_dim = "T"
                 else:
                     interp_diams = False
-                    if plot_data[inp_dim].size == ci_model.inp[which_inp[ii]].ds[inp_dim].size:
-                        if np.all(plot_data[inp_dim].values == ci_model.inp[which_inp[ii]].ds[inp_dim].values):
-                            plot_data += ci_model.inp[which_inp[ii]].ds["inp"]
+                    if plot_data[aer_dim].size == ci_model.inp[which_pop[ii]].ds[aer_dim].size:
+                        if np.all(plot_data[aer_dim].values == ci_model.inp[which_pop[ii]].ds[aer_dim].values):
+                            plot_data += ci_model.inp[which_pop[ii]].ds["n_aer"]
                         else:
                             interp_diams = True
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                                and values (interpolation will be added updated in future \
-                                               updates)" % (inp_dim, inp_dim))
+                                               updates)" % (aer_dim, aer_dim))
                     else:
                         interp_diams = True
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                            and values (interpolation will be added updated in future updates)" \
-                                           % (inp_dim, inp_dim))
-            plot_data = process_dim(plot_data, inp_dim, inp_z, dim_treat)
+                                           % (aer_dim, aer_dim))
+            plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
         elif field_to_plot != "Jhet":
             raise KeyError("Could not find one or more of the requested aerosl population names: \
-                           '%s' in ci_model.inp. Check for typos, etc." % which_inp)
+                           '%s' in ci_model.inp. Check for typos, etc." % which_pop)
 
     # Select values or indices from the height dim and treat (mean, sum, as-is).
     if plot_data.ndim == 2:
@@ -329,10 +329,10 @@ def tseries(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
         ylabel = "%s [%s]" % (label, plot_data.attrs["units"])
 
     if plot_data.ndim == 3:
-        raise RuntimeError("processed INP field still had 3 dimensions. Consider reducing by selecting \
+        raise RuntimeError("processed aerosol field still has 3 dimensions. Consider reducing by selecting \
                            a single values or indices or average/sum")
     elif plot_data.ndim == 2:
-        dim_2nd = [x for x in plot_data.dims if x != "time"][0]  # dimension to loop over (height unless INP).
+        dim_2nd = [x for x in plot_data.dims if x != "time"][0]  # dimension to loop over (height unless aerosol).
         for ii in range(plot_data[dim_2nd].size):
             if "units" in plot_data[dim_2nd].attrs:
                 label_p = label + " (%s = %.1f %s)" % (dim_2nd, plot_data[dim_2nd][ii],
@@ -354,33 +354,33 @@ def tseries(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
     return ax
 
 
-def profile(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="sum",
+def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="sum",
             Time=None, Time_dim_treat="mean", ax=None,
             xscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
             font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
             xlim=None, ylim=None, cld_bnd=False, **kwargs):
 
     """
-    Generates INP or other model output field's profile
+    Generates aerosol population or other model output field's profile
 
     Parameters
     ----------
     ci_model: ci_model class
         Containing model run output.
     field_to_plot: str
-        Name of field to plot. If "Jhet" then remember to provide 'which_inp'.
-    which_inp: str or None
-        Name of INP population to plot. If field_to_plot is "Jhet" then plotting the INP population Jhet.
+        Name of field to plot. If "Jhet" then remember to provide 'which_pop'.
+    which_pop: str or None
+        Name of aerosol population to plot. If field_to_plot is "Jhet" then plotting the population's Jhet.
         If None, then plot a field from the ci_model.ds xr.Dataset.
     field_to_plot: str
-        Name of field to plot. If "Jhet" then remember to provide 'which_inp'.
-    inp_z: float, int, 2-element tuple, or None
-        Only for plotting of the INP field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
+        Name of field to plot. If "Jhet" then remember to provide 'which_pop'.
+    aer_z: float, int, 2-element tuple, or None
+        Only for plotting of the n_aer field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
         for plotting, int for 3rd coordinate index, tuple of floats to define a range of values (plotting a mean
         of that coordinate range), tuple of ints to define a range of indices (plotting a mean of that coordinate
         indices range), and None to plot mean over the full coordinate range.
     dim_treat: str
-        Relevant if inp_z is a tuple or None. Use "mean", "sum", or "sd" for mean, sum, or standard deviation,
+        Relevant if aer_z is a tuple or None. Use "mean", "sum", or "sd" for mean, sum, or standard deviation,
         respectively.
     Time: float, int, 2-element tuple, list, or None
         Time elements, range, or values to treat from the dim. Options:
@@ -436,47 +436,47 @@ def profile(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
     -------
     ax: Matplotlib axes handle
     """
-    if which_inp is None:  # plot a field from ci_model.ds
+    if which_pop is None:  # plot a field from ci_model.ds
         if field_to_plot in ci_model.ds.keys():
             plot_data = ci_model.ds[field_to_plot].copy()
             label = field_to_plot
         else:
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
-    elif isinstance(which_inp, (list, str)):
-        if isinstance(which_inp, str):
-            if np.logical_and(which_inp in ci_model.inp.keys(), field_to_plot == "Jhet"):
-                plot_data = ci_model.inp[which_inp].ds[field_to_plot].copy()
-                label = "%s %s" % (which_inp, "Jhet")
+    elif isinstance(which_pop, (list, str)):
+        if isinstance(which_pop, str):
+            if np.logical_and(which_pop in ci_model.inp.keys(), field_to_plot == "Jhet"):
+                plot_data = ci_model.inp[which_pop].ds[field_to_plot].copy()
+                label = "%s %s" % (which_pop, "Jhet")
             else:
-                which_inp = [which_inp]
-        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_inp]), field_to_plot != "Jhet"):
-            for ii in range(len(which_inp)):
+                which_pop = [which_pop]
+        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_pop]), field_to_plot != "Jhet"):
+            for ii in range(len(which_pop)):
                 if ii == 0:
-                    plot_data = ci_model.inp[which_inp[ii]].ds["inp"].copy()  # plot INP field
-                    label = "%s %s" % (which_inp[ii], "INP")
+                    plot_data = ci_model.inp[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
+                    label = "%s %s" % (which_pop[ii], "n")
                     if ci_model.use_ABIFM:
-                        inp_dim = "diam"
+                        aer_dim = "diam"
                     else:
-                        inp_dim = "T"
+                        aer_dim = "T"
                 else:
                     interp_diams = False
-                    if plot_data[inp_dim].size == ci_model.inp[which_inp[ii]].ds[inp_dim].size:
-                        if np.all(plot_data[inp_dim].values == ci_model.inp[which_inp[ii]].ds[inp_dim].values):
-                            plot_data += ci_model.inp[which_inp[ii]].ds["inp"]
+                    if plot_data[aer_dim].size == ci_model.inp[which_pop[ii]].ds[aer_dim].size:
+                        if np.all(plot_data[aer_dim].values == ci_model.inp[which_pop[ii]].ds[aer_dim].values):
+                            plot_data += ci_model.inp[which_pop[ii]].ds["n_aer"]
                         else:
                             interp_diams = True
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                                and values (interpolation will be added updated in future \
-                                               updates)" % (inp_dim, inp_dim))
+                                               updates)" % (aer_dim, aer_dim))
                     else:
                         interp_diams = True
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                            and values (interpolation will be added updated in future updates)" \
-                                           % (inp_dim, inp_dim))
-            plot_data = process_dim(plot_data, inp_dim, inp_z, dim_treat)
+                                           % (aer_dim, aer_dim))
+            plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
         elif field_to_plot != "Jhet":
             raise KeyError("Could not find one or more of the requested aerosl population names: \
-                           '%s' in ci_model.inp. Check for typos, etc." % which_inp)
+                           '%s' in ci_model.inp. Check for typos, etc." % which_pop)
 
     # Select values or indices from the time dim and treat (mean, sum, as-is).
     if plot_data.ndim == 2:
@@ -518,10 +518,10 @@ def profile(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
                             color=cld_bnd['p_color'], alpha=cld_bnd['p_alpha'])
 
     if plot_data.ndim == 3:
-        raise RuntimeError("processed INP field still had 3 dimensions. Consider reducing by selecting \
+        raise RuntimeError("processed aerosol field still had 3 dimensions. Consider reducing by selecting \
                            a single values or indices or average/sum")
     elif plot_data.ndim == 2:
-        dim_2nd = [x for x in plot_data.dims if x != "height"][0]  # dimension to loop over (time unless INP).
+        dim_2nd = [x for x in plot_data.dims if x != "height"][0]  # dimension to loop over (time unless aerosol).
         for ii in range(plot_data[dim_2nd].size):
             if "units" in plot_data[dim_2nd].attrs:
                 label_p = label + " (%s = %.1f %s)" % (dim_2nd, plot_data[dim_2nd][ii],
@@ -556,7 +556,7 @@ def profile(ci_model, which_inp=None, field_to_plot="", inp_z=None, dim_treat="s
 
 
 
-def PSD(ci_model, which_inp=None,
+def PSD(ci_model, which_pop=None,
         Time=None, Time_dim_treat=None, Height=None, Height_dim_treat=None, ax=None,
         xscale=None, yscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
         font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
@@ -569,8 +569,8 @@ def PSD(ci_model, which_inp=None,
     ----------
     ci_model: ci_model class
         Containing model run output.
-    which_inp: str or None
-        Name of INP population to plot. If field_to_plot is "Jhet" then plotting the INP population Jhet.
+    which_pop: str or None
+        Name of aerosol population to plot. If field_to_plot is "Jhet" then plotting the population's Jhet.
         If None, then plot a field from the ci_model.ds xr.Dataset.
     Time: float, int, 2-element tuple, list, or None
         Time elements, range, or values to treat from the dim. Options:
@@ -634,35 +634,35 @@ def PSD(ci_model, which_inp=None,
     -------
     ax: Matplotlib axes handle
     """
-    if isinstance(which_inp, str):
-        which_inp = [which_inp]
-    if np.all([x in ci_model.inp.keys() for x in which_inp]):
-        for ii in range(len(which_inp)):
+    if isinstance(which_pop, str):
+        which_pop = [which_pop]
+    if np.all([x in ci_model.inp.keys() for x in which_pop]):
+        for ii in range(len(which_pop)):
             if ii == 0:
-                plot_data = ci_model.inp[which_inp[ii]].ds["inp"].copy()  # plot INP field
-                label = "%s %s" % (which_inp[ii], "PSD")
+                plot_data = ci_model.inp[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
+                label = "%s %s" % (which_pop[ii], "PSD")
                 if ci_model.use_ABIFM:
-                    inp_dim = "diam"
+                    aer_dim = "diam"
                 else:
-                    inp_dim = "T"
+                    aer_dim = "T"
             else:
                 interp_diams = False
-                if plot_data[inp_dim].size == ci_model.inp[which_inp[ii]].ds[inp_dim].size:
-                    if np.all(plot_data[inp_dim].values == ci_model.inp[which_inp[ii]].ds[inp_dim].values):
-                        plot_data += ci_model.inp[which_inp[ii]].ds["inp"]
+                if plot_data[aer_dim].size == ci_model.inp[which_pop[ii]].ds[aer_dim].size:
+                    if np.all(plot_data[aer_dim].values == ci_model.inp[which_pop[ii]].ds[aer_dim].values):
+                        plot_data += ci_model.inp[which_pop[ii]].ds["n_aer"]
                     else:
                         interp_diams = True
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                            and values (interpolation will be added updated in future \
-                                           updates)" % (inp_dim, inp_dim))
+                                           updates)" % (aer_dim, aer_dim))
                 else:
                     interp_diams = True
                     raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                        and values (interpolation will be added updated in future updates)" \
-                                       % (inp_dim, inp_dim))
+                                       % (aer_dim, aer_dim))
     else:
         raise KeyError("Could not find one or more of the requested aerosl population names: \
-                       '%s' in ci_model.inp. Check for typos, etc." % which_inp)
+                       '%s' in ci_model.inp. Check for typos, etc." % which_pop)
 
     # Select values or indices from the time and height dims and treat (mean, sum, as-is).
     plot_data = process_dim(plot_data, "time", Time, Time_dim_treat)
@@ -700,7 +700,7 @@ def PSD(ci_model, which_inp=None,
         if times is not None:
             label_p = label_p + "; t = %.0f s" % (times[ii])
 
-        ax.plot(plot_data[inp_dim], plot_data.isel({"h_t": ii}).values, label=label_p, **kwargs)
+        ax.plot(plot_data[aer_dim], plot_data.isel({"h_t": ii}).values, label=label_p, **kwargs)
     if legend is None:
         legend = True
 
@@ -846,7 +846,7 @@ def process_dim(plot_data, dim_name, dim_vals_inds, dim_treat="sum"):
     if dim_vals_inds is None:
         plot_data = treat_fun(plot_data)
     elif isinstance(dim_vals_inds, float):
-        plot_data = plot_data.sel({dim_name: dim_vals_inds})
+        plot_data = plot_data.sel({dim_name: dim_vals_inds}, method="nearest")
     elif isinstance(dim_vals_inds, int):
         plot_data = plot_data.isel({dim_name: dim_vals_inds})
     elif isinstance(dim_vals_inds, tuple):

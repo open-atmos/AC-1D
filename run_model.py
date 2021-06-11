@@ -59,8 +59,8 @@ def run_model(ci_model):
         t_step_mix_mask = ci_model.ds["mixing_mask"].values[:, it - 1]  # mixed parts of profile = True
 
         for key in ci_model.inp.keys():
-            n_inp_prev = ci_model.inp[key].ds["inp"].values[:, it - 1, :]  # pointer: INP conc in prev. time step.
-            n_inp_curr = ci_model.inp[key].ds["inp"].values[:, it, :]  # pointer: INP conc. in current time step.
+            n_inp_prev = ci_model.inp[key].ds["n_aer"].values[:, it - 1, :]  # pointer: INP conc in prev. time step.
+            n_inp_curr = ci_model.inp[key].ds["n_aer"].values[:, it, :]  # pointer: INP conc. in current time step.
             n_inp_curr += n_inp_prev
 
             # Activate INP
@@ -93,7 +93,7 @@ def run_model(ci_model):
                 else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
                     inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
                         ci_model.ds["delta_z"].values[-1] * ci_model.delta_t * \
-                        (ci_model.inp[key].ds["inp"].values[-1, 0, :] - n_inp_curr[-1, :])
+                        (ci_model.inp[key].ds["n_aer"].values[-1, 0, :] - n_inp_curr[-1, :])
                     n_inp_curr[-1, :] += inp_ent
                 run_stats["entrainment_inp"] += (time() - t_process)
                 t_proc += time() - t_process
@@ -113,7 +113,7 @@ def run_model(ci_model):
                         n_inp_curr += inp_mixing
                     else:
                         inp_fully_mixed = np.nanmean(np.where(np.tile(np.expand_dims(t_step_mix_mask, axis=1),
-                                                                      (1, ci_model.inp[key].ds["inp"][PSDt].size)),
+                                                                      (1, ci_model.inp[key].ds["n_aer"][PSDt].size)),
                                                               n_inp_curr, np.nan), axis=0)
                         inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                             (np.tile(np.expand_dims(inp_fully_mixed, axis=0), (np.sum(t_step_mix_mask), 1)) -
@@ -124,7 +124,7 @@ def run_model(ci_model):
                     t_proc += time() - t_process
 
             # Place resolved INP
-            ci_model.inp[key].ds["inp"][:, it, :].values = n_inp_curr
+            ci_model.inp[key].ds["n_aer"][:, it, :].values = n_inp_curr
 
         # Sedimentation of ice (after INP were activated).
         if ci_model.do_sedim:

@@ -345,11 +345,11 @@ class INP_pop():
 
         self.ds["T"].attrs["units"] = "$K$"  # set coordinate attributes.
 
-        self.ds["inp"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size, self.ds["T"].size)),
+        self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size, self.ds["T"].size)),
                                       dims=("height", "time", "T"))
-        self.ds["inp"].loc[{"time": 0}] = np.flip(tmp_inp_array, axis=1)
-        self.ds["inp"].attrs["units"] = "$L^{-1}$"
-        self.ds["inp"].attrs["long_name"] = "INP concentration per temperature bin"
+        self.ds["n_aer"].loc[{"time": 0}] = np.flip(tmp_inp_array, axis=1)
+        self.ds["n_aer"].attrs["units"] = "$L^{-1}$"
+        self.ds["n_aer"].attrs["long_name"] = "INP concentration per temperature bin"
 
     def _init_inp_Jhet_ABIFM_arrays(self, ci_model):
         """
@@ -364,12 +364,12 @@ class INP_pop():
         self.ds["Jhet"] = 10.**(self.Jhet.c + self.Jhet.m * ci_model.ds["delta_aw"])  # calc Jhet
         self.ds["Jhet"].attrs["units"] = "$cm^{-2} s{-1}$"
         self.ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
-        self.ds["inp"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
+        self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
                                                 self.ds["diam"].size)),
                                       dims=("height", "time", "diam"))
-        self.ds["inp"].loc[{"time": 0}] = np.tile(self.dn_dlogD, (self.ds["height"].size, 1))
-        self.ds["inp"].attrs["units"] = "$L^{-1}$"
-        self.ds["inp"].attrs["long_name"] = "INP concentration per diameter bin"
+        self.ds["n_aer"].loc[{"time": 0}] = np.tile(self.dn_dlogD, (self.ds["height"].size, 1))
+        self.ds["n_aer"].attrs["units"] = "$L^{-1}$"
+        self.ds["n_aer"].attrs["long_name"] = "INP concentration per diameter bin"
 
     def _weight_inp_prof(self, use_ABIFM=True):
         """
@@ -400,8 +400,8 @@ class INP_pop():
         weight_prof_interp = np.interp(self.ds["height"], self.n_init_weight_prof["height"],
                                        self.n_init_weight_prof["weight"])
         if use_ABIFM:
-            self.ds["inp"][{"time": 0}] = np.tile(np.expand_dims(weight_prof_interp, axis=1),
-                                                  (1, self.ds["diam"].size)) * self.ds["inp"][{"time": 0}]
+            self.ds["n_aer"][{"time": 0}] = np.tile(np.expand_dims(weight_prof_interp, axis=1),
+                                                  (1, self.ds["diam"].size)) * self.ds["n_aer"][{"time": 0}]
         else:  # Relevant for singular when considering particle diameters (e.g., D2010, D2015).
             return weight_prof_interp
 
