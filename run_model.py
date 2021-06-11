@@ -13,10 +13,10 @@ def run_model(ci_model):
     far less convenient and intuitive, numpy calculations have shown to be ~5-10 times faster than xarray (after
     optimization), which becomes significant with thousands of time steps.
     Note: calculations are performed in the following order (mass is conserved):
-        1. INP activation since previous time step.
-        2. Cloud-top entrainment of INP using entrainment rate from the previous time step.
-        3. Turbulent mixing of INP using mixing depth and time scales from the previous time step (independent from
-           the next steps).
+        1. aerosol activation since previous time step.
+        2. Cloud-top entrainment of aerosol using entrainment rate from the previous time step.
+        3. Turbulent mixing of aerosol using mixing depth and time scales from the previous time step (independent
+           from the next steps).
         4. Ice sedimentation using ice fall velocity from the previous time step.
         5. Turbulent mixing of ice using mixing depth and time scales from the previous time step.
 
@@ -31,7 +31,7 @@ def run_model(ci_model):
     """
     # Runtime stats
     Now = time()
-    run_stats = {"activation_inp": 0, "entrainment_inp": 0, "mixing_inp": 0, "sedimentation_ice": 0,
+    run_stats = {"activation_aer": 0, "entrainment_aer": 0, "mixing_aer": 0, "sedimentation_ice": 0,
                  "mixing_ice": 0, "data_allocation": 0}
     Complete_counter = 0
     print_delta_percent = 10.  # report model run progress every certain percentage of time steps.
@@ -58,47 +58,47 @@ def run_model(ci_model):
 
         t_step_mix_mask = ci_model.ds["mixing_mask"].values[:, it - 1]  # mixed parts of profile = True
 
-        for key in ci_model.inp.keys():
-            n_inp_prev = ci_model.inp[key].ds["n_aer"].values[:, it - 1, :]  # pointer: INP conc in prev. time step.
-            n_inp_curr = ci_model.inp[key].ds["n_aer"].values[:, it, :]  # pointer: INP conc. in current time step.
-            n_inp_curr += n_inp_prev
+        for key in ci_model.aer.keys():
+            n_aer_prev = ci_model.aer[key].ds["n_aer"].values[:, it - 1, :]  # pointer: aerosol conc in prev. time step.
+            n_aer_curr = ci_model.aer[key].ds["n_aer"].values[:, it, :]  # pointer: aerosol conc. in current time step.
+            n_aer_curr += n_aer_prev
 
-            # Activate INP
+            # Activate aerosol
             t_process = time()
             if ci_model.use_ABIFM:
-                AA, JJ = np.meshgrid(ci_model.inp[key].ds["surf_area"].values,
-                                     ci_model.inp[key].ds["Jhet"].values[:, it - 1])
-                inp_act = np.minimum(n_inp_prev * JJ * AA * ci_model.delta_t, n_inp_prev)
+                AA, JJ = np.meshgrid(ci_model.aer[key].ds["surf_area"].values,
+                                     ci_model.aer[key].ds["Jhet"].values[:, it - 1])
+                aer_act = np.minimum(n_aer_prev * JJ * AA * ci_model.delta_t, n_aer_prev)
             else:
-                TTi, TTm = np.meshgrid(ci_model.inp[key].ds["T"].values,
+                TTi, TTm = np.meshgrid(ci_model.aer[key].ds["T"].values,
                                        np.where(ci_model.ds["ql"].values[:, it - 1] >= ci_model.in_cld_q_thresh,
                                                 ci_model.ds["T"].values[:, it - 1], np.nan))  # ignore noncld cells
-                inp_act = np.minimum(np.where(TTi >= TTm, n_inp_prev, 0), n_inp_prev)
-            ci_model.ds["nuc_rate"].values[:, it] += inp_act.sum(axis=1) / ci_model.delta_t  # nucleation rate
-            n_inp_curr -= inp_act  # Subtract from inp reservoir.
-            n_ice_curr += inp_act.sum(axis=1)  # Add from inp reservoir (*currently*, without INP memory)
-            run_stats["activation_inp"] += (time() - t_process)
+                aer_act = np.minimum(np.where(TTi >= TTm, n_aer_prev, 0), n_aer_prev)
+            ci_model.ds["nuc_rate"].values[:, it] += aer_act.sum(axis=1) / ci_model.delta_t  # nucleation rate
+            n_aer_curr -= aer_act  # Subtract from aerosol reservoir.
+            n_ice_curr += aer_act.sum(axis=1)  # Add from aerosol reservoir (*currently*, without aerosol memory)
+            run_stats["activation_aer"] += (time() - t_process)
             t_proc += time() - t_process
 
-            # Cloud-top entrainment of INP
+            # Cloud-top entrainment of aerosol
             if ci_model.do_entrain:
                 t_process = time()
-                if ci_model.entrain_from_cth:  # using cloud top data (INP difference) for entrainment
+                if ci_model.entrain_from_cth:  # using cloud top data (aerosol difference) for entrainment
                     if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
-                        inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
+                        aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
                             ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
-                            (n_inp_curr[cth_ind[it - 1] + 1, :] - n_inp_curr[cth_ind[it - 1], :])
-                        n_inp_curr[cth_ind[it - 1], :] += inp_ent
-                        n_inp_curr[cth_ind[it - 1] + 1, :] -= inp_ent  # update INP conc. just above cloud top.
+                            (n_aer_curr[cth_ind[it - 1] + 1, :] - n_aer_curr[cth_ind[it - 1], :])
+                        n_aer_curr[cth_ind[it - 1], :] += aer_ent
+                        n_aer_curr[cth_ind[it - 1] + 1, :] -= aer_ent  # update aerosol conc. just above cloud top.
                 else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
-                    inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
+                    aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
                         ci_model.ds["delta_z"].values[-1] * ci_model.delta_t * \
-                        (ci_model.inp[key].ds["n_aer"].values[-1, 0, :] - n_inp_curr[-1, :])
-                    n_inp_curr[-1, :] += inp_ent
-                run_stats["entrainment_inp"] += (time() - t_process)
+                        (ci_model.aer[key].ds["n_aer"].values[-1, 0, :] - n_aer_curr[-1, :])
+                    n_aer_curr[-1, :] += aer_ent
+                run_stats["entrainment_aer"] += (time() - t_process)
                 t_proc += time() - t_process
 
-            # Turbulent mixing of INP
+            # Turbulent mixing of aerosol
             if ci_model.do_mix_aer:
                 t_process = time()
                 if ci_model.use_ABIFM:
@@ -107,26 +107,26 @@ def run_model(ci_model):
                     PSDt = "T"  # string for PSD dim (temperature in the case of singular)
                 if np.any(t_step_mix_mask):  # checking that some mixing takes place.
                     if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
-                        inp_fully_mixed = np.nanmean(n_inp_curr, axis=0)
-                        inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                            (np.tile(np.expand_dims(inp_fully_mixed, axis=0), (ci_model.mod_nz, 1)) - n_inp_curr)
-                        n_inp_curr += inp_mixing
+                        aer_fully_mixed = np.nanmean(n_aer_curr, axis=0)
+                        aer_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                            (np.tile(np.expand_dims(aer_fully_mixed, axis=0), (ci_model.mod_nz, 1)) - n_aer_curr)
+                        n_aer_curr += aer_mixing
                     else:
-                        inp_fully_mixed = np.nanmean(np.where(np.tile(np.expand_dims(t_step_mix_mask, axis=1),
-                                                                      (1, ci_model.inp[key].ds["n_aer"][PSDt].size)),
-                                                              n_inp_curr, np.nan), axis=0)
-                        inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                            (np.tile(np.expand_dims(inp_fully_mixed, axis=0), (np.sum(t_step_mix_mask), 1)) -
-                             n_inp_curr[t_step_mix_mask, :])
-                        n_inp_curr[t_step_mix_mask, :] += inp_mixing
+                        aer_fully_mixed = np.nanmean(np.where(np.tile(np.expand_dims(t_step_mix_mask, axis=1),
+                                                                      (1, ci_model.aer[key].ds["n_aer"][PSDt].size)),
+                                                              n_aer_curr, np.nan), axis=0)
+                        aer_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                            (np.tile(np.expand_dims(aer_fully_mixed, axis=0), (np.sum(t_step_mix_mask), 1)) -
+                             n_aer_curr[t_step_mix_mask, :])
+                        n_aer_curr[t_step_mix_mask, :] += aer_mixing
 
-                    run_stats["mixing_inp"] += (time() - t_process)
+                    run_stats["mixing_aer"] += (time() - t_process)
                     t_proc += time() - t_process
 
-            # Place resolved INP
-            ci_model.inp[key].ds["n_aer"][:, it, :].values = n_inp_curr
+            # Place resolved aerosol
+            ci_model.aer[key].ds["n_aer"][:, it, :].values = n_aer_curr
 
-        # Sedimentation of ice (after INP were activated).
+        # Sedimentation of ice (after aerosol were activated).
         if ci_model.do_sedim:
             t_process = time()
             if ci_model.ds["v_f_ice"].ndim == 2:

@@ -5,14 +5,14 @@ import xarray as xr
 import numpy as np
 from time import time
 import LES
-import INP
+import AER
 import plotting
 from run_model import run_model as Run
 
 
 class ci_model():
     """
-    Cloud-INP 1D model class containing:
+    Cloud-ice nucleation 1D model class containing:
     1. All initialization model parameters
     2. LES output dataset used to initialize and inform the model (ci_model.les).
     3. Model output  output fields (ci_model.ds).
@@ -20,7 +20,7 @@ class ci_model():
     def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
                  custom_vert_grid=None, w_e_ent=0.1e-3, entrain_from_cth=True, tau_mix=1800.,
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-3,
-                 inp_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
+                 aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_cbh",
                  do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True, run_model=True):
         """
@@ -77,12 +77,12 @@ class ci_model():
         in_cld_q_thresh: float
             Mixing ratio threshold [g/kg] for determination of in-cloud environment; also assigned to the
             'q_liq_pbl_cut' attribute value.
-        inp_info: list of dict
-            Used to initialize the INP arrays. Each element of the list describes a single population of an INP
+        aer_info: list of dict
+            Used to initialize the aerosol arrays. Each element of the list describes a single population
             type providing its composition, concentration, and PSD, e.g., can use a single log-normal population
             of Illite, or two Illite PSDs with different mode diameter and geometric SD combined with a Kaolinite
             population.
-            Each dictionary (i.e., an 'inp_attrs' list element) must contain the keys:
+            Each dictionary (i.e., an 'aerosol_attrs' list element) must contain the keys:
 
                 1. n_init_max: [float] total concentration [L-1].
 
@@ -124,7 +124,7 @@ class ci_model():
                 str: use "D2010" to use eq. 1 in DeMott et al., 2010, "D2015" to use eq. 2 in DeMott et al.,
                 2015, or "D2010fit" to use the temperature dependence fit from fig. 2 in DeMott et al., 2010.
                 The D2015 has default values of the five coeff. from eq. 2 (cf - calibration correction factor,
-                alpha, beta, gamma, delta); these might be coded as optional input for INP the class in
+                alpha, beta, gamma, delta); these might be coded as optional input for the AER class in
                 the future.
                 Note that "D2010fit" does not consider aerosol PSDs.
                 Use "D2010" (default) if None.
@@ -134,15 +134,15 @@ class ci_model():
                 7. n_init_weight_prof: [dict] a dict with keys "height" and "weight". Each key contains
                 a list or np.ndarray of length s (s > 1) determining PSD heights [m] and weighting profiles.
                 Weights are applied on n_init such that n_init(z) = n_init_max * weighting_factor(z), i.e., a
-                weighted_inp_prof filled with ones means that n_init(z) = n_init_max.
+                weighted_aer_prof filled with ones means that n_init(z) = n_init_max.
                 if weights > 1 are specified, the profile is normalized to max value == 1. heights are interpolated
                 between the specified heights, and the edge values are used for extrapolation (can be used to set
-                different INP source layers at model initialization, and combined with turbulence weighting,
+                different aerosol source layers at model initialization, and combined with turbulence weighting,
                 allows the emulation of cloud-driven mixing.
         do_entrain: bool
-            determines whether aerosols (INP) entrainment will be performed.
+            determines whether aerosols entrainment will be performed.
         do_mix_aer: bool
-            determines whether mixing of aerosols (INP) will be performed.
+            determines whether mixing of aerosols will be performed.
         do_mix_ice: bool
             determines whether mixing of ice will be performed.
         do_sedim: bool
@@ -273,7 +273,7 @@ class ci_model():
 
             # Linear interp (two 1D interpolations - fastest) if LES temporal evolution is to be considered.
             if self.les["time"].size > 1:
-                self._set_1D_or_2D_var_from_input(self.les[key], key)
+                self._set_1D_or_2D_var_from_AERut(self.les[key], key)
             else:
                 # Use LES bounds (min & max) outside the available range (redundant step - could be useful later).
                 key_array_tmp = np.zeros((self.mod_nz, self.mod_nt))
@@ -293,23 +293,23 @@ class ci_model():
         # init entrainment
         self.w_e_ent = w_e_ent
         self.entrain_from_cth = entrain_from_cth
-        self._set_1D_or_2D_var_from_input(w_e_ent, "w_e_ent", "$m/s$", "Cloud-top entrainment rate")
+        self._set_1D_or_2D_var_from_AERut(w_e_ent, "w_e_ent", "$m/s$", "Cloud-top entrainment rate")
         if self.les["time"].size > 1:
-            self._set_1D_or_2D_var_from_input({"time": self.les["time"].values,
+            self._set_1D_or_2D_var_from_AERut({"time": self.les["time"].values,
                                                "value": self.les["lowest_cbh"].values},
                                               "lowest_cbh", "$m$", "Lowest cloud base height")
-            self._set_1D_or_2D_var_from_input({"time": self.les["time"].values,
+            self._set_1D_or_2D_var_from_AERut({"time": self.les["time"].values,
                                                "value": self.les["lowest_cth"].values},
                                               "lowest_cth", "$m$", "Lowest cloud top height")
         else:
-            self._set_1D_or_2D_var_from_input(self.les["lowest_cbh"].item(),
+            self._set_1D_or_2D_var_from_AERut(self.les["lowest_cbh"].item(),
                                               "lowest_cbh", "$m$", "Lowest cloud base height")
-            self._set_1D_or_2D_var_from_input(self.les["lowest_cth"].item(),
+            self._set_1D_or_2D_var_from_AERut(self.les["lowest_cth"].item(),
                                               "lowest_cth", "$m$", "Lowest cloud top height")
 
         # init vertical mixing and generate a mixing layer mask for the model
         self.tau_mix = tau_mix
-        self._set_1D_or_2D_var_from_input(tau_mix, "tau_mix", "$s$", "Boundary-layer mixing time scale")
+        self._set_1D_or_2D_var_from_AERut(tau_mix, "tau_mix", "$s$", "Boundary-layer mixing time scale")
         if mixing_bounds is None:
             self.ds["mixing_mask"] = xr.DataArray(np.full((self.mod_nz, self.mod_nt),
                                                           True, dtype=bool), dims=("height", "time"))
@@ -320,14 +320,14 @@ class ci_model():
                         self.ds["time"], self.les["time"], self.les["lowest_cbh"]), dims=("time"))
                     self.ds["mixing_base"].attrs["units"] = "$m$"
             else:
-                self._set_1D_or_2D_var_from_input(mixing_bounds[0], "mixing_base", "$m$", "Mixing layer base")
+                self._set_1D_or_2D_var_from_AERut(mixing_bounds[0], "mixing_base", "$m$", "Mixing layer base")
             if isinstance(mixing_bounds[1], str):
                 if mixing_bounds[1] == "ql_cbh":
                     self.ds["mixing_top"] = xr.DataArray(np.interp(
                         self.ds["time"], self.les["time"], self.les["lowest_cth"]), dims=("time"))
                     self.ds["mixing_top"].attrs["units"] = "$m$"
             else:
-                self._set_1D_or_2D_var_from_input(mixing_bounds[1], "mixing_top", "$m$", "Mixing layer top")
+                self._set_1D_or_2D_var_from_AERut(mixing_bounds[1], "mixing_top", "$m$", "Mixing layer top")
             mixing_mask = np.full((self.mod_nz, self.mod_nt), False, dtype=bool)
             for t in range(self.mod_nt):
                 rel_ind = np.arange(
@@ -339,31 +339,31 @@ class ci_model():
 
         # init number weighted ice fall velocity
         self.v_f_ice = v_f_ice
-        self._set_1D_or_2D_var_from_input(v_f_ice, "v_f_ice", "$m/s$", "Number-weighted ice crystal fall velocity")
+        self._set_1D_or_2D_var_from_AERut(v_f_ice, "v_f_ice", "$m/s$", "Number-weighted ice crystal fall velocity")
 
         # calculate delta_aw
         self._calc_delta_aw()
 
-        # allocate for INP population Datasets
-        self.inp = {}
-        self.inp_info = inp_info  # save the INP info dict for reference.
-        optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # optional INP class input parameters.
+        # allocate aerosol population Datasets
+        self.aer = {}
+        self.aer_info = aer_info  # save the aerosol info dict for reference.
+        optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # optional aerosol class input params.
                          "n_init_weight_prof", "singular_fun", "singular_scale"]
-        for ii in range(len(inp_info)):
-            param_dict = {"use_ABIFM": use_ABIFM}  # tmp dict for INP attributes to send INP class call.
-            if np.all([x in inp_info[ii].keys() for x in ["n_init_max", "psd"]]):
-                param_dict["n_init_max"] = inp_info[ii]["n_init_max"]
-                param_dict["psd"] = inp_info[ii]["psd"]
+        for ii in range(len(aer_info)):
+            param_dict = {"use_ABIFM": use_ABIFM}  # tmp dict for aerosol attributes to send to class call.
+            if np.all([x in aer_info[ii].keys() for x in ["n_init_max", "psd"]]):
+                param_dict["n_init_max"] = aer_info[ii]["n_init_max"]
+                param_dict["psd"] = aer_info[ii]["psd"]
             else:
-                raise KeyError('INP information requires the keys "n_init_max", "psd"')
-            if not inp_info[ii]["psd"]["type"] in ["mono", "logn", "multi_logn", "custom", "default"]:
+                raise KeyError('aerosol information requires the keys "n_init_max", "psd"')
+            if not aer_info[ii]["psd"]["type"] in ["mono", "logn", "multi_logn", "custom", "default"]:
                 raise ValueError('PSD type must be one of: "mono", "logn", "multi_logn", "custom", "default"')
             for key in optional_keys:
-                param_dict[key] = inp_info[ii][key] if key in inp_info[ii].keys() else None
+                param_dict[key] = aer_info[ii][key] if key in aer_info[ii].keys() else None
 
-            # set INP population arrays
-            tmp_inp_pop = self._set_inp_obj(param_dict)
-            self.inp[tmp_inp_pop.name] = tmp_inp_pop
+            # set aerosol population arrays
+            tmp_aer_pop = self._set_aer_obj(param_dict)
+            self.aer[tmp_aer_pop.name] = tmp_aer_pop
 
         # allocate nucleated ice DataArrays
         self.ds["Ni_nuc"] = xr.DataArray(np.zeros((self.mod_nz,
@@ -415,7 +415,7 @@ class ci_model():
         self.ds['delta_aw'].attrs['units'] = ""
         self.ds["S_ice"].attrs['units'] = ""
 
-    def _set_1D_or_2D_var_from_input(self, var_in, var_name, units_str=None, long_name_str=None):
+    def _set_1D_or_2D_var_from_AERut(self, var_in, var_name, units_str=None, long_name_str=None):
         """
         set a 1D xr.DataArray from a scalar or a dictionary containing "time" and "value" keys.
         If 'var_in' is a scalar then generating a uniform time series.
@@ -468,38 +468,38 @@ class ci_model():
         if long_name_str is not None:
             self.ds[var_name].attrs["long_name"] = long_name_str
 
-    def _set_inp_obj(self, param_dict):
+    def _set_aer_obj(self, param_dict):
         """
-        Invoke an INP class call and use the input parameters provided. Using a full dictionary key call to
-        maintain consistency even if some INP class input variable order will be changed in future updates.
+        Invoke an AER class call and use the input parameters provided. Using a full dictionary key call to
+        maintain consistency even if some AER class input variable order will be changed in future updates.
 
         Parameters
         ---------
         param_dict: dict
-            Keys include all possible input parameters for the INP sub-classes.
+            Keys include all possible input parameters for the AER sub-classes.
 
         Returns
         -------
-        tmp_inp_pop: INP class object
-            INP class object that includes the INP array with dims height x time x diameter (ABIFM) or
+        tmp_aer_pop: AER class object
+            AER class object that includes the AER array with dims height x time x diameter (ABIFM) or
             height x time x temperature (singular).
         """
         if param_dict["psd"]["type"] == "mono":
-            tmp_inp_pop = INP.mono_INP(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
+            tmp_aer_pop = AER.mono_AER(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
                                        psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "logn":
-            tmp_inp_pop = INP.logn_INP(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
+            tmp_aer_pop = AER.logn_AER(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
                                        psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "multi_logn":
-            tmp_inp_pop = INP.multi_logn_INP(use_ABIFM=param_dict["use_ABIFM"],
+            tmp_aer_pop = AER.multi_logn_AER(use_ABIFM=param_dict["use_ABIFM"],
                                              n_init_max=param_dict["n_init_max"],
                                              psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                              name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
@@ -508,7 +508,7 @@ class ci_model():
                                              singular_scale=param_dict["singular_scale"],
                                              n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "custom":
-            tmp_inp_pop = INP.custom_INP(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
+            tmp_aer_pop = AER.custom_AER(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
                                          psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                          name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                          T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
@@ -517,11 +517,11 @@ class ci_model():
         elif param_dict["psd"]["type"] == "default":
             param_dict["psd"].update({"diam_mean": 1, "geom_sd": 2.5, "n_bins": 35, "diam_min": 0.01,
                                       "m_ratio": 2.})  # default parameters.
-            tmp_inp_pop = INP.logn_INP(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
+            tmp_aer_pop = AER.logn_AER(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
                                        psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
 
-        return tmp_inp_pop
+        return tmp_aer_pop

@@ -1,5 +1,5 @@
 """
-This module include INP population class and its sub-classes for different PSDs.
+This module includes the AER (aerosol) population class and its sub-classes for different PSDs.
 In addition, it includes the Jhet class.
 """
 import xarray as xr
@@ -9,16 +9,16 @@ import pandas as pd
 
 class Jhet():
     """
-    Class to load Jhet LUT and assign c and m coefficient values based on requested INP type.
+    Class to load Jhet LUT and assign c and m coefficient values based on requested aerosol type.
     """
     def __init__(self, nucleus_type="Illite", coeff_filename="Jhet_coeff.csv"):
         """
-        set the ABIFM linear fit coefficients for the INP type.
+        set the ABIFM linear fit coefficients for the aerosol type.
 
         Parameters
         ---------
         nucleus_type: str
-            INP type to use (must match the LUT (not case sensitive).
+            aerosol type to use (must match the LUT (not case sensitive).
         coeff_filename: str
             path and filename of Jhet coefficients' Table. By default using the values from Table 1 in Knopf and
             Alpert, 2013, DOI: 10.1039/C3FD00035D.
@@ -28,7 +28,7 @@ class Jhet():
 
     def _load_Jhet_coeff(self, coeff_filename="Jhet_coeff.csv"):
         """
-        Loads Jhet coefficients tables assuming that the columns represent (from left to right): INP type
+        Loads Jhet coefficients tables assuming that the columns represent (from left to right): aerosol type
         (substance), c coefficient, c SD, lower and upper confidence levels for c (respectively), m coefficient,
         m SD, and lower and upper confidence levels for m.
 
@@ -50,24 +50,24 @@ class Jhet():
 
     def _set_Jhet_coeff(self, nucleus_type="Illite"):
         """
-        set the ABIFM linear fit coefficients for the specified INP type.
+        set the ABIFM linear fit coefficients for the specified aerosol type.
         """
         if nucleus_type.lower() in self.Jhet_coeff_table.index.str.lower():  # allowing case errors
             subs_loc = self.Jhet_coeff_table.index.str.lower() == nucleus_type.lower()
             self.c, self.m = np.float64(self.Jhet_coeff_table.loc[subs_loc, ["c", "m"]].values)[0]
         else:
-            raise NameError("INP type '%s' not found in Jhet table" % nucleus_type)
+            raise NameError("aerosol type '%s' not found in Jhet table" % nucleus_type)
 
 
-class INP_pop():
+class AER_pop():
     """
-    class for INP population
+    class for aerosol population
     """
     def __init__(self, use_ABIFM=None, n_init_max=None, nucleus_type=None, diam=None, dn_dlogD=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None, psd={},
                  n_init_weight_prof=None, ci_model=None):
         """
-        INP population namelist
+        aerosol population namelist
 
         Parameters and Attributes
         -------------------------
@@ -94,13 +94,13 @@ class INP_pop():
             Use "D2010" (default) if None.
             Notes:
             The D2015 has default values of the five coefficients from eq. 2 (cf - calibration correction factor,
-            alpha, beta, gamma, delta); these might be coded as optional input parameters for INP the class in
+            alpha, beta, gamma, delta); these might be coded as optional input parameters for the AER class in
             the future.
             "D2010fit" does not consider aerosol PSDs.
         singular_scale: float
             Scale factor for 'singular_fun' (1 by default) (--singular--).
         n_init_max: float
-            total initial INP concentration [L-1].
+            total initial aerosol concentration [L-1].
         diam: list or ndarray or scalar
             discrete particle diameter array [um]
         dn_dlogD: list or ndarray or scalar
@@ -114,12 +114,12 @@ class INP_pop():
         n_init_weight_prof: dict or None
                a dict with keys "height" and "weight". Each key contains a list or np.ndarray of length s (s > 1)
                determining PSD heights [m] and weighting profiles. Weights are applied on n_init such that
-               n_init(z) = n_init_max * weighting_factor(z), i.e., a weighted_inp_prof filled with ones means
+               n_init(z) = n_init_max * weighting_factor(z), i.e., a weighted_aer_prof filled with ones means
                that n_init(z) = n_init_max.
                Weights are generally expected to have values between 0 and 1. If at least one weight value > 1,
                then the profile is normalized such that the maximum value equals 1. heights are interpolated
                between the specified heights, and the edge values are used for extrapolation (can be used to set
-               different INP source layers at model initialization, and combined with turbulence weighting,
+               different aerosol source layers at model initialization, and combined with turbulence weighting,
                allows the emulation of cloud-driven mixing.
         ci_model: ci_model class
             Containing variables such as the requested domain size, LES time averaging option
@@ -128,7 +128,7 @@ class INP_pop():
             All these required data are automatically set when a ci_model class object is assigned
             during model initialization.
         ds: Xarray Dataset
-            will be shaped and incorporate all population INP in the domain:
+            will be shaped and incorporate all aerosol population in the domain:
             ABIFM: height x time x diameter
             singular: height x time x T
         """
@@ -173,7 +173,7 @@ class INP_pop():
         else:
             self.name = name
 
-        # Assign INP dataset
+        # Assign aerosol dataset
         self.ds = xr.Dataset()
         self.ds = self.ds.assign_coords({"diam": np.ones(1) * diam})
         self.ds["dn_dlogD"] = xr.DataArray(np.ones(1) * dn_dlogD, dims=self.ds["diam"].dims)
@@ -181,28 +181,28 @@ class INP_pop():
         self.ds["dn_dlogD"].attrs["long_name"] = "Particle number concentration per diameter bin"
         self._calc_surf_area()
 
-        # Use the ci_model class object (if provided) to initialize the INP array (start with height-time coords).
+        # Use the ci_model class object if provided to init the aerosol array (start with height-time coords).
         if ci_model is not None:
             self.ds = self.ds.assign_coords({"height": ci_model.ds["height"].values,
                                              "time": ci_model.ds["time"].values})
             if use_ABIFM is True:
-                self._init_inp_Jhet_ABIFM_arrays(ci_model)
+                self._init_aer_Jhet_ABIFM_arrays(ci_model)
                 if n_init_weight_prof is not None:
-                    self._weight_inp_prof()
+                    self._weight_aer_prof()
             elif use_ABIFM is False:
                 if T_array is None:
                     self._set_T_array(ci_model)  # set T bin array with ∆T that follows a geometric progression.
                 else:
                     self.T_array = T_array
-                self._set_inp_conc_fun(singular_fun)
-                self._init_inp_singular_array()
+                self._set_aer_conc_fun(singular_fun)
+                self._init_aer_singular_array()
             self.ds["height"].attrs["units"] = "$m$"
             self.ds["time"].attrs["units"] = "$s$"
             self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
             self.ds["time_h"].attrs["units"] = "$h$"
 
         else:
-            print("'ci_model' object not provided - not assigning INP array")
+            print("'ci_model' object not provided - not assigning aerosol concentration array")
 
         # Set coordinate attributes
         self.ds["diam"].attrs["units"] = r"$\mu m$"
@@ -225,7 +225,7 @@ class INP_pop():
 
     def _set_T_array(self, ci_model, dT0=0.1, dT_exp=1.05, T_max=-5.):
         """
-        Sets the temperature array for singular using geometric progression bins (considering that n_INP(T)
+        Sets the temperature array for singular using geometric progression bins (considering that n_AER(T)
         parameterizations typically follow a power law).
         The minimum temperature (leftmost bin edge) is set based on the minimum temperature of the model
         domain (floored to the 1st decimal).
@@ -241,14 +241,14 @@ class INP_pop():
         """
         if ci_model.ds["T"].min() - 273.15 >= T_max:
             raise RuntimeError('Minimum LES-informed temperature must be larger than %.1f C in'\
-                ' singular mode to allow any INP to activate' % T_max)
+                ' singular mode to allow any aerosol to activate' % T_max)
         T_min = np.maximum(np.floor((ci_model.ds["T"].min().values - 273.15) * 10) / 10, -40)
         T_array = np.array([T_min + 273.15])
         while T_array[-1] < T_max + 273.15:
             T_array = np.append(T_array, [T_array[-1] + dT0 * dT_exp ** (len(T_array) - 1)])
         self.T_array = T_array
 
-    def _set_inp_conc_fun(self, singular_fun):
+    def _set_aer_conc_fun(self, singular_fun):
         """
         Set the INP initialization function for the singular approach.
         Parameters
@@ -263,7 +263,7 @@ class INP_pop():
             Use "D2010" (default) if None.
             Notes:
             The D2015 has default values of the five coefficients from eq. 2 (cf - calibration correction factor,
-            alpha, beta, gamma, delta); these might be coded as optional input parameters for INP the class in
+            alpha, beta, gamma, delta); these might be coded as optional input parameters for the AER class in
             the future.
             "D2010fit" does not consider aerosol PSDs.
         """
@@ -288,22 +288,22 @@ class INP_pop():
         else:  # assuming lambda function
             self.singular_fun = singular_fun
 
-    def _init_inp_singular_array(self):
+    def _init_aer_singular_array(self):
         """
-        initialize the INP array for singular (height x time x temperature).
+        initialize the aerosol concentration array for singular (height x time x temperature).
         Parameters
         ---------
         param_dict: dict
-            Keys include all possible input parameters for the INP sub-classes.
+            Keys include all possible input parameters for the AER sub-classes.
 
         Returns
         -------
-        tmp_inp_pop: INP class object
-            INP class object that includes the INP array with dims height x time x diameter (ABIFM) or
+        tmp_aer_pop: AER class object
+            AER class object that includes the aerosol array with dims height x time x diameter (ABIFM) or
             height x time x temperature (singular).
         """
         self.ds = self.ds.assign_coords({"T": self.T_array})
-        tmp_inp_array = np.zeros((self.ds["height"].size, self.ds["T"].size))
+        tmp_aer_array = np.zeros((self.ds["height"].size, self.ds["T"].size))
         if self.singular_fun.__code__.co_argcount > 1:
             if 'n_aer05' in self.singular_fun.__code__.co_varnames:  # 2nd argument is aerosol conc. above cutoff
                 if isinstance(self.diam_cutoff, float):
@@ -312,54 +312,54 @@ class INP_pop():
                     input_2 = np.sum(self.ds["dn_dlogD"].sel({"diam": slice(self.diam_cutoff[0],
                                                                             self.diam_cutoff[1])}).values)
                 input_2 = np.ones((self.ds["height"].size, self.ds["T"].size)) * input_2
-                tmp_n_inp = np.flip(self.singular_fun(np.tile(np.expand_dims(self.ds["T"].values, axis=0),
+                tmp_n_aer = np.flip(self.singular_fun(np.tile(np.expand_dims(self.ds["T"].values, axis=0),
                                     (self.ds["height"].size, 1)), input_2), axis=1)  # start at max temperature
             elif 's_area' in self.singular_fun.__code__.co_varnames:  # 2nd argument is surface area
                 input_2 = np.sum(self.ds["surf_area"].values)
 
                 # Add initial INP diagnostic field (diameter vs. T) for INAS.
-                self.ds["init_inp"] = \
+                self.ds["init_aer"] = \
                     xr.DataArray(self.singular_fun(np.tile(np.expand_dims(np.flip(self.ds["T"].values), axis=0),
                                                            (self.ds["diam"].size, 1)),
                                                    np.tile(np.expand_dims(self.ds["surf_area"].values, axis=1),
                                                            (1, self.ds["T"].size))),
                                  dims=("diam", "T")) * self.ds["dn_dlogD"]
-                tmp_n_inp = np.tile(np.expand_dims(self.ds["init_inp"].sum("diam").squeeze(), axis=0),
+                tmp_n_aer = np.tile(np.expand_dims(self.ds["init_aer"].sum("diam").squeeze(), axis=0),
                                     (self.ds["height"].size, 1))
                 for ii in range(1, self.ds["T"].size):
-                    self.ds["init_inp"][:, ii] = self.ds["init_inp"][:, ii] - self.ds["init_inp"][:, :ii].sum("T")
-                self.ds["init_inp"].values = np.flip(self.ds["init_inp"].values, axis=1)
+                    self.ds["init_aer"][:, ii] = self.ds["init_aer"][:, ii] - self.ds["init_aer"][:, :ii].sum("T")
+                self.ds["init_aer"].values = np.flip(self.ds["init_aer"].values, axis=1)
 
             # weight array vertically.
             if self.n_init_weight_prof is not None:
-                tmp_n_inp = np.tile(np.expand_dims(self._weight_inp_prof(False), axis=1),
-                                  (1, self.ds["T"].size)) * tmp_n_inp
+                tmp_n_aer = np.tile(np.expand_dims(self._weight_aer_prof(False), axis=1),
+                                  (1, self.ds["T"].size)) * tmp_n_aer
         else:  # single input (temperature)
-            tmp_n_inp = np.tile(np.expand_dims(np.flip(self.singular_fun(self.ds["T"].values)), axis=0),
+            tmp_n_aer = np.tile(np.expand_dims(np.flip(self.singular_fun(self.ds["T"].values)), axis=0),
                                 (self.ds["height"].size, 1))  # start at highest temperatures
-        tmp_inp_array[:, 0] = tmp_n_inp[:, 0]
+        tmp_aer_array[:, 0] = tmp_n_aer[:, 0]
         for ii in range(1, self.ds["T"].size):
-            tmp_inp_array[:, ii] = tmp_n_inp[:, ii] - tmp_inp_array[:, :ii].sum(axis=1)
+            tmp_aer_array[:, ii] = tmp_n_aer[:, ii] - tmp_aer_array[:, :ii].sum(axis=1)
         if self.singular_scale != 1.:
-            tmp_inp_array *= self.singular_scale
+            tmp_aer_array *= self.singular_scale
 
         self.ds["T"].attrs["units"] = "$K$"  # set coordinate attributes.
 
         self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size, self.ds["T"].size)),
                                       dims=("height", "time", "T"))
-        self.ds["n_aer"].loc[{"time": 0}] = np.flip(tmp_inp_array, axis=1)
+        self.ds["n_aer"].loc[{"time": 0}] = np.flip(tmp_aer_array, axis=1)
         self.ds["n_aer"].attrs["units"] = "$L^{-1}$"
-        self.ds["n_aer"].attrs["long_name"] = "INP concentration per temperature bin"
+        self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration per temperature bin"
 
-    def _init_inp_Jhet_ABIFM_arrays(self, ci_model):
+    def _init_aer_Jhet_ABIFM_arrays(self, ci_model):
         """
-        initialize the INP and Jhet arrays for ABIFM (height x time x diameter) assuming that dn_dlogD has been
+        initialize the aerosol and Jhet arrays for ABIFM (height x time x diameter) assuming that dn_dlogD has been
         calculated and that the ci_model object was already generated (with delta_aw, etc.).
 
         Parameters
         ---------
         ci_model: ci_model class object
-            Cloud-INP model object including all model initialization and prognosed field datasets.
+            Cloud-ice nucleation model object including all model initialization and prognosed field datasets.
         """
         self.ds["Jhet"] = 10.**(self.Jhet.c + self.Jhet.m * ci_model.ds["delta_aw"])  # calc Jhet
         self.ds["Jhet"].attrs["units"] = "$cm^{-2} s{-1}$"
@@ -369,11 +369,11 @@ class INP_pop():
                                       dims=("height", "time", "diam"))
         self.ds["n_aer"].loc[{"time": 0}] = np.tile(self.dn_dlogD, (self.ds["height"].size, 1))
         self.ds["n_aer"].attrs["units"] = "$L^{-1}$"
-        self.ds["n_aer"].attrs["long_name"] = "INP concentration per diameter bin"
+        self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration per diameter bin"
 
-    def _weight_inp_prof(self, use_ABIFM=True):
+    def _weight_aer_prof(self, use_ABIFM=True):
         """
-        apply weights on initial INP profile (weighting on n_init_max). If using singular then returning the
+        apply weights on initial aerosol profile (weighting on n_init_max). If using singular then returning the
         weights profile
         Parameters
         ---------
@@ -386,7 +386,7 @@ class INP_pop():
             weight profile with height coordinates
         """
         if not np.all([x in self.n_init_weight_prof.keys() for x in ["height", "weight"]]):
-            raise KeyError('Weighting the INP profiles requires the keys "height" and "weight"')
+            raise KeyError('Weighting the aerosol profiles requires the keys "height" and "weight"')
         if not np.logical_and(len(self.n_init_weight_prof["height"]) > 1,
                               len(self.n_init_weight_prof["height"]) == len(self.n_init_weight_prof["weight"])):
             raise ValueError("weights and heights must have the same length > 1")
@@ -406,15 +406,15 @@ class INP_pop():
             return weight_prof_interp
 
 
-class mono_INP(INP_pop):
+class mono_AER(AER_pop):
     """
-    Uniform (fixed) INP diameter.
+    Uniform (fixed) aerosol diameter.
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=0., T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, ci_model=None):
         """
-        Parameters as in the 'INP_pop' class (fixed diameter can be specified in the 'psd' dict under the 'diam'
+        Parameters as in the 'AER_pop' class (fixed diameter can be specified in the 'psd' dict under the 'diam'
         key or in the diam).
         """
         psd.update({"type": "mono"})  # require type key consistency
@@ -428,15 +428,15 @@ class mono_INP(INP_pop):
                          n_init_weight_prof=n_init_weight_prof, ci_model=ci_model)
 
 
-class logn_INP(INP_pop):
+class logn_AER(AER_pop):
     """
-    Log-normal INP PSD.
+    Log-normal aerosol PSD.
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=0., T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, ci_model=None):
         """
-        Parameters as in the 'INP_pop' class
+        Parameters as in the 'AER_pop' class
 
         psd parameters
         --------------
@@ -474,7 +474,7 @@ class logn_INP(INP_pop):
         psd: dict
             Log-normal PSD parameters.
         n_init_max: float
-            total initial INP concentration [L-1].
+            total initial aerosol concentration [L-1].
         integrate_dn_dlogD: bool
             True - integrate dn_dlogD using the trapezoidal rule, False - normalize instead.
 
@@ -510,15 +510,15 @@ class logn_INP(INP_pop):
         return diam_bin_mid, dn_dlogD_bin, diam, dn_dlogD
 
 
-class multi_logn_INP(logn_INP):
+class multi_logn_AER(logn_AER):
     """
-    Multiple log-normal INP PSD.
+    Multiple log-normal aerosol PSD.
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=0., T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, ci_model=None):
         """
-        Parameters as in the 'INP_pop' class. Note that n_init_max should be a list or np.ndarray
+        Parameters as in the 'AER_pop' class. Note that n_init_max should be a list or np.ndarray
         of values for each mode with the same length as diam_mean and geom_sd. Array bins are specified
         using scalars.
 
@@ -555,22 +555,22 @@ class multi_logn_INP(logn_INP):
                 dn_dlogD += dn_dlogD_tmp
                 nF += nF_tmp
         self.raw_diam, self.raw_dn_dlogD = dF, nF  # raw diameters (bin edges) and dn_dlogD (n(Dp) definition
-        super(logn_INP, self).__init__(use_ABIFM=use_ABIFM, n_init_max=np.sum(n_init_max),
+        super(logn_AER, self).__init__(use_ABIFM=use_ABIFM, n_init_max=np.sum(n_init_max),
                                        nucleus_type=nucleus_type, diam=diam, dn_dlogD=dn_dlogD, name=name,
                                        diam_cutoff=diam_cutoff, T_array=T_array, singular_fun=singular_fun,
                                        singular_scale=singular_scale, psd=psd,
                                        n_init_weight_prof=n_init_weight_prof, ci_model=ci_model)
 
 
-class custom_INP(INP_pop):
+class custom_AER(AER_pop):
     """
-    custom INP PSD ('dn_dlogD' and 'diam' with optional normalization to n_init_max).
+    custom aerosol PSD ('dn_dlogD' and 'diam' with optional normalization to n_init_max).
     """
     def __init__(self, use_ABIFM, n_init_max=None, nucleus_type=None, name=None,
                  diam_cutoff=0., T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, ci_model=None):
         """
-        Parameters as in the 'INP_pop' class
+        Parameters as in the 'AER_pop' class
 
         psd parameters
         --------------

@@ -116,24 +116,24 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x="time", y="height", ae
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
-            if np.logical_and(which_pop in ci_model.inp.keys(), field_to_plot == "Jhet"):
-                plot_data = ci_model.inp[which_pop].ds[field_to_plot].copy()
+            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot == "Jhet"):
+                plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 xf, yf = ci_model.ds[x], ci_model.ds[y]
             else:
                 which_pop = [which_pop]
-        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_pop]), field_to_plot != "Jhet"):
+        if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]), field_to_plot != "Jhet"):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    plot_data = ci_model.inp[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
+                    plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
                     if ci_model.use_ABIFM:
                         aer_dim = "diam"
                     else:
                         aer_dim = "T"
                 else:
                     interp_diams = False
-                    if plot_data[aer_dim].size == ci_model.inp[which_pop[ii]].ds[aer_dim].size:
-                        if np.all(plot_data[aer_dim].values == ci_model.inp[which_pop[ii]].ds[aer_dim].values):
-                            plot_data += ci_model.inp[which_pop[ii]].ds["n_aer"]
+                    if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
+                        if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
+                            plot_data += ci_model.aer[which_pop[ii]].ds["n_aer"]
                         else:
                             interp_diams = True
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
@@ -157,7 +157,7 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x="time", y="height", ae
             plot_data = process_dim(plot_data, z, aer_z, dim_treat)
         elif field_to_plot != "Jhet":
             raise KeyError("Could not find one or more of the requested aerosl population names: \
-                           '%s' in ci_model.inp. Check for typos, etc." % which_pop)
+                           '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
     # arrange plot dims
     if x == plot_data.dims[0]:
@@ -285,15 +285,15 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
-            if np.logical_and(which_pop in ci_model.inp.keys(), field_to_plot == "Jhet"):
-                plot_data = ci_model.inp[which_pop].ds[field_to_plot].copy()
+            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot == "Jhet"):
+                plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 label = "%s %s" % (which_pop, "Jhet")
             else:
                 which_pop = [which_pop]
-        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_pop]), field_to_plot != "Jhet"):
+        if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]), field_to_plot != "Jhet"):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    plot_data = ci_model.inp[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
+                    plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
                     label = "%s %s" % (which_pop[ii], "n")
                     if ci_model.use_ABIFM:
                         aer_dim = "diam"
@@ -301,9 +301,9 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
                         aer_dim = "T"
                 else:
                     interp_diams = False
-                    if plot_data[aer_dim].size == ci_model.inp[which_pop[ii]].ds[aer_dim].size:
-                        if np.all(plot_data[aer_dim].values == ci_model.inp[which_pop[ii]].ds[aer_dim].values):
-                            plot_data += ci_model.inp[which_pop[ii]].ds["n_aer"]
+                    if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
+                        if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
+                            plot_data += ci_model.aer[which_pop[ii]].ds["n_aer"]
                         else:
                             interp_diams = True
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
@@ -317,7 +317,7 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
             plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
         elif field_to_plot != "Jhet":
             raise KeyError("Could not find one or more of the requested aerosl population names: \
-                           '%s' in ci_model.inp. Check for typos, etc." % which_pop)
+                           '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
     # Select values or indices from the height dim and treat (mean, sum, as-is).
     if plot_data.ndim == 2:
@@ -444,15 +444,15 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
-            if np.logical_and(which_pop in ci_model.inp.keys(), field_to_plot == "Jhet"):
-                plot_data = ci_model.inp[which_pop].ds[field_to_plot].copy()
+            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot == "Jhet"):
+                plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 label = "%s %s" % (which_pop, "Jhet")
             else:
                 which_pop = [which_pop]
-        if np.logical_and(np.all([x in ci_model.inp.keys() for x in which_pop]), field_to_plot != "Jhet"):
+        if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]), field_to_plot != "Jhet"):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    plot_data = ci_model.inp[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
+                    plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
                     label = "%s %s" % (which_pop[ii], "n")
                     if ci_model.use_ABIFM:
                         aer_dim = "diam"
@@ -460,9 +460,9 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
                         aer_dim = "T"
                 else:
                     interp_diams = False
-                    if plot_data[aer_dim].size == ci_model.inp[which_pop[ii]].ds[aer_dim].size:
-                        if np.all(plot_data[aer_dim].values == ci_model.inp[which_pop[ii]].ds[aer_dim].values):
-                            plot_data += ci_model.inp[which_pop[ii]].ds["n_aer"]
+                    if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
+                        if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
+                            plot_data += ci_model.aer[which_pop[ii]].ds["n_aer"]
                         else:
                             interp_diams = True
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
@@ -476,7 +476,7 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
             plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
         elif field_to_plot != "Jhet":
             raise KeyError("Could not find one or more of the requested aerosl population names: \
-                           '%s' in ci_model.inp. Check for typos, etc." % which_pop)
+                           '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
     # Select values or indices from the time dim and treat (mean, sum, as-is).
     if plot_data.ndim == 2:
@@ -636,10 +636,10 @@ def PSD(ci_model, which_pop=None,
     """
     if isinstance(which_pop, str):
         which_pop = [which_pop]
-    if np.all([x in ci_model.inp.keys() for x in which_pop]):
+    if np.all([x in ci_model.aer.keys() for x in which_pop]):
         for ii in range(len(which_pop)):
             if ii == 0:
-                plot_data = ci_model.inp[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
+                plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
                 label = "%s %s" % (which_pop[ii], "PSD")
                 if ci_model.use_ABIFM:
                     aer_dim = "diam"
@@ -647,9 +647,9 @@ def PSD(ci_model, which_pop=None,
                     aer_dim = "T"
             else:
                 interp_diams = False
-                if plot_data[aer_dim].size == ci_model.inp[which_pop[ii]].ds[aer_dim].size:
-                    if np.all(plot_data[aer_dim].values == ci_model.inp[which_pop[ii]].ds[aer_dim].values):
-                        plot_data += ci_model.inp[which_pop[ii]].ds["n_aer"]
+                if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
+                    if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
+                        plot_data += ci_model.aer[which_pop[ii]].ds["n_aer"]
                     else:
                         interp_diams = True
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
@@ -662,7 +662,7 @@ def PSD(ci_model, which_pop=None,
                                        % (aer_dim, aer_dim))
     else:
         raise KeyError("Could not find one or more of the requested aerosl population names: \
-                       '%s' in ci_model.inp. Check for typos, etc." % which_pop)
+                       '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
     # Select values or indices from the time and height dims and treat (mean, sum, as-is).
     plot_data = process_dim(plot_data, "time", Time, Time_dim_treat)
