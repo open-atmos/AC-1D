@@ -124,10 +124,14 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x="time", y="height", ae
         if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]), field_to_plot != "Jhet"):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
-                    if ci_model.use_ABIFM:
+                    if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
+                        if field_to_plot == "inp_tot":
+                            plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
+                        else:
+                            plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
                         aer_dim = "diam"
                     else:
+                        plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                         aer_dim = "T"
                 else:
                     interp_diams = False
@@ -293,11 +297,17 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
         if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]), field_to_plot != "Jhet"):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
-                    label = "%s %s" % (which_pop[ii], "n")
-                    if ci_model.use_ABIFM:
+                    if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
+                        if field_to_plot == "inp_tot":
+                            label = "%s %s" % (which_pop[ii], "INP conc.")
+                            plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
+                        else:
+                            label = "%s %s" % (which_pop[ii], "conc.")
+                            plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
                         aer_dim = "diam"
                     else:
+                        label = "%s %s" % (which_pop[ii], "INP T spec.")
+                        plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                         aer_dim = "T"
                 else:
                     interp_diams = False
@@ -452,11 +462,17 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
         if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]), field_to_plot != "Jhet"):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
-                    label = "%s %s" % (which_pop[ii], "n")
-                    if ci_model.use_ABIFM:
+                    if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
+                        if field_to_plot == "inp_tot":
+                            label = "%s %s" % (which_pop[ii], "INP conc.")
+                            plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
+                        else:
+                            label = "%s %s" % (which_pop[ii], "conc.")
+                            plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
                         aer_dim = "diam"
                     else:
+                        label = "%s %s" % (which_pop[ii], "INP T spec.")
+                        plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                         aer_dim = "T"
                 else:
                     interp_diams = False
@@ -556,7 +572,7 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
 
 
 
-def PSD(ci_model, which_pop=None,
+def PSD(ci_model, which_pop=None, field_to_plot="",
         Time=None, Time_dim_treat=None, Height=None, Height_dim_treat=None, ax=None,
         xscale=None, yscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
         font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
@@ -569,6 +585,9 @@ def PSD(ci_model, which_pop=None,
     ----------
     ci_model: ci_model class
         Containing model run output.
+    field_to_plot: str
+        Name of field to plot. This input parameter can only have an effect in INAS (if "inp_tot" is
+        requested).
     which_pop: str or None
         Name of aerosol population to plot. If field_to_plot is "Jhet" then plotting the population's Jhet.
         If None, then plot a field from the ci_model.ds xr.Dataset.
@@ -639,11 +658,17 @@ def PSD(ci_model, which_pop=None,
     if np.all([x in ci_model.aer.keys() for x in which_pop]):
         for ii in range(len(which_pop)):
             if ii == 0:
-                plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot n_aer field
-                label = "%s %s" % (which_pop[ii], "PSD")
-                if ci_model.use_ABIFM:
+                if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
+                    if field_to_plot == "inp_tot":
+                        label = "%s %s" % (which_pop[ii], "INP conc.")
+                        plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
+                    else:
+                        label = "%s %s" % (which_pop[ii], "conc.")
+                        plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
                     aer_dim = "diam"
                 else:
+                    label = "%s %s" % (which_pop[ii], "INP T spec.")
+                    plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                     aer_dim = "T"
             else:
                 interp_diams = False

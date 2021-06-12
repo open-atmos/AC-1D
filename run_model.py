@@ -263,9 +263,22 @@ def run_model(ci_model):
 
         run_stats["data_allocation"] += (time() - t_loop - t_proc)
 
+    # Reassign units (often occurring in xarray in data allocation) & and add total INP to n_aero in INAS
     for key in ci_model.aer.keys():
+        if 'diam' in ci_model.aer[key].ds.keys():
+            if not "units" in ci_model.aer[key].ds['diam'].attrs:
+                ci_model.aer[key].ds["diam"].attrs["units"] = r"$\mu m$"
+        if 'T' in ci_model.aer[key].ds.keys():
+            if not "units" in ci_model.aer[key].ds['T'].attrs:
+                ci_model.aer[key].ds["T"].attrs["units"] = r"$K$"
+        if not "units" in ci_model.aer[key].ds['time'].attrs:
+            ci_model.aer[key].ds["time"].attrs["units"] = r"$s$"
+        if not "units" in ci_model.aer[key].ds['height'].attrs:
+            ci_model.aer[key].ds["height"].attrs["units"] = r"$m$"
+
         if ci_model.aer[key].is_INAS:
             ci_model.aer[key].ds["n_aer"].values += ci_model.aer[key].ds["inp_tot"].values
+            
 
     # Print model run summary
     runtime_tot = time() - Now
