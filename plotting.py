@@ -117,6 +117,8 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x="time", y="height", ae
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
             if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot == "Jhet"):
+                if not ci_model.use_ABIFM:
+                    raise KeyError("Jhet was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 xf, yf = ci_model.ds[x], ci_model.ds[y]
             else:
@@ -149,7 +151,7 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x="time", y="height", ae
                                            and values (interpolation will be added updated in future updates)" \
                                            % (aer_dim, aer_dim))
             xf, yf = plot_data[x], plot_data[y]
-            if ci_model.use_ABIFM:
+            if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
                 possible_fields = {"height", "time", "diam"}
             else:
                 possible_fields = {"height", "time", "T"}
@@ -290,6 +292,8 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
             if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot == "Jhet"):
+                if not ci_model.use_ABIFM:
+                    raise KeyError("Jhet was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 label = "%s %s" % (which_pop, "Jhet")
             else:
@@ -455,6 +459,8 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
             if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot == "Jhet"):
+                if not ci_model.use_ABIFM:
+                    raise KeyError("Jhet for was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 label = "%s %s" % (which_pop, "Jhet")
             else:
