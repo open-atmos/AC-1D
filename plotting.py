@@ -585,8 +585,8 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
                                                        plot_data[dim_2nd].attrs["units"])
             else:
                 label_p = label + " (%s = %.1f)" % (dim_2nd, plot_data[dim_2nd][ii])
-        if legend_label is not None:  # Assuming a string
-            label_p = legend_label
+            if legend_label is not None:  # Assuming a string
+                label_p = legend_label
             ax.plot(plot_data.isel({dim_2nd: ii}), plot_data["height"], label=label_p, **kwargs)
             if cld_bnd is not None:
                 if cld_bnd['l_color'] is not None:
