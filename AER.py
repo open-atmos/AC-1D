@@ -350,18 +350,38 @@ class AER_pop():
         self.ds["T"].attrs["units"] = "$K$"  # set coordinate attributes.
 
         if not self.is_INAS:
+            self.ds["ns_raw"] = xr.DataArray(self.singular_fun(ci_model.ds["T"],
+                                                               np.tile(np.expand_dims(input_2[:, 0],
+                                                                                      axis=1),
+                                                                       (1, ci_model.ds["time"].size))) /
+                                             (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum(),
+                                             dims=("height", "time"))
+            self.ds["ns_raw"].attrs["long_name"] = "INAS ns-equivalent singular treatment"
             self.ds["inp"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
                                                       self.ds["T"].size)), dims=("height", "time", "T"))
             self.ds["inp"].loc[{"time": 0}] = np.flip(tmp_inp_array, axis=-1)
             self.ds["inp"].attrs["units"] = "$L^{-1}$"
             self.ds["inp"].attrs["long_name"] = "INP number concentration per temperature bin"
+            self.ds["inp_pct"] = xr.DataArray(self.singular_fun(ci_model.ds["T"],
+                                                                np.tile(np.expand_dims(input_2[:, 0],
+                                                                                       axis=1),
+                                                                        (1, ci_model.ds["time"].size))) /
+                                               self.ds["dn_dlogD"].sum() * 100., dims=("height", "time"))
         else:
+            self.ds["ns_raw"] = xr.DataArray(self.singular_fun(ci_model.ds["T"], 1), dims=("height", "time"))
+            self.ds["ns_raw"].attrs["long_name"] = "INAS ns"
             self.ds["inp_snap"] = xr.DataArray(tmp_inp_array, dims=("height", "diam", "T"))
             self.ds["inp_snap"].values = np.flip(self.ds["inp_snap"].values, axis=-1)
             self.ds["inp_snap"].attrs["units"] = "$L^{-1}$"
             self.ds["inp_snap"].attrs["long_name"] = "prognosed INP number concentration (snapshot)"
             self.ds["inp_init"] = self.ds["inp_snap"].copy()  # copy of initial INP (might be used for entrainment)
             self.ds["inp_init"].attrs["long_name"] = "prognosed INP number concentration (initial)"
+            self.ds["inp_pct"] = self.ds["ns_raw"] * (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum() / \
+                self.ds["dn_dlogD"].sum() * 100.
+        self.ds["inp_pct"].attrs["units"] = "$\%$"
+        self.ds["inp_pct"].attrs["long_name"] = "INP parameterization percentage relative to total initial aerosol"
+        "concentrations"
+        self.ds["ns_raw"].attrs["units"] = "$cm^{-2}$"
 
     def _init_aer_Jhet_ABIFM_arrays(self, ci_model):
         """

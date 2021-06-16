@@ -41,12 +41,16 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x="time", y="height", ae
     ci_model: ci_model class
         Containing model run output.
     which_pop: list, str, or None
-        Name of aerosol population to plot. If field_to_plot is "Jhet" then plotting the population's Jhet.
+        Name of aerosol population to plot. If field_to_plot is "Jhet" (ABIFM), "ns_raw" (singular), or "inp_pct"
+        (singular) then plotting the population's Jhet, raw ns parameterization (or estimate using singular), or
+        the INP percentage relative to the total initial aerosol concentration (ignoring vertical weighting),
+        respectively.
         If a list, then adding all aerosol populations together after checking that the "diam" (ABIFM) or "T"
         (singular) arrays have the same length and values.
         If None, then plot a field from the ci_model.ds xr.Dataset.
     field_to_plot: str
-        Name of field to plot. If "Jhet" then remember to provide 'which_pop'.
+        Name of field to plot. If "Jhet" (ABIFM), "ns_raw" (singular), or "inp_pct" (singular) then remember to
+        provide 'which_pop'.
     x: str
         coordinate to place on the x-axis - choose between "time", "height", "diam" (ABIFM), or "T" (singular).
     y: str
@@ -121,6 +125,12 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x="time", y="height", ae
                     raise KeyError("Jhet was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 xf, yf = ci_model.ds[x], ci_model.ds[y]
+            elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["ns_raw", "inp_pct"]):
+                if ci_model.use_ABIFM:
+                    raise KeyError("%s was requested but use_ABIFM is True. Please check your input!" %
+                                   field_to_plot)
+                plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
+                xf, yf = ci_model.ds[x], ci_model.ds[y]
             else:
                 which_pop = [which_pop]
         if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]), field_to_plot != "Jhet"):
@@ -161,7 +171,7 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x="time", y="height", ae
                                    (check 'x' and 'y' string values)")
             z = possible_fields.pop()
             plot_data = process_dim(plot_data, z, aer_z, dim_treat)
-        elif field_to_plot != "Jhet":
+        elif field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]:
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
@@ -220,13 +230,15 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
     ----------
     ci_model: ci_model class
         Containing model run output.
-    field_to_plot: str
-        Name of field to plot. If "Jhet" then remember to provide 'which_pop'.
     which_pop: str or None
-        Name of aerosol population to plot. If field_to_plot is "Jhet" then plotting the population's Jhet.
+        Name of aerosol population to plot. If field_to_plot is "Jhet" (ABIFM), "ns_raw" (singular), or "inp_pct"
+        (singular) then plotting the population's Jhet, raw ns parameterization (or estimate using singular), or
+        the INP percentage relative to the total initial aerosol concentration (ignoring vertical weighting),
+        respectively.
         If None, then plot a field from the ci_model.ds xr.Dataset.
     field_to_plot: str
-        Name of field to plot. If "Jhet" then remember to provide 'which_pop'.
+        Name of field to plot. If "Jhet" (ABIFM), "ns_raw" (singular), or "inp_pct" (singular) then remember to
+        provide 'which_pop'.
     aer_z: float, int, 2-element tuple, or None
         Only for plotting of the aerosol field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
         for plotting, int for 3rd coordinate index, tuple of floats to define a range of values (plotting a mean
@@ -298,9 +310,16 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
                     raise KeyError("Jhet was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 label = "%s %s" % (which_pop, "Jhet")
+            elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["ns_raw", "inp_pct"]):
+                if ci_model.use_ABIFM:
+                    raise KeyError("%s was requested but use_ABIFM is True. Please check your input!" %
+                                   field_to_plot)
+                plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
+                label = "%s %s" % (which_pop, field_to_plot)
             else:
                 which_pop = [which_pop]
-        if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]), field_to_plot != "Jhet"):
+        if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]),
+                          field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]):
             for ii in range(len(which_pop)):
                 if ii == 0:
                     if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
@@ -331,7 +350,7 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
                                            and values (interpolation will be added updated in future updates)" \
                                            % (aer_dim, aer_dim))
             plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
-        elif field_to_plot != "Jhet":
+        elif field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]:
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
@@ -387,13 +406,14 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
     ----------
     ci_model: ci_model class
         Containing model run output.
-    field_to_plot: str
-        Name of field to plot. If "Jhet" then remember to provide 'which_pop'.
     which_pop: str or None
-        Name of aerosol population to plot. If field_to_plot is "Jhet" then plotting the population's Jhet.
-        If None, then plot a field from the ci_model.ds xr.Dataset.
-    field_to_plot: str
-        Name of field to plot. If "Jhet" then remember to provide 'which_pop'.
+        Name of aerosol population to plot. If field_to_plot is "Jhet" (ABIFM), "ns_raw" (singular), or "inp_pct"
+        (singular) then plotting the population's Jhet, raw ns parameterization (or estimate using singular), or
+        the INP percentage relative to the total initial aerosol concentration (ignoring vertical weighting),
+        respectively. If None, then plot a field from the ci_model.ds xr.Dataset.
+        Name of field to plot.
+        If "Jhet" (ABIFM), "ns_raw" (singular), or "inp_pct" (singular) then remember to
+        provide 'which_pop'.
     aer_z: float, int, 2-element tuple, or None
         Only for plotting of the n_aer field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
         for plotting, int for 3rd coordinate index, tuple of floats to define a range of values (plotting a mean
@@ -471,9 +491,16 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
                     raise KeyError("Jhet for was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 label = "%s %s" % (which_pop, "Jhet")
+            elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["ns_raw", "inp_pct"]):
+                if ci_model.use_ABIFM:
+                    raise KeyError("%s was requested but use_ABIFM is True. Please check your input!" %
+                                   field_to_plot)
+                plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
+                label = "%s %s" % (which_pop, field_to_plot)
             else:
                 which_pop = [which_pop]
-        if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]), field_to_plot != "Jhet"):
+        if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]),
+                          field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]):
             for ii in range(len(which_pop)):
                 if ii == 0:
                     if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
@@ -504,7 +531,7 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
                                            and values (interpolation will be added updated in future updates)" \
                                            % (aer_dim, aer_dim))
             plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
-        elif field_to_plot != "Jhet":
+        elif field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]:
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
@@ -607,8 +634,7 @@ def PSD(ci_model, which_pop=None, field_to_plot="",
         Name of field to plot. This input parameter can only have an effect in INAS (if "inp_tot" is
         requested).
     which_pop: str or None
-        Name of aerosol population to plot. If field_to_plot is "Jhet" then plotting the population's Jhet.
-        If None, then plot a field from the ci_model.ds xr.Dataset.
+        Name of aerosol population to plot.
     Time: float, int, 2-element tuple, list, or None
         Time elements, range, or values to treat from the dim. Options:
         1. float to specify a dim coordinate value to use for plotting.
