@@ -19,7 +19,7 @@ class ci_model():
     """
     def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
                  custom_vert_grid=None, w_e_ent=0.1e-3, entrain_from_cth=True, tau_mix=1800.,
-                 mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-3,
+                 mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-3, nuc_RH_thresh=None,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_cbh",
                  do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True, run_model=True):
@@ -77,6 +77,9 @@ class ci_model():
         in_cld_q_thresh: float
             Mixing ratio threshold [g/kg] for determination of in-cloud environment; also assigned to the
             'q_liq_pbl_cut' attribute value.
+        nuc_RH_thresh: float or None [--ABIFM--]
+            An RH threshold (fraction) for ABIFM (which can nucleate outside a cloud layer), such that a threshold
+            of 1.00 means nucleation only within cloud layers. Ignored if None.
         aer_info: list of dict
             Used to initialize the aerosol arrays. Each element of the list describes a single population
             type providing its composition, concentration, and PSD, e.g., can use a single log-normal population
@@ -191,6 +194,7 @@ class ci_model():
         self.final_t = final_t
         self.use_ABIFM = use_ABIFM
         self.in_cld_q_thresh = in_cld_q_thresh  # g/kg
+        self.nuc_RH_thresh = nuc_RH_thresh  # fraction value
 
         # Load LES output
         if les_name == "DHARMA":

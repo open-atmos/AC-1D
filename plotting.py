@@ -212,7 +212,7 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
             Height=None, Height_dim_treat="mean", ax=None,
             yscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
             font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
-            xlim=None, ylim=None, **kwargs):
+            xlim=None, ylim=None, legend_label=None, **kwargs):
     """
     Generates aerosol or other model output field's time series
 
@@ -272,12 +272,14 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
         if provided, then used as y-axis ticks
     yticklabel: list, np.ndarray, or None
         if provided, then used as y-axis tick labels.
+    legend: bool or None
+        if None, placing legend if processed plot_data has ndim = 2.
     xlim: 2-elemnt tuple (or list) or None
         xlim range
     ylim: 2-elemnt tuple (or list) or None
         ylim range
-    legend: bool or None
-        if None, placing legend if processed plot_data has ndim = 2.
+    legend_label: str or None:
+        Label to set for the legend (only valid if plotting a single curve). Using default if None.
 
     Returns
     -------
@@ -353,10 +355,14 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
                                                        plot_data[dim_2nd].attrs["units"])
             else:
                 label_p = label + " (%s = %.1f)" % (dim_2nd, plot_data[dim_2nd][ii])
+            if legend_label is not None:  # Assuming a string
+                label_p = legend_label
             ax.plot(plot_data["time"], plot_data.isel({dim_2nd: ii}), label=label_p, **kwargs)
         if legend is None:
             legend = True
     else:
+        if legend_label is not None:  # Assuming a string
+            label = legend_label
         ax.plot(plot_data["time"], plot_data, label=label, **kwargs)
 
     ax = fine_tuning(ax, title, None, yscale, grid, xlabel, ylabel, tight_layout, font_size, xtick, xticklabel,
@@ -372,7 +378,7 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
             Time=None, Time_dim_treat="mean", ax=None,
             xscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
             font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
-            xlim=None, ylim=None, cld_bnd=False, **kwargs):
+            xlim=None, ylim=None, legend_label=None, cld_bnd=False, **kwargs):
 
     """
     Generates aerosol population or other model output field's profile
@@ -433,12 +439,14 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
         if provided, then used as y-axis ticks
     yticklabel: list, np.ndarray, or None
         if provided, then used as y-axis tick labels.
+    legend: bool or None
+        if None, placing legend if processed plot_data has ndim = 2.
     xlim: 2-elemnt tuple (or list) or None
         xlim range
     ylim: 2-elemnt tuple (or list) or None
         ylim range
-    legend: bool or None
-        if None, placing legend if processed plot_data has ndim = 2.
+    legend_label: str or None:
+        Label to set for the legend (only valid if plotting a single curve). Using default if None.
     cld_bnd: bool or dict
         if True, plotting cloud boundary patches and/or lines. If dict, then can include the keys 'p_color',
         'p_alpha', 'l_color', 'l_width', 'l_style', and 'x_rng' for cloud boundaries' patch color and transparency,
@@ -550,6 +558,8 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
                                                        plot_data[dim_2nd].attrs["units"])
             else:
                 label_p = label + " (%s = %.1f)" % (dim_2nd, plot_data[dim_2nd][ii])
+        if legend_label is not None:  # Assuming a string
+            label_p = legend_label
             ax.plot(plot_data.isel({dim_2nd: ii}), plot_data["height"], label=label_p, **kwargs)
             if cld_bnd is not None:
                 if cld_bnd['l_color'] is not None:
@@ -561,6 +571,8 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
         if legend is None:
             legend = True
     else:
+        if legend_label is not None:  # Assuming a string
+            label = legend_label
         ax.plot(plot_data, plot_data["height"], label=label, **kwargs)
         if cld_bnd is not None:
             if cld_bnd['l_color'] is not None:

@@ -43,6 +43,7 @@ def run_model(ci_model):
                                                             (1, ci_model.mod_nt))), axis=0)
         cth_ind = np.where(cth_ind == 0, -9999, cth_ind)
 
+    # init total INP arrays for INAS
     for key in ci_model.aer.keys():
         if ci_model.aer[key].is_INAS:
             ci_model.aer[key].ds["inp_tot"] = xr.DataArray(np.zeros_like(ci_model.aer[key].ds["n_aer"]),
@@ -51,6 +52,9 @@ def run_model(ci_model):
                 ci_model.aer[key].ds["inp_snap"].copy().sum("T").values
             ci_model.aer[key].ds["inp_tot"].attrs["units"] = "$L^{-1}$"
             ci_model.aer[key].ds["inp_tot"].attrs["long_name"] = "Total prognosed INP subset number concentration"
+
+    if np.logical_and(ci_model.use_ABIFM, ci_model.nuc_RH_thresh is not None):
+        in_cld_mask = ci_model.ds["RH"] >= ci_model.nuc_RH_thresh
 
     for it in range(1, ci_model.mod_nt):
 
@@ -88,6 +92,9 @@ def run_model(ci_model):
                 AA, JJ = np.meshgrid(ci_model.aer[key].ds["surf_area"].values,
                                      ci_model.aer[key].ds["Jhet"].values[:, it - 1])
                 aer_act = np.minimum(n_aer_prev * JJ * AA * ci_model.delta_t, n_aer_prev)
+                if ci_model.nuc_RH_thresh is not None:
+                    aer_act = np.where(np.tile(np.expand_dims(in_cld_mask[:, it-1], axis=1), (1, diam_dim_l)),
+                                       aer_act, 0.)
             else:
                 TTi, TTm = np.meshgrid(ci_model.aer[key].ds["T"].values,
                                        np.where(ci_model.ds["ql"].values[:, it - 1] >= ci_model.in_cld_q_thresh,
