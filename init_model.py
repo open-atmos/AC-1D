@@ -21,7 +21,7 @@ class ci_model():
                  custom_vert_grid=None, w_e_ent=0.1e-3, entrain_from_cth=True, tau_mix=1800.,
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-3, nuc_RH_thresh=None,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
-                 fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_cbh",
+                 fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True, run_model=True):
         """
         Model namelists and unit conversion coefficient required for the 1D model.
@@ -66,7 +66,7 @@ class ci_model():
             in w_e_ent), or the method with which to determine mixing base (str). The second element is
             similar, but for the determination of the mixing layer top.
             If None, using the full domain.
-            NOTE: currently, the only accepted pre-specified mixing determination method is "ql_cbh"
+            NOTE: currently, the only accepted pre-specified mixing determination method is "ql_thresh"
             (q_liq-based cloud base or top height detection method, allowing limit mixing to the cloud).
         v_f_ice: xr DataArray, dict, or float
             number-weighted ice crystal fall velocity [m/s].
@@ -77,9 +77,13 @@ class ci_model():
         in_cld_q_thresh: float
             Mixing ratio threshold [g/kg] for determination of in-cloud environment; also assigned to the
             'q_liq_pbl_cut' attribute value.
-        nuc_RH_thresh: float or None [--ABIFM--]
+        nuc_RH_thresh: float, str, list, or None [--ABIFM--]
             An RH threshold (fraction) for ABIFM (which can nucleate outside a cloud layer), such that a threshold
-            of 1.00 means nucleation only within cloud layers. Ignored if None.
+            of 1.00 means nucleation only within cloud layers.
+            If str equals to "use_ql" then limiting nucleation to levels where ql > in_cld_q_thresh.
+            If list and the first element equals to "use_RH_and_ql" then limiting nucleation to levels where
+            ql > in_cld_q_thresh and/or RH >= RH threshold set in the second list element.
+            Ignored if None.
         aer_info: list of dict
             Used to initialize the aerosol arrays. Each element of the list describes a single population
             type providing its composition, concentration, and PSD, e.g., can use a single log-normal population
@@ -183,7 +187,7 @@ class ci_model():
             NOTE: default in the ci_model class ("ql_pbl") is different than in the DHARMA init method (None).
         cbh_det_method: str
             Method to determine cloud base with:
-                - if == "ql_cbh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
+                - if == "ql_thresh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
                 - OTHER OPTIONS TO BE ADDED.
         """
         # count processing time
@@ -319,14 +323,14 @@ class ci_model():
                                                           True, dtype=bool), dims=("height", "time"))
         else:
             if isinstance(mixing_bounds[0], str):
-                if mixing_bounds[0] == "ql_cbh":
+                if mixing_bounds[0] == "ql_thresh":
                     self.ds["mixing_base"] = xr.DataArray(np.interp(
                         self.ds["time"], self.les["time"], self.les["lowest_cbh"]), dims=("time"))
                     self.ds["mixing_base"].attrs["units"] = "$m$"
             else:
                 self._set_1D_or_2D_var_from_AERut(mixing_bounds[0], "mixing_base", "$m$", "Mixing layer base")
             if isinstance(mixing_bounds[1], str):
-                if mixing_bounds[1] == "ql_cbh":
+                if mixing_bounds[1] == "ql_thresh":
                     self.ds["mixing_top"] = xr.DataArray(np.interp(
                         self.ds["time"], self.les["time"], self.les["lowest_cth"]), dims=("time"))
                     self.ds["mixing_top"].attrs["units"] = "$m$"

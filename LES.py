@@ -122,7 +122,7 @@ class LES():
                 rel_inds = height_ind_2crop
             self.ds = self.ds[{self.height_dim: rel_inds}]
 
-    def _prepare_les_dataset_for_1d_model(self, cbh_det_method="ql_cbh"):
+    def _prepare_les_dataset_for_1d_model(self, cbh_det_method="ql_thresh"):
         """
         scale (unit conversion), rename the required fields (prepare the dataset for informing the 1D model
         allowing retaining only the les xr dataset instead of the full LES class), and calculate some additional.
@@ -131,7 +131,7 @@ class LES():
         ----------
         cbh_det_method: str
             Method to determine cloud base with:
-                - if == "ql_cbh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
+                - if == "ql_thresh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
                 - OTHER OPTIONS TO BE ADDED.
         """
         self.ds = self.ds.rename({self.height_dim: "height", self.time_dim: "time",
@@ -164,7 +164,7 @@ class LES():
         # calculated weighted precip rates
         self._find_and_calc_cb_precip(cbh_det_method)
 
-    def _find_and_calc_cb_precip(self, cbh_det_method="ql_cbh"):
+    def _find_and_calc_cb_precip(self, cbh_det_method="ql_thresh"):
         """
         calculate number-weighted precip rate in the domain and allocate a field for values at lowest cloud base.
         The method finds cbh as well as cth
@@ -173,7 +173,7 @@ class LES():
         ----------
         cbh_det_method: str
             Method to determine cloud base with:
-                - if == "ql_cbh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
+                - if == "ql_thresh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
                 - OTHER OPTIONS TO BE ADDED.
         """
         self.ds["P_Ni"] = self.ds['prec'] / self.ds['Ni']
@@ -181,7 +181,7 @@ class LES():
         self.ds["P_Ni"].attrs['long_name'] = "Ni-normalized precipitation rate"
 
         # find all cloud bases and the precip rate in the lowest cloud base in every time step (each profile).
-        if cbh_det_method == "ql_cbh":
+        if cbh_det_method == "ql_thresh":
             self.ds["cbh_all"] = xr.DataArray(np.diff(self.ds["ql"].values >= self.q_liq_cbh, prepend=0,
                                                       axis=0) == 1, dims=self.ds["P_Ni"].dims)
             self.ds["cth_all"] = xr.DataArray(np.diff(self.ds["ql"].values >= self.q_liq_cbh, append=0,
@@ -222,7 +222,7 @@ class LES():
 
 class DHARMA(LES):
     def __init__(self, les_out_path=None, les_out_filename=None, t_harvest=None, fields_to_retain=None,
-                 height_ind_2crop=None, cbh_det_method="ql_cbh", q_liq_pbl_cut=None):
+                 height_ind_2crop=None, cbh_det_method="ql_thresh", q_liq_pbl_cut=None):
         """
         LES class for DHARMA that loads model output dataset
 
@@ -254,7 +254,7 @@ class DHARMA(LES):
             If None then not cropping.
         cbh_det_method: str
             Method to determine cloud base with:
-                - if == "ql_cbh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
+                - if == "ql_thresh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
                 - OTHER OPTIONS TO BE ADDED.
         q_liq_pbl_cutoff: float
             value of q_liq_cut (g/kg) required to define the PBL top z-index (where LWC becomes negligible) -

@@ -53,8 +53,15 @@ def run_model(ci_model):
             ci_model.aer[key].ds["inp_tot"].attrs["units"] = "$L^{-1}$"
             ci_model.aer[key].ds["inp_tot"].attrs["long_name"] = "Total prognosed INP subset number concentration"
 
-    if np.logical_and(ci_model.use_ABIFM, ci_model.nuc_RH_thresh is not None):
+    if np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh,float)):  # Define nucleation w/ RH
         in_cld_mask = ci_model.ds["RH"] >= ci_model.nuc_RH_thresh
+    elif np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh,str)):
+        if ci_model.nuc_RH_thresh == "use_ql":  # allow nucleation where ql > 0
+            in_cld_mask = ci_model.ds["ql"] >= ci_model.in_cld_q_thresh
+    elif np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh,list)):
+        if ci_model.nuc_RH_thresh[0] == "use_RH_and_ql":  # allow nucleation where ql > 0 and/or RH > RH thresh
+            in_cld_mask = np.logical_or(ci_model.ds["ql"] >= ci_model.in_cld_q_thresh,
+                                        ci_model.ds["RH"] >= ci_model.nuc_RH_thresh[1])
 
     for it in range(1, ci_model.mod_nt):
 
