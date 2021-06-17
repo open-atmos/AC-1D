@@ -120,20 +120,21 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x="time", y="height", ae
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
-            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot == "Jhet"):
-                if not ci_model.use_ABIFM:
+            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["Jhet", "inp_pct"]):
+                if np.logical_and(not ci_model.use_ABIFM, field_to_plot == "Jhet"):
                     raise KeyError("Jhet was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 xf, yf = ci_model.ds[x], ci_model.ds[y]
             elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["ns_raw", "inp_pct"]):
-                if ci_model.use_ABIFM:
+                if np.logical_and(ci_model.use_ABIFM, field_to_plot in ["ns_raw"]):
                     raise KeyError("%s was requested but use_ABIFM is True. Please check your input!" %
                                    field_to_plot)
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 xf, yf = ci_model.ds[x], ci_model.ds[y]
             else:
                 which_pop = [which_pop]
-        if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]), field_to_plot != "Jhet"):
+        if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]),
+                          field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]):
             for ii in range(len(which_pop)):
                 if ii == 0:
                     if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
@@ -305,13 +306,13 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
-            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot == "Jhet"):
-                if not ci_model.use_ABIFM:
+            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["Jhet", "inp_pct"]):
+                if np.logical_and(not ci_model.use_ABIFM, field_to_plot == "Jhet"):
                     raise KeyError("Jhet was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
-                label = "%s %s" % (which_pop, "Jhet")
+                label = "%s %s" % (which_pop, field_to_plot)
             elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["ns_raw", "inp_pct"]):
-                if ci_model.use_ABIFM:
+                if np.logical_and(ci_model.use_ABIFM, field_to_plot in ["ns_raw"]):
                     raise KeyError("%s was requested but use_ABIFM is True. Please check your input!" %
                                    field_to_plot)
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
@@ -486,13 +487,13 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
-            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot == "Jhet"):
-                if not ci_model.use_ABIFM:
+            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["Jhet", "inp_pct"]):
+                if np.logical_and(not ci_model.use_ABIFM, field_to_plot == "Jhet"):
                     raise KeyError("Jhet for was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
-                label = "%s %s" % (which_pop, "Jhet")
+                label = "%s %s" % (which_pop, field_to_plot)
             elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["ns_raw", "inp_pct"]):
-                if ci_model.use_ABIFM:
+                if np.logical_and(ci_model.use_ABIFM, field_to_plot in ["ns_raw"]):
                     raise KeyError("%s was requested but use_ABIFM is True. Please check your input!" %
                                    field_to_plot)
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()

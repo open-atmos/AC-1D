@@ -293,7 +293,8 @@ class AER_pop():
 
     def _init_aer_singular_array(self, ci_model):
         """
-        initialize the aerosol concentration array for singular (height x time x temperature).
+        initialize the aerosol and INP concentration arrays as well as other diagnostic arrays for singular
+        (height x time x temperature) or (height x time x diam).
         Parameters
         ---------
         ci_model: ci_model class object
@@ -378,12 +379,16 @@ class AER_pop():
             self.ds["inp_init"].attrs["long_name"] = "prognosed INP number concentration (initial)"
             self.ds["inp_pct"] = self.ds["ns_raw"] * (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum() / \
                 self.ds["dn_dlogD"].sum() * 100.
+        self.ds["ns_raw"].values = np.where(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
+                                             self.ds["ns_raw"].values, 0)  # crop in-cloud pixels
+        self.ds["inp_pct"].values = np.where(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
+                                             self.ds["inp_pct"].values, 0)  # crop in-cloud pixels
         self.ds["inp_pct"].attrs["units"] = "$\%$"
         self.ds["inp_pct"].attrs["long_name"] = "INP parameterization percentage relative to total initial aerosol"
         "concentrations"
         self.ds["ns_raw"].attrs["units"] = "$cm^{-2}$"
 
-    def _init_aer_Jhet_ABIFM_arrays(self, ci_model):
+    def _init_aer_Jhet_ABIFM_arrays(self, ci_model, pct_const=None):
         """
         initialize the aerosol array (height x time x diameter) and the Jhet arrays (for ABIFM) assuming that
         dn_dlogD has been calculated and that the ci_model object was already generated (with delta_aw, etc.).
@@ -392,17 +397,28 @@ class AER_pop():
         ---------
         ci_model: ci_model class object
             Cloud-ice nucleation model object including all model initialization and prognosed field datasets.
+        pct_const: float or None  (--ABIFM--)
+            time constant to use for the diagnostic INP percentage calculation.
+            If None (default), using the model's delta_t
         """
         if ci_model.use_ABIFM:
             self.ds["Jhet"] = 10.**(self.Jhet.c + self.Jhet.m * ci_model.ds["delta_aw"])  # calc Jhet
             self.ds["Jhet"].attrs["units"] = "$cm^{-2} s{-1}$"
             self.ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
+            if pct_const is None:
+                pct_const = ci_model.delta_t
+            self.ds["inp_pct"] = self.ds["Jhet"] * (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum() * pct_const / \
+                self.ds["dn_dlogD"].sum() * 100.
+            self.ds["inp_pct"].attrs["units"] = "$\%$"
+            self.ds["inp_pct"].attrs["long_name"] = "INP percentage relative to total initial aerosol (using a time"
+            "constant of %.0f s)" % pct_const
         self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
                                                 self.ds["diam"].size)),
                                       dims=("height", "time", "diam"))
         self.ds["n_aer"].loc[{"time": 0}] = np.tile(self.dn_dlogD, (self.ds["height"].size, 1))
         self.ds["n_aer"].attrs["units"] = "$L^{-1}$"
         self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration per diameter bin"
+
 
     def _weight_aer_prof(self, use_ABIFM=True):
         """
