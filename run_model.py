@@ -37,11 +37,10 @@ def run_model(ci_model):
     print_delta_percent = 10.  # report model run progress every certain percentage of time steps.
 
     # find indices of cloud-top height
-    if ci_model.entrain_from_cth:
-        cth_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["lowest_cth"].values, axis=0),
-                            (ci_model.mod_nz, 1)) - np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
-                                                            (1, ci_model.mod_nt))), axis=0)
-        cth_ind = np.where(cth_ind == 0, -9999, cth_ind)
+    cth_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["lowest_cth"].values, axis=0),
+                        (ci_model.mod_nz, 1)) - np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
+                                                        (1, ci_model.mod_nt))), axis=0)
+    cth_ind = np.where(cth_ind == 0, -9999, cth_ind)
 
     # init total INP arrays for INAS
     for key in ci_model.aer.keys():
@@ -100,7 +99,7 @@ def run_model(ci_model):
                                      ci_model.aer[key].ds["Jhet"].values[:, it - 1])
                 aer_act = np.minimum(n_aer_prev * JJ * AA * ci_model.delta_t, n_aer_prev)
                 if ci_model.nuc_RH_thresh is not None:
-                    aer_act = np.where(np.tile(np.expand_dims(in_cld_mask[:, it-1], axis=1), (1, diam_dim_l)),
+                    aer_act = np.where(np.tile(np.expand_dims(in_cld_mask[:, it - 1], axis=1), (1, diam_dim_l)),
                                        aer_act, 0.)
             else:
                 TTi, TTm = np.meshgrid(ci_model.aer[key].ds["T"].values,
@@ -131,20 +130,20 @@ def run_model(ci_model):
             if ci_model.do_entrain:
                 t_process = time()
                 if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):  # aerosol entrainment
-                    if ci_model.entrain_from_cth:  # using cloud top data (aerosol difference) for entrainment
+                    if ci_model.deplete_entrained:  # using cloud top data (aerosol difference) for entrainment
                         if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
                             aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
                                 ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
                                 (n_aer_curr[cth_ind[it - 1] + 1, :] - n_aer_curr[cth_ind[it - 1], :])
-                            n_aer_curr[cth_ind[it - 1], :] += aer_ent
                             n_aer_curr[cth_ind[it - 1] + 1, :] -= aer_ent  # update aerosol conc. just above cth.
                     else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
                         aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                            ci_model.ds["delta_z"].values[-1] * ci_model.delta_t * \
-                            (ci_model.aer[key].ds["n_aer"].values[-1, 0, :] - n_aer_curr[-1, :])
-                        n_aer_curr[-1, :] += aer_ent
+                            ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
+                            (ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0, :] -
+                             n_aer_curr[cth_ind[it - 1], :])
+                    n_aer_curr[cth_ind[it - 1], :] += aer_ent
                 if not ci_model.use_ABIFM:  # INP entrainment
-                    if ci_model.entrain_from_cth:  # using cloud top data (INP difference) for entrainment
+                    if ci_model.deplete_entrained:  # using cloud top data (INP difference) for entrainment
                         if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
                             if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
                                 inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
@@ -161,14 +160,16 @@ def run_model(ci_model):
                     else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
                         if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
                             inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                ci_model.ds["delta_z"].values[-1] * ci_model.delta_t * \
-                                (ci_model.aer[key].ds["inp_init"].values[-1, :, :] - n_inp_curr[-1, :, :])
-                            n_inp_curr[-1, :, :] += inp_ent
+                                ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
+                                (ci_model.aer[key].ds["inp_init"].values[cth_ind[it - 1], :, :] -
+                                 n_inp_curr[cth_ind[it - 1], :, :])
+                            n_inp_curr[cth_ind[it - 1], :, :] += inp_ent
                         else:
                             inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                ci_model.ds["delta_z"].values[-1] * ci_model.delta_t * \
-                                (ci_model.aer[key].ds["inp"].values[-1, 0, :] - n_inp_curr[-1, :])
-                            n_inp_curr[-1, :] += inp_ent
+                                ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
+                                (ci_model.aer[key].ds["inp"].values[cth_ind[it - 1], 0, :] -
+                                 n_inp_curr[cth_ind[it - 1], :])
+                            n_inp_curr[cth_ind[it - 1], :] += inp_ent
                 run_stats["entrainment_aer"] += (time() - t_process)
                 t_proc += time() - t_process
 

@@ -18,7 +18,7 @@ class ci_model():
     3. Model output  output fields (ci_model.ds).
     """
     def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
-                 custom_vert_grid=None, w_e_ent=0.1e-3, entrain_from_cth=True, tau_mix=1800.,
+                 custom_vert_grid=None, w_e_ent=0.1e-3, deplete_entrained=True, tau_mix=1800.,
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-3, nuc_RH_thresh=None,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
@@ -53,9 +53,10 @@ class ci_model():
             length s (s > 1) determining time and entrainment rate time series.
             Time values are interpolated between the specified times, and the edge values are used for
             extrapolation.
-        entrain_from_cth: bool
-            If True, then entrain from cloud top definition consistent with the 'cbh_det_method' input parameter.
-            If False, then entraining from domain top.
+        deplete_entrained: bool
+            If True, then entrain from cloud top definition consistent with the 'cbh_det_method' input parameter
+            and correspondingly deplete aerosol from the grid cell right above CTH.
+            If False, then entrain using the initial CTH aerosol concentrations (infinite reservoir, no depletion).
         tau_mix: dict or float
             boundary-layer mixing time scale [s].
             if a float then using its value throughout the simulation time.
@@ -300,7 +301,7 @@ class ci_model():
 
         # init entrainment
         self.w_e_ent = w_e_ent
-        self.entrain_from_cth = entrain_from_cth
+        self.deplete_entrained = deplete_entrained
         self._set_1D_or_2D_var_from_AERut(w_e_ent, "w_e_ent", "$m/s$", "Cloud-top entrainment rate")
         if self.les["time"].size > 1:
             self._set_1D_or_2D_var_from_AERut({"time": self.les["time"].values,
