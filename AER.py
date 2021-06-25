@@ -483,7 +483,7 @@ class logn_AER(AER_pop):
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, ci_model=None):
+                 psd={}, n_init_weight_prof=None, ci_model=None, correct_discrete=True):
         """
         Parameters as in the 'AER_pop' class
 
@@ -501,13 +501,18 @@ class logn_AER(AER_pop):
         m_ratio: float
             bin-tp-bin mass ratio (smaller numbers give more finely resolved grid).
             Effectively, the diameter ratio between consecutive bins is m_ratio**(1/3).
+        correct_discrete: bool
+            normalize dn_dlogD so that sum(dn_dlogD) = n_init_tot (typically, a correction of
+            ~0.5-1.0% due to discretization)
         """
         psd.update({"type": "logn"})  # require type key consistency
         if not np.all([x in psd.keys() for x in ["diam_mean", "geom_sd", "n_bins", "diam_min", "m_ratio"]]):
             raise KeyError('log-normal PSD processing requires the fields' +
                            '"diam_mean", "geom_sd", "n_bins", "diam_min", "m_ratio"')
         diam, dn_dlogD, dF, nF = self._calc_logn_diam_dn_dlogd(psd, n_init_max)
-        self.raw_diam, self.raw_dn_dlogD = dF, nF  # raw diameters (bin edges) and dn_dlogD (n(Dp) definition)
+        self.raw_diam, self.raw_dn_dlogD, self.unnorm_dn_dlogD = dF, nF, dn_dlogD  # bin edge, dn_dlogD, bin unnorm
+        if correct_discrete:
+            dn_dlogD = self._normalize_to_n_tot(n_init_max, dn_dlogD)  # correct for discretization
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
@@ -525,7 +530,7 @@ class logn_AER(AER_pop):
         n_init_max: float
             total initial aerosol concentration [m-3].
         integrate_dn_dlogD: bool
-            True - integrate dn_dlogD using the trapezoidal rule, False - normalize instead.
+            True - integrate dn_dlogD using the trapezoidal rule, False - normalize.
 
         Returns
         -------
@@ -546,17 +551,38 @@ class logn_AER(AER_pop):
         if isinstance(psd["diam_min"], tuple):  # remove diameters larger than cutoff
             diam = diam[diam <= psd["diam_min"][1]]
         denom = np.sqrt(2 * np.pi) * np.log(psd["geom_sd"])
-        argexp = np.log(diam / psd["diam_mean"]) / np.log(psd["geom_sd"])
         if integrate_dn_dlogD:
-            dn_dlogD = (n_init_max / denom) * np.exp(-0.5 * argexp**2)
-            dn_dlogD_bin = np.diff(diam) * (dn_dlogD[:-1] + dn_dlogD[1:]) / 2  # Trapezoidal rule
             diam_bin_mid = np.exp((np.log(diam[:-1]) + np.log(diam[1:])) / 2) # bin middle in log scale
-        else:
+            argexp = np.log(diam_bin_mid / psd["diam_mean"]) / np.log(psd["geom_sd"])
+            dn_dlogD = (n_init_max / denom) * np.exp(-0.5 * argexp**2)
+            dn_dlogD_bin = np.diff(np.log(diam)) * dn_dlogD
+        else:  # original code
+            argexp = np.log(diam / psd["diam_mean"]) / np.log(psd["geom_sd"])
             dn_dlogD = (1 / denom) * np.exp(-0.5 * argexp**2)
             dn_dlogD = dn_dlogD / dn_dlogD.sum() * n_init_max
             dn_dlogD_bin = dn_dlogD[:]  # in this case same as normalized dn_dlogD
             diam_bin_mid = diam[:]  # in this case (no integration) represents a bin value.
         return diam_bin_mid, dn_dlogD_bin, diam, dn_dlogD
+
+    def _normalize_to_n_tot(self, n_init_max, dn_dlogD):
+        """
+        normalize dn_dlogD so that sum(dn_dlogD) = n_init_tot (typically, a correction of ~0.1-0.5% due to
+        discretization).
+
+        Parameters
+        ----------
+        n_init_max: float
+            total initial aerosol concentration [m-3].
+        dn_dlogD_bin: np.ndarray
+            Particle number concentration (integrated) per diameter bin.
+
+        Returns
+        -------
+        dn_dlogD: np.ndarray
+            Particle number concentration per diameter (PSD value in units of m-3)
+        """
+        dn_dlogD = dn_dlogD / np.sum(dn_dlogD) * n_init_max
+        return dn_dlogD
 
 
 class multi_logn_AER(logn_AER):
@@ -565,7 +591,7 @@ class multi_logn_AER(logn_AER):
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, ci_model=None):
+                 psd={}, n_init_weight_prof=None, ci_model=None, correct_discrete=True):
         """
         Parameters as in the 'AER_pop' class. Note that n_init_max should be a list or np.ndarray
         of values for each mode with the same length as diam_mean and geom_sd. Array bins are specified
@@ -585,6 +611,9 @@ class multi_logn_AER(logn_AER):
         m_ratio: float
             bin-tp-bin mass ratio (smaller numbers give more finely resolved grid).
             Effectively, the diameter ratio between consecutive bins is m_ratio**(1/3).
+        correct_discrete: bool
+            normalize dn_dlogD so that sum(dn_dlogD) = n_init_tot (typically, a correction of
+            ~0.5-1.0% due to discretization)
         """
         psd.update({"type": "multi_logn"})  # require type key consistency
         if not np.all([x in psd.keys() for x in ["diam_mean", "geom_sd", "n_bins", "diam_min", "m_ratio"]]):
@@ -603,7 +632,10 @@ class multi_logn_AER(logn_AER):
             else:
                 dn_dlogD += dn_dlogD_tmp
                 nF += nF_tmp
-        self.raw_diam, self.raw_dn_dlogD = dF, nF  # raw diameters (bin edges) and dn_dlogD (n(Dp) definition
+        self.unnorm_dn_dlogD = dn_dlogD
+        self.raw_diam, self.raw_dn_dlogD, self.unnorm_dn_dlogD = dF, nF, dn_dlogD  # bin edge, dn_dlogD, bin unnorm
+        if correct_discrete:
+            dn_dlogD = super()._normalize_to_n_tot(np.sum(n_init_max), dn_dlogD)  # correct for discretization
         super(logn_AER, self).__init__(use_ABIFM=use_ABIFM, n_init_max=np.sum(n_init_max),
                                        nucleus_type=nucleus_type, diam=diam, dn_dlogD=dn_dlogD, name=name,
                                        diam_cutoff=diam_cutoff, T_array=T_array, singular_fun=singular_fun,
