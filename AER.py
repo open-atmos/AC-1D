@@ -272,12 +272,12 @@ class AER_pop():
         """
         if isinstance(singular_fun, str):
             if singular_fun == "D2010":
-                self.singular_fun = lambda Tk, n_aer05: 0.0000594 * (273.16 - Tk) ** 3.33 * n_aer05 ** \
+                self.singular_fun = lambda Tk, n_aer05: 0.0000594 * (273.16 - Tk) ** 3.33 * (n_aer05 * 1e-3) ** \
                     (0.0264 * (273.16 - Tk) + 0.0033)  # DeMott et al. (2010)
             elif singular_fun == "D2015":
                 self.singular_fun = \
                     lambda Tk, n_aer05, cf=3., alpha=0., beta=1.25, gamma=0.46, delta=-11.6: \
-                    cf * n_aer05 ** (alpha * (273.16 - Tk) + beta) * \
+                    cf * (n_aer05 * 1e-3) ** (alpha * (273.16 - Tk) + beta) * \
                     np.exp(gamma * (273.16 - Tk) + delta)  # DeMott et al. (2015)
             elif singular_fun == "D2010fit":
                 self.singular_fun = \
