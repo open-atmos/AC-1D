@@ -13,13 +13,13 @@ class LES():
     Attributes
     ----------
     Ni_field: dict
-       Ice number concentration fieldname and scaling factor required for L^-1 units
+       Ice number concentration fieldname and scaling factor required for m^-3 units
     pflux_field: dict
         Precipitation flux fieldname and scaling factor for mm/h.
     T_field: dict
         Temperature field name and addition factor in case of T reported in C (K is needed).
     q_liq_field: dict
-        Liquid mixing ratio fieldname and scaling factor for g/kg.
+        Liquid mixing ratio fieldname and scaling factor for kg/kg.
     RH_field: dict
         RH fieldname and scaling factor for fraction units (not %).
     model_name: str
@@ -31,23 +31,23 @@ class LES():
     height_dim_2nd: str
         name of the height dim for grid cell edge coordinates.
     q_liq_pbl_cut: float
-        value of q_liq cut (g/kg) required to define the PBL top z-index (where LWC becomes negligible) -
+        value of q_liq cut (kg/kg) required to define the PBL top z-index (where LWC becomes negligible) -
         to be used in '_crop_fields' if 'height_ind_2crop' == 'ql_pbl'.
     q_liq_cbh: float
-        Threshold value (g/kg) for cloud base height defined using q_liq.
+        Threshold value (kg/kg) for cloud base height defined using q_liq.
     """
     def __init__(self, q_liq_pbl_cut=None):
-        self.Ni_field = {"name": None, "scaling": None}  # scale to L^-1
+        self.Ni_field = {"name": None, "scaling": None}  # scale to m^-3
         self.pflux_field = {"name": None, "scaling": None}  # scale to mm/h
         self.T_field = {"name": None, "addition": None}  # scale to K
-        self.q_liq_field = {"name": None, "scaling": None}  # scale to g/kg
+        self.q_liq_field = {"name": None, "scaling": None}  # scale to kg/kg
         self.RH_field = {"name": None, "scaling": None}  # scale to fraction
         self.model_name = ""
         self.time_dim = ""  # assuming in seconds
         self.height_dim = ""  # assuming in m
         self.height_dim_2nd = ""  # assuming in m
         if q_liq_pbl_cut is None:
-            self.q_liq_pbl_cut = 1e-3  # g/kg (default value of 1e-3).
+            self.q_liq_pbl_cut = 1e-6  # kg/kg (default value of 1e-6).
         else:
             self.q_liq_pbl_cut = q_liq_pbl_cut
         self.q_liq_cbh = self.q_liq_pbl_cut  # Equal to the pbl cutoff value by default
@@ -153,9 +153,9 @@ class LES():
         self.ds["height"].attrs["units"] = "$m$"
         self.ds["time"].attrs["units"] = "$s$"
         self.ds["RH"].attrs["units"] = ""
-        self.ds["ql"].attrs["units"] = r"$g\:kg^{-1}$"
+        self.ds["ql"].attrs["units"] = r"$kg\:kg^{-1}$"
         self.ds["T"].attrs["units"] = "$K$"
-        self.ds["Ni"].attrs["units"] = "$L^{-1}$"
+        self.ds["Ni"].attrs["units"] = "$m^{-3}$"
         self.ds["prec"].attrs["units"] = r"$mm\:h^{-1}$"
 
         # calculate ∆aw field for ABIFM
@@ -177,7 +177,7 @@ class LES():
                 - OTHER OPTIONS TO BE ADDED.
         """
         self.ds["P_Ni"] = self.ds['prec'] / self.ds['Ni']
-        self.ds["P_Ni"].attrs['units'] = r'$mm\:h^{-1}\:L^{-1}$'
+        self.ds["P_Ni"].attrs['units'] = r'$mm\:h^{-1}\:m^{-3}$'
         self.ds["P_Ni"].attrs['long_name'] = "Ni-normalized precipitation rate"
 
         # find all cloud bases and the precip rate in the lowest cloud base in every time step (each profile).
@@ -203,7 +203,7 @@ class LES():
         self.ds["lowest_cth"][cth_lowest[1]] = self.ds["height"].values[cth_lowest[0]]
         self.ds["Pcb_per_Ni"] = xr.DataArray(np.zeros(self.ds.dims["time"]) * np.nan, dims=self.ds["time"].dims)
         self.ds["Pcb_per_Ni"][cbh_lowest[1]] = self.ds["P_Ni"].values[cbh_lowest]
-        self.ds["Pcb_per_Ni"].attrs['units'] = r'$mm\:h^{-1}r\:L^{-1}$'
+        self.ds["Pcb_per_Ni"].attrs['units'] = r'$mm\:h^{-1}r\:m^{-3}$'
         self.ds["Pcb_per_Ni"].attrs['long_name'] = "Ni-normalized lowest cloud base precipitation rate"
 
     def _calc_delta_aw(self):
@@ -257,14 +257,14 @@ class DHARMA(LES):
                 - if == "ql_thresh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
                 - OTHER OPTIONS TO BE ADDED.
         q_liq_pbl_cutoff: float
-            value of q_liq_cut (g/kg) required to define the PBL top z-index (where LWC becomes negligible) -
+            value of q_liq_cut (kg/kg) required to define the PBL top z-index (where LWC becomes negligible) -
             to be used in '_crop_fields' if 'height_ind_2crop' == 'ql_pbl'.
         """
         super().__init__(q_liq_pbl_cut=q_liq_pbl_cut)
-        self.Ni_field = {"name": "ntot_3", "scaling": 1000}  # scale to L^-1
+        self.Ni_field = {"name": "ntot_3", "scaling": 1e6}  # scale to m^-3
         self.pflux_field = {"name": "pflux_3", "scaling": 1}  # scale to mm/h
         self.T_field = {"name": "T", "addition": 0}  # scale to K (addition)
-        self.q_liq_field = {"name": "ql", "scaling": 1000}  # scale to g/kg
+        self.q_liq_field = {"name": "ql", "scaling": 1}  # scale to kg/kg
         self.RH_field = {"name": "RH", "scaling": 1. / 100.}  # scale to fraction
         self.model_name = "DHARMA"
         self.time_dim = "time"
