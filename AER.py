@@ -460,7 +460,7 @@ class mono_AER(AER_pop):
     Uniform (fixed) aerosol diameter.
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
-                 diam_cutoff=0., T_array=None, singular_fun=None, singular_scale=None,
+                 diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, ci_model=None):
         """
         Parameters as in the 'AER_pop' class (fixed diameter can be specified in the 'psd' dict under the 'diam'
@@ -482,7 +482,7 @@ class logn_AER(AER_pop):
     Log-normal aerosol PSD.
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
-                 diam_cutoff=0., T_array=None, singular_fun=None, singular_scale=None,
+                 diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, ci_model=None):
         """
         Parameters as in the 'AER_pop' class
@@ -564,7 +564,7 @@ class multi_logn_AER(logn_AER):
     Multiple log-normal aerosol PSD.
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
-                 diam_cutoff=0., T_array=None, singular_fun=None, singular_scale=None,
+                 diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, ci_model=None):
         """
         Parameters as in the 'AER_pop' class. Note that n_init_max should be a list or np.ndarray
@@ -616,7 +616,7 @@ class custom_AER(AER_pop):
     custom aerosol PSD ('dn_dlogD' and 'diam' with optional normalization to n_init_max).
     """
     def __init__(self, use_ABIFM, n_init_max=None, nucleus_type=None, name=None,
-                 diam_cutoff=0., T_array=None, singular_fun=None, singular_scale=None,
+                 diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, ci_model=None):
         """
         Parameters as in the 'AER_pop' class
