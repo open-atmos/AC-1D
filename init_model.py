@@ -8,6 +8,7 @@ import LES
 import AER
 import plotting
 from run_model import run_model as Run
+from pint import UnitRegistry as UR
 
 
 class ci_model():
@@ -19,7 +20,7 @@ class ci_model():
     """
     def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
                  custom_vert_grid=None, w_e_ent=0.1e-3, deplete_entrained=True, tau_mix=1800.,
-                 mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-3, nuc_RH_thresh=None,
+                 mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True, run_model=True):
@@ -76,7 +77,7 @@ class ci_model():
             if an xr DataArray, must contain the "height" [m] and "time" [s] coordinates. Values outside the
             coordinate range are extrapolated using the nearest edge values.
         in_cld_q_thresh: float
-            Mixing ratio threshold [g/kg] for determination of in-cloud environment; also assigned to the
+            Mixing ratio threshold [kg/kg] for determination of in-cloud environment; also assigned to the
             'q_liq_pbl_cut' attribute value.
         nuc_RH_thresh: float, str, list, or None [--ABIFM--]
             An RH threshold (fraction) for ABIFM (which can nucleate outside a cloud layer), such that a threshold
@@ -92,14 +93,14 @@ class ci_model():
             population.
             Each dictionary (i.e., an 'aerosol_attrs' list element) must contain the keys:
 
-                1. n_init_max: [float] total concentration [L-1].
+                1. n_init_max: [float] total concentration [m-3].
 
                 2. psd: [dict] choose a 'type' key between several options (parentheses denote required dict key
                 names):
                     - "mono": fixed-size population, i.e., a single particle diameter should be provided
-                      (diam [um]).
-                    - "logn": log--normal: provide geometric mean diameter (diam_mean [um]), geometric SD
-                      (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [um]; can also be  a
+                      (diam [m]).
+                    - "logn": log--normal: provide geometric mean diameter (diam_mean [m]), geometric SD
+                      (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [m]; can also be  a
                       2-element tuple and then the 2nd is the maximum diameter cutoff), and
                       bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio
                       equals m_ratio**(1/3).
@@ -111,8 +112,8 @@ class ci_model():
                       (dn_dlogD). Optional input key includes normalization to n_init (norm_to_n_init_max)
                       that normalizes dn_dlogD such that such sum(dn_dlogD) = n_init_max.
                     - "default": (parameters not required) using a log-normal PSD with mean diameter
-                      of 1 um, geometric SD of 2.5, 35 PSD bins with minimum diameter of 0.01 um and mass
-                      ratio of 2, resulting in max diameter of ~26 um.
+                      of 1e-6 m, geometric SD of 2.5, 35 PSD bins with minimum diameter of 0.01e-6 m and mass
+                      ratio of 2, resulting in max diameter of ~26e-6 m.
             optional keys:
                 1. name: [str] population name (or tag). A default string using nucleus type is used if not
                 provided.
@@ -121,11 +122,12 @@ class ci_model():
                 specified for ABIFM).
 
                 3. diam_cutoff: [float or tuple; --singular--] minimum particle diameter to consider.
-                Using a value of 0.5 as in D2010 if not specified. Use a 2-element tuple to specify a range of
+                Using a value of 0.5e-6 as in D2010 if not specified. Use a 2-element tuple to specify a range of
                 diameters to consider.
 
                 4. T_array: [list or np.ndarray; --singular--] discrete temperature array. If not specified, using
-                temperatures between the smallest LES-informed temperature (or -40 C)  and 0 with delta_T = 0.1 C.
+                temperatures between the smallest LES-informed temperature (or -40 C)  and 0 with logarithmically-
+                increasing delta_t.
 
                 5. singular_fun: [lambda func. or str; --singular--] INP parametrization (typically as a function
                 of T).
@@ -198,7 +200,7 @@ class ci_model():
         self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec"]  # processed variables used by the model.
         self.final_t = final_t
         self.use_ABIFM = use_ABIFM
-        self.in_cld_q_thresh = in_cld_q_thresh  # g/kg
+        self.in_cld_q_thresh = in_cld_q_thresh  # kg/kg
         self.nuc_RH_thresh = nuc_RH_thresh  # fraction value
 
         # Load LES output
@@ -377,11 +379,11 @@ class ci_model():
         # allocate nucleated ice DataArrays
         self.ds["Ni_nuc"] = xr.DataArray(np.zeros((self.mod_nz,
                                          self.mod_nt)), dims=("height", "time"))
-        self.ds["Ni_nuc"].attrs["units"] = "$L^{-1}$"
+        self.ds["Ni_nuc"].attrs["units"] = "$m^{-3}$"
         self.ds["Ni_nuc"].attrs["long_name"] = "Nucleated ice"
         self.ds["nuc_rate"] = xr.DataArray(np.zeros((self.mod_nz,
                                            self.mod_nt)), dims=("height", "time"))
-        self.ds["nuc_rate"].attrs["units"] = "$L^{-1}\:s^{-1}$"
+        self.ds["nuc_rate"].attrs["units"] = "$m^{-3}\:s^{-1}$"
         self.ds["nuc_rate"].attrs["long_name"] = "Ice nucleation rate"
 
         print("Model initalization done! Total processing time = %f s" % (time() - Now))
@@ -390,6 +392,7 @@ class ci_model():
         self.ds["height"].attrs["units"] = "$m$"
         self.ds["time"].attrs["units"] = "$s$"
         self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
+        self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"]))
         self.ds["time_h"].attrs["units"] = "$h$"
 
         # Add plotting routines
@@ -524,7 +527,7 @@ class ci_model():
                                          singular_scale=param_dict["singular_scale"],
                                          n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "default":
-            param_dict["psd"].update({"diam_mean": 1, "geom_sd": 2.5, "n_bins": 35, "diam_min": 0.01,
+            param_dict["psd"].update({"diam_mean": 1e-6, "geom_sd": 2.5, "n_bins": 35, "diam_min": 0.01e-6,
                                       "m_ratio": 2.})  # default parameters.
             tmp_aer_pop = AER.logn_AER(use_ABIFM=param_dict["use_ABIFM"], n_init_max=param_dict["n_init_max"],
                                        psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],

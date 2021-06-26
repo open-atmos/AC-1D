@@ -4,7 +4,7 @@ This module is used to run the model using a ci_model object.
 import xarray as xr
 import numpy as np
 from time import time
-
+import pint
 
 def run_model(ci_model):
     """
@@ -295,6 +295,17 @@ def run_model(ci_model):
         if ci_model.aer[key].is_INAS:
             ci_model.aer[key].ds["n_aer"].values += ci_model.aer[key].ds["inp_tot"].values
             
+    # Finalize arrays
+    ureg = pint.UnitRegistry()
+    ureg.define(pint.definitions.UnitDefinition('percent', 'pct', (), pint.converters.ScaleConverter(1 / 100.0)))
+    for key in ci_model.aer.keys():
+        for DA in ci_model.aer[key].ds.keys():
+            if "units" in ci_model.aer[key].ds[DA].attrs:
+                ci_model.aer[key].ds[DA].values = ci_model.aer[key].ds[DA].values * \
+                    ureg(ci_model.aer[key].ds[DA].attrs["units"])
+    for DA in ci_model.ds.keys():
+        if "units" in ci_model.ds[DA].attrs:
+            ci_model.ds[DA].values = ci_model.ds[DA].values * ureg(ci_model.ds[DA].attrs["units"])
 
     # Print model run summary
     runtime_tot = time() - Now
