@@ -392,6 +392,7 @@ class ci_model():
         self.ds["height"].attrs["units"] = "$m$"
         self.ds["time"].attrs["units"] = "$s$"
         self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
+        self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"]))
         self.ds["time_h"].attrs["units"] = "$h$"
 
         # Add plotting routines

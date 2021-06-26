@@ -202,6 +202,7 @@ class AER_pop():
             self.ds["height"].attrs["units"] = "$m$"
             self.ds["time"].attrs["units"] = "$s$"
             self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
+            self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"]))
             self.ds["time_h"].attrs["units"] = "$h$"
 
         else:
@@ -210,6 +211,10 @@ class AER_pop():
         # Set coordinate attributes
         self.ds["diam"].attrs["units"] = r"$m$"
         self.ds["diam"].attrs["long_name"] = "Bin-middle particle diameter"
+        self.ds["diam_um"] = self.ds["diam"].copy() * 1e6  # add coordinates for diameter in microns
+        self.ds = self.ds.assign_coords(diam_um=("diam", self.ds["diam_um"]))
+        self.ds["diam_um"].attrs["units"] = "$\mu m$"
+
 
     def _random_name(self):
         """
@@ -348,6 +353,9 @@ class AER_pop():
         if self.singular_scale != 1.:
             tmp_inp_array *= self.singular_scale
 
+        self.ds["T_C"] = self.ds["T"].copy() - 273.15  # add coordinates for temperature in Celsius
+        self.ds = self.ds.assign_coords(T_C=("T", self.ds["T_C"]))
+        self.ds["T_C"].attrs["units"] = "$° C$"
         self.ds["T"].attrs["units"] = "$K$"  # set coordinate attributes.
 
         if not self.is_INAS:
@@ -383,7 +391,7 @@ class AER_pop():
                                              self.ds["ns_raw"].values, 0)  # crop in-cloud pixels
         self.ds["inp_pct"].values = np.where(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
                                              self.ds["inp_pct"].values, 0)  # crop in-cloud pixels
-        self.ds["inp_pct"].attrs["units"] = "$\%$"
+        self.ds["inp_pct"].attrs["units"] = "$percent$"
         self.ds["inp_pct"].attrs["long_name"] = "INP parameterization percentage relative to total initial aerosol"
         "concentrations"
         self.ds["ns_raw"].attrs["units"] = "$m^{-2}$"
@@ -403,13 +411,13 @@ class AER_pop():
         """
         if ci_model.use_ABIFM:
             self.ds["Jhet"] = 10.**(self.Jhet.c + self.Jhet.m * ci_model.ds["delta_aw"]) * 1e4  # calc Jhet
-            self.ds["Jhet"].attrs["units"] = "$m^{-2} s{-1}$"
+            self.ds["Jhet"].attrs["units"] = "$m^{-2} s^{-1}$"
             self.ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
             if pct_const is None:
                 pct_const = ci_model.delta_t
             self.ds["inp_pct"] = self.ds["Jhet"] * (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum() * pct_const / \
                 self.ds["dn_dlogD"].sum() * 100.
-            self.ds["inp_pct"].attrs["units"] = "$\%$"
+            self.ds["inp_pct"].attrs["units"] = "$percent$"
             self.ds["inp_pct"].attrs["long_name"] = "INP percentage relative to total initial aerosol (using a time"
             "constant of %.0f s)" % pct_const
         self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
