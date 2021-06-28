@@ -8,7 +8,7 @@ import LES
 import AER
 import plotting
 from run_model import run_model as Run
-from pint import UnitRegistry as UR
+import pint
 
 
 class ci_model():
@@ -23,6 +23,7 @@ class ci_model():
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
+                 input_conc_units=None, input_diam_units=None,
                  do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True, run_model=True):
         """
         Model namelists and unit conversion coefficient required for the 1D model.
@@ -96,7 +97,8 @@ class ci_model():
                 1. n_init_max: [float] total concentration [m-3].
 
                 2. psd: [dict] choose a 'type' key between several options (parentheses denote required dict key
-                names):
+                names; units are SI by default; for concentration and/or diameter values, other units can be
+                specified using 'input_conc_units' and/or 'input_conc_units' input parameters):
                     - "mono": fixed-size population, i.e., a single particle diameter should be provided
                       (diam [m]).
                     - "logn": log--normal: provide geometric mean diameter (diam_mean [m]), geometric SD
@@ -149,6 +151,13 @@ class ci_model():
                 between the specified heights, and the edge values are used for extrapolation (can be used to set
                 different aerosol source layers at model initialization, and combined with turbulence weighting,
                 allows the emulation of cloud-driven mixing.
+        input_conc_units: str or None
+            An str specifies the input aerosol concentration units that will be converted to SI in pre-processing.
+            Relevant input parameters are: n_init_max and dn_dlogD (custom).
+        input_diam_units: str or None
+            An str specifies the input aerosol diameter units that will be converted to SI in pre-processing.
+            Relevant input parameters are: diam (mono, custom) diam_mean (logn, multi_logn), diam_min
+            (logn, multi_logn), and diam_cutoff.
         do_entrain: bool
             determines whether aerosols entrainment will be performed.
         do_mix_aer: bool
@@ -196,12 +205,19 @@ class ci_model():
         # count processing time
         Now = time()
 
+        # Convert all input parameters to SI (if requested).
+
         # Set some simulation attributes.
         self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec"]  # processed variables used by the model.
         self.final_t = final_t
         self.use_ABIFM = use_ABIFM
         self.in_cld_q_thresh = in_cld_q_thresh  # kg/kg
         self.nuc_RH_thresh = nuc_RH_thresh  # fraction value
+
+        # assign a unit registry and define percent units.
+        self.ureg = pint.UnitRegistry()
+        self.ureg.define(pint.definitions.UnitDefinition('percent', 'pct', (),
+                         pint.converters.ScaleConverter(1 / 100.0)))
 
         # Load LES output
         if les_name == "DHARMA":
@@ -358,19 +374,21 @@ class ci_model():
         # allocate aerosol population Datasets
         self.aer = {}
         self.aer_info = aer_info  # save the aerosol info dict for reference.
+        self.input_conc_units, self.input_diam_units = input_conc_units, input_diam_units
+        self._convert_input_to_SI()  # Convert input concentration and/or diameter parameters to SI (if requested).
         optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # optional aerosol class input params.
                          "n_init_weight_prof", "singular_fun", "singular_scale"]
-        for ii in range(len(aer_info)):
+        for ii in range(len(self.aer_info)):
             param_dict = {"use_ABIFM": use_ABIFM}  # tmp dict for aerosol attributes to send to class call.
-            if np.all([x in aer_info[ii].keys() for x in ["n_init_max", "psd"]]):
-                param_dict["n_init_max"] = aer_info[ii]["n_init_max"]
-                param_dict["psd"] = aer_info[ii]["psd"]
+            if np.all([x in self.aer_info[ii].keys() for x in ["n_init_max", "psd"]]):
+                param_dict["n_init_max"] = self.aer_info[ii]["n_init_max"]
+                param_dict["psd"] = self.aer_info[ii]["psd"]
             else:
                 raise KeyError('aerosol information requires the keys "n_init_max", "psd"')
-            if not aer_info[ii]["psd"]["type"] in ["mono", "logn", "multi_logn", "custom", "default"]:
+            if not self.aer_info[ii]["psd"]["type"] in ["mono", "logn", "multi_logn", "custom", "default"]:
                 raise ValueError('PSD type must be one of: "mono", "logn", "multi_logn", "custom", "default"')
             for key in optional_keys:
-                param_dict[key] = aer_info[ii][key] if key in aer_info[ii].keys() else None
+                param_dict[key] = self.aer_info[ii][key] if key in self.aer_info[ii].keys() else None
 
             # set aerosol population arrays
             tmp_aer_pop = self._set_aer_obj(param_dict)
@@ -388,12 +406,19 @@ class ci_model():
 
         print("Model initalization done! Total processing time = %f s" % (time() - Now))
 
-        # Set coordinate attributes
+        # Set additional coordinates and attributes
         self.ds["height"].attrs["units"] = "$m$"
         self.ds["time"].attrs["units"] = "$s$"
+        self.ds["height_km"] = self.ds["height"].copy() / 1e3  # add coordinates for height in km.
+        self.ds = self.ds.assign_coords(height_km=("height", self.ds["height_km"]))
+        self.ds["height_km"].attrs["units"] = "$km$"
         self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
         self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"]))
         self.ds["time_h"].attrs["units"] = "$h$"
+        self.time_dim = "time"
+        self.height_dim = "height"
+        self.T_dim = "T"  # setting the T dim even though it is only set when allocating an AER object.
+        self.diam_dim = "diam"  # setting the diam dim even though it is only set when allocating an AER object.
 
         # Add plotting routines
         self.plot = plotting
@@ -486,7 +511,7 @@ class ci_model():
         maintain consistency even if some AER class input variable order will be changed in future updates.
 
         Parameters
-        ---------
+        ----------
         param_dict: dict
             Keys include all possible input parameters for the AER sub-classes.
 
@@ -537,3 +562,148 @@ class ci_model():
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
 
         return tmp_aer_pop
+
+    def _convert_input_to_SI(self):
+        """
+        Convert one or more input parameters to SI if other units were specified.
+        """
+        if self.input_conc_units is not None:  # assuming input_conc_units is an str with valid conc. units
+            self._do_input_conversion(["n_init_max", "dn_dlogD"], self.input_conc_units, "m^{-3}")
+        if self.input_diam_units is not None:  # assuming input_diam_units is an str with valid length units
+            self._do_input_conversion(["diam", "diam_mean", "diam_min", "diam_cutoff"], self.input_diam_units, "m")
+
+    def _do_input_conversion(self, param_list, from_units, to_units):
+        """
+        Search for input parameters in the aer_info input list of dicts and convert units to SI.
+        Quantity type is parsed by pint (for all valid unit strings see:
+        https://github.com/hgrecco/pint/blob/master/pint/default_en.txt).
+        
+        Parameters
+        ----------
+        param_list: list
+            Elements include all possible (and relevant) input parameters for conversion, so define wisely.
+        from_units: str
+            Units to convert from (input units).
+        to_units: str
+            Units to convert to.
+        """
+        for ii in range(len(self.aer_info)):
+            for param in param_list:
+                if param in self.aer_info[ii]["psd"].keys():
+                    param_type = type(self.aer_info[ii]["psd"][param])
+                    param_val = (self.aer_info[ii]["psd"][param] * \
+                                 self.ureg(from_units)).to(to_units).magnitude
+                    if type(self.aer_info[ii]["psd"][param]) == tuple:
+                        self.aer_info[ii]["psd"][param] = tuple(param_val)
+                    elif type(self.aer_info[ii]["psd"][param]) == list:
+                        self.aer_info[ii]["psd"][param] = list(param_val)
+                    else:  # np.ndarray or scalar
+                        self.aer_info[ii]["psd"][param] = param_val
+                    print("'%s' (in aer_info's 'psd' keys) was input in %s units; now converted to %s (SI)" %
+                          (param, from_units, to_units))
+                if param in self.aer_info[ii].keys():
+                    param_val = (self.aer_info[ii][param] * \
+                                       self.ureg(from_units)).to(to_units).magnitude
+                    if type(self.aer_info[ii][param]) == tuple:
+                        self.aer_info[ii][param] = list(param_val)
+                    elif type(self.aer_info[ii][param]) == list:
+                        self.aer_info[ii][param] = list(param_val)
+                    else:
+                        self.aer_info[ii][param] = param_val
+                    print("'%s' (in aer_info) was input in %s units; now converted to %s (SI)" %
+                          (param, from_units, to_units))
+
+    def _convert_quantity_units(self, to_units):
+        """
+        Convert a quantity units (e.g., volume, concentration) in all relevant arrays (e.g., from 1/m^3 to L-1).
+
+        Parameters
+        ---------
+        to_units: str
+            Units to convert to. Quantity type is parsed by pint (for all valid unit strings see:
+            https://github.com/hgrecco/pint/blob/master/pint/default_en.txt).
+        """
+        Converted = []  # converted fields
+        for DA in self.ds.keys():
+            if isinstance(self.ds[DA].data, pint.Quantity):
+                if self.ds[DA].data.check(to_units):
+                    Converted.append("The units of ''%s' converted from %s to %s" %
+                                     (DA, self.ds[DA].attrs["units"], to_units))
+                    self.ds[DA].data = self.ds[DA].data.to(to_units)
+                    self.ds[DA].attrs["units"] = r"$%s$" % to_units
+        for key in self.aer.keys():
+            for DA in self.aer[key].ds.keys():
+                if isinstance(self.aer[key].ds[DA].data, pint.Quantity):
+                    if self.aer[key].ds[DA].data.check(to_units):
+                        Converted.append("The units of '%s' in the '%s' popolation converted from %s to %s" %
+                                         (DA, key, self.aer[key].ds[DA].attrs["units"], to_units))
+                        self.aer[key].ds[DA].data = self.aer[key].ds[DA].data.to(to_units)
+                        self.aer[key].ds[DA].attrs["units"] = r"$%s$" % to_units
+        if Converted:
+            for Conv_str in Converted:
+                print(Conv_str)
+        else:
+            print("No fields with units able to convert to %s " % to_units)
+
+    def _swap_height_dim_to_from_km(self):
+        """
+        If the height dim is in m changing to km and vice versa.
+        """
+        if "height" in self.ds.dims:
+            print("Converting height dimension units from meters to kilometers")
+            self.ds = self.ds.swap_dims({"height": "height_km"})
+            self.height_dim = "height_km"
+            for key in self.aer.keys():
+                self.aer[key].ds = self.aer[key].ds.swap_dims({"height": "height_km"})
+        else:
+            print("Converting height dimension units from kilometers to meters")
+            self.ds = self.ds.swap_dims({"height_km": "height"})
+            self.height_dim = "height"
+            for key in self.aer.keys():
+                self.aer[key].ds = self.aer[key].ds.swap_dims({"height_km": "height"})
+
+    def _swap_time_dim_to_from_hr(self):
+        """
+        If the time dim is in seconds changing to hours and vice versa.
+        """
+        if "time" in self.ds.dims:
+            print("Converting time dimension units from seconds to hours")
+            self.ds = self.ds.swap_dims({"time": "time_h"})
+            self.time_dim = "time_h"
+            for key in self.aer.keys():
+                self.aer[key].ds = self.aer[key].ds.swap_dims({"time": "time_h"})
+        else:
+            print("Converting time dimension units from hours to seconds")
+            self.ds = self.ds.swap_dims({"time_h": "time"})
+            self.time_dim = "time"
+            for key in self.aer.keys():
+                self.aer[key].ds = self.aer[key].ds.swap_dims({"time_h": "time"})
+
+    def _swap_diam_dim_to_from_um(self):
+        """
+        If the diam dim is in m changing to um and vice versa.
+        """
+        for key in self.aer.keys():
+            if "diam" in self.aer[key].ds.dims:
+                print("Converting diameter dimension units for %s from meters to micrometers" % key)
+                self.aer[key].ds = self.aer[key].ds.swap_dims({"diam": "diam_um"})
+                self.diam_dim = "diam_um"
+            else:
+                print("Converting diameter dimension units for %s from micrometers to meters" % key)
+                self.aer[key].ds = self.aer[key].ds.swap_dims({"diam_um": "diam"})
+                self.diam_dim = "diam"
+
+    def _swap_T_dim_to_from_C(self):
+        """
+        If the T dim is in Kelvin changing to Celsius and vice versa (singular).
+        """
+        if not self.use_ABIFM:
+            for key in self.aer.keys():
+                if "T" in self.aer[key].ds.dims:
+                    print("Converting diameter dimension units for %s from Kelvin to Celsius" % key)
+                    self.aer[key].ds = self.aer[key].ds.swap_dims({"T": "T_C"})
+                    self.T_dim = "T_C"
+                else:
+                    print("Converting diameter dimension units for %s from Celsius to Kelvin" % key)
+                    self.aer[key].ds = self.aer[key].ds.swap_dims({"T_C": "T"})
+                    self.T_dim = "T"
