@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>A Few Model Run Examples and Output Notebook &#8212; LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</title>
+    <title>Model Run Examples and Output Notebook &#8212; LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/cloud.css" />
     <link rel="stylesheet" type="text/css" href="_static/gallery.css" />
@@ -43,7 +43,7 @@
 
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Welcome to the LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!" href="index.html" /> 
+    <link rel="prev" title="Welcome to the Aerosol-Cloud Column Model documentation!" href="index.html" /> 
         <meta name="viewport" content="width=device-width, initial-scale=1">
   </head><body>
     <div class="relbar-top">
@@ -58,11 +58,11 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to the LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!"
+          <a href="index.html" title="Welcome to the Aerosol-Cloud Column Model documentation!"
              accesskey="P">previous</a> &nbsp; &nbsp;</li>
     <li><a href="index.html">LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</a> &#187;</li>
 
-        <li class="nav-item nav-item-this"><a href="">A Few Model Run Examples and Output Notebook</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Model Run Examples and Output Notebook</a></li> 
       </ul>
     </div>
     </div>
@@ -345,8 +345,8 @@ div.admonition.inline-title p.admonition-title {
     padding-left: .2em;
 }
 </style>
-<section id="A-Few-Model-Run-Examples-and-Output-Notebook">
-<h1>A Few Model Run Examples and Output Notebook<a class="headerlink" href="#A-Few-Model-Run-Examples-and-Output-Notebook" title="Permalink to this headline">¶</a></h1>
+<section id="Model-Run-Examples-and-Output-Notebook">
+<h1>Model Run Examples and Output Notebook<a class="headerlink" href="#Model-Run-Examples-and-Output-Notebook" title="Permalink to this headline">¶</a></h1>
 <p>Let’s start with two basic model simulations; one using <a class="reference external" href="https://pubs.rsc.org/en/content/articlehtml/2013/fd/c3fd00035d">ABIFM</a>, and the other using a singular approach (by default, the <a class="reference external" href="https://www.pnas.org/content/107/25/11217">DeMott et al. (2010)</a> size-dependent parametrization). The model input, simulation, and output are received, performed, and provided in SI units, so when specifying the input, we should remain consistent with this approach (by default). Each model simulation is
 initialized with a single monomodal aerosol population with arbitrary parameter values (diameter of <span class="math notranslate nohighlight">\(10^{-6}\)</span> <span class="math notranslate nohighlight">\(m\)</span> (1 micrometer); <span class="math notranslate nohighlight">\(N_{aer}\ =\ 2\cdot 10^{3}\ m^{-3}\)</span>). Throughout the simulation, we use a single profile from the LES output (3 <span class="math notranslate nohighlight">\(h\)</span>; after the simulation reached a steady-state).</p>
 <div class="nbinput docutils container">
@@ -462,7 +462,6 @@ unit conversion Python package (see <a class="reference external" href="https://
 
 <span class="c1"># ABIFM</span>
 <span class="n">model_abifm_nonSI_in</span> <span class="o">=</span> <span class="n">ci_model</span><span class="p">(</span><span class="n">use_ABIFM</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                <span class="n">deplete_entrained</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                 <span class="n">aer_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Desert_Dust&quot;</span><span class="p">,</span>
                                            <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="mf">2.</span><span class="p">,</span>  <span class="c1"># L^-1</span>
                                            <span class="s2">&quot;psd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;mono&quot;</span><span class="p">,</span>
@@ -474,7 +473,6 @@ unit conversion Python package (see <a class="reference external" href="https://
 
 <span class="c1"># Singular</span>
 <span class="n">model_singular_nonSI_in</span> <span class="o">=</span> <span class="n">ci_model</span><span class="p">(</span><span class="n">use_ABIFM</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                   <span class="n">deplete_entrained</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                    <span class="n">aer_info</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Desert_Dust&quot;</span><span class="p">,</span>
                                               <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="mf">2.</span><span class="p">,</span>  <span class="c1"># L^-1</span>
                                               <span class="s2">&quot;psd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;mono&quot;</span><span class="p">,</span>
@@ -2368,9 +2366,9 @@ Converting diameter dimension units for Al2O3_custom from meters to micrometers
 <img alt="_images/Example_24_0.png" src="_images/Example_24_0.png" />
 </div>
 </div>
-<p>Finally, we can also plot profiles at different times. In the example below to the right, a simulation average profile of total INP concentration for each of the INP populations is shown (note that dn_dlogD is summed over all diameters in each population).</p>
+<p>Profile plots can also be generated using the internal methods at different times. In the example below to the right, a simulation average profile of total INP concentration for each of the INP populations is shown (note that dn_dlogD is summed over all diameters in each population).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[69]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[70]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -2393,6 +2391,165 @@ Converting diameter dimension units for Al2O3_custom from meters to micrometers
 <img alt="_images/Example_26_0.png" src="_images/Example_26_0.png" />
 </div>
 </div>
+<p>Finally, let’s perform three simulations using the three available approaches (ABIFM, INAS, and singular), and briefly examine their operation. The simualtions are initialized identically (hence we define the input paramters before calling the generation of the ci_model class), and represent real PSD of desert dust (from the SGP site; obviously, these elevated values do not match the Arctic case harvested from the LES).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">init_model</span> <span class="kn">import</span> <span class="n">ci_model</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">delta_t</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># time setp</span>
+<span class="n">aer_info</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;DesertDust&quot;</span><span class="p">,</span>             <span class="c1"># INP population #1 properties</span>
+             <span class="s2">&quot;n_init_max&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">4329777e3</span><span class="p">,</span> <span class="mf">640e3</span><span class="p">],</span> <span class="c1"># SGP 10/15 PM</span>
+             <span class="s2">&quot;psd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;multi_logn&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;diam_mean&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0744e-6</span><span class="p">,</span> <span class="mf">2.251e-6</span><span class="p">],</span>
+                     <span class="s2">&quot;geom_sd&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.76</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">],</span>
+                     <span class="s2">&quot;n_bins&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+                     <span class="s2">&quot;diam_min&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.014e-6</span><span class="p">,</span> <span class="mf">20e-6</span><span class="p">),</span>
+                     <span class="s2">&quot;m_ratio&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">},</span>
+            <span class="s2">&quot;nucleus_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Desert Dust&quot;</span><span class="p">}]</span>
+<span class="n">t_averaged_les</span><span class="o">=</span><span class="kc">False</span>
+<span class="n">custom_vert_grid</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">500.</span><span class="o">+</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">)</span> <span class="c1"># Custom vertical grid with 10 m vertical resolution</span>
+<span class="n">height_ind_2crop</span><span class="o">=</span><span class="mf">600.</span>  <span class="c1"># max height to grab from the LES</span>
+<span class="n">mixing_bounds</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ql_thresh&quot;</span><span class="p">)</span>  <span class="c1"># coupled cloud - mixing from surface to cloud top</span>
+<span class="n">t_harvest</span><span class="o">=</span><span class="p">(</span><span class="mi">3600</span><span class="p">,</span> <span class="mi">3600</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># starting 1 h after beginning of LES (steady-state)</span>
+
+<span class="c1"># ABIFM</span>
+<span class="n">abifm_sgp_mix</span> <span class="o">=</span> <span class="n">ci_model</span><span class="p">(</span><span class="n">use_ABIFM</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">delta_t</span><span class="o">=</span><span class="n">delta_t</span><span class="p">,</span>
+                     <span class="n">t_averaged_les</span><span class="o">=</span><span class="n">t_averaged_les</span><span class="p">,</span>
+                     <span class="n">custom_vert_grid</span><span class="o">=</span><span class="n">custom_vert_grid</span><span class="p">,</span>
+                     <span class="n">aer_info</span><span class="o">=</span><span class="n">aer_info</span><span class="p">,</span>
+                     <span class="n">height_ind_2crop</span><span class="o">=</span><span class="n">height_ind_2crop</span><span class="p">,</span>
+                     <span class="n">mixing_bounds</span><span class="o">=</span><span class="n">mixing_bounds</span><span class="p">,</span>
+                     <span class="n">t_harvest</span><span class="o">=</span><span class="n">t_harvest</span><span class="p">)</span>
+
+<span class="c1"># Singular (DeMott et al., 2015)</span>
+<span class="n">singular_sgp_mix</span> <span class="o">=</span> <span class="n">ci_model</span><span class="p">(</span><span class="n">use_ABIFM</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">delta_t</span><span class="o">=</span><span class="n">delta_t</span><span class="p">,</span>
+                     <span class="n">t_averaged_les</span><span class="o">=</span><span class="n">t_averaged_les</span><span class="p">,</span>
+                     <span class="n">custom_vert_grid</span><span class="o">=</span><span class="n">custom_vert_grid</span><span class="p">,</span>
+                     <span class="n">aer_info</span><span class="o">=</span><span class="p">[{</span><span class="o">**</span><span class="n">aer_info</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="p">{</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">:</span> <span class="s2">&quot;D2015&quot;</span><span class="p">}}],</span>  <span class="c1"># DeMott et al., 2015</span>
+                     <span class="n">height_ind_2crop</span><span class="o">=</span><span class="n">height_ind_2crop</span><span class="p">,</span>
+                     <span class="n">mixing_bounds</span><span class="o">=</span><span class="n">mixing_bounds</span><span class="p">,</span>
+                     <span class="n">t_harvest</span><span class="o">=</span><span class="n">t_harvest</span><span class="p">)</span>
+
+<span class="c1"># INAS (Niemand et al., 2012)</span>
+<span class="n">inas_sgp_mix</span> <span class="o">=</span> <span class="n">ci_model</span><span class="p">(</span><span class="n">use_ABIFM</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">delta_t</span><span class="o">=</span><span class="n">delta_t</span><span class="p">,</span>
+                     <span class="n">t_averaged_les</span><span class="o">=</span><span class="n">t_averaged_les</span><span class="p">,</span>
+                     <span class="n">custom_vert_grid</span><span class="o">=</span><span class="n">custom_vert_grid</span><span class="p">,</span>
+                     <span class="n">aer_info</span><span class="o">=</span><span class="p">[{</span><span class="o">**</span><span class="n">aer_info</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="p">{</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">:</span> <span class="s2">&quot;ND2012&quot;</span><span class="p">}}],</span>  <span class="c1"># Niemand et al., 2012</span>
+                     <span class="n">height_ind_2crop</span><span class="o">=</span><span class="n">height_ind_2crop</span><span class="p">,</span>
+                     <span class="n">mixing_bounds</span><span class="o">=</span><span class="n">mixing_bounds</span><span class="p">,</span>
+                     <span class="n">t_harvest</span><span class="o">=</span><span class="n">t_harvest</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Some heights were omitted because they are outside the processed LES dataset grid
+Model initalization done! Total processing time = 2.954593 s
+10% of model run completed. Elapsed time: 0.65 s.
+20% of model run completed. Elapsed time: 1.30 s.
+30% of model run completed. Elapsed time: 1.95 s.
+40% of model run completed. Elapsed time: 2.59 s.
+50% of model run completed. Elapsed time: 3.23 s.
+60% of model run completed. Elapsed time: 3.88 s.
+70% of model run completed. Elapsed time: 4.52 s.
+80% of model run completed. Elapsed time: 5.17 s.
+90% of model run completed. Elapsed time: 5.81 s.
+
+Model run finished! Total run time = 6.526533 s
+Model run time stats:
+Process: activation_aer: 0.91 s (13.91% of of total time)
+Process: entrainment_aer: 0.51 s (7.79% of of total time)
+Process: mixing_aer: 0.93 s (14.23% of of total time)
+Process: sedimentation_ice: 0.51 s (7.75% of of total time)
+Process: mixing_ice: 0.51 s (7.81% of of total time)
+Process: data_allocation: 3.09 s (47.33% of of total time)
+
+
+Some heights were omitted because they are outside the processed LES dataset grid
+Model initalization done! Total processing time = 2.832378 s
+10% of model run completed. Elapsed time: 0.58 s.
+20% of model run completed. Elapsed time: 1.17 s.
+30% of model run completed. Elapsed time: 1.75 s.
+40% of model run completed. Elapsed time: 2.35 s.
+50% of model run completed. Elapsed time: 2.93 s.
+60% of model run completed. Elapsed time: 3.52 s.
+70% of model run completed. Elapsed time: 4.11 s.
+80% of model run completed. Elapsed time: 4.69 s.
+90% of model run completed. Elapsed time: 5.29 s.
+
+Model run finished! Total run time = 5.938876 s
+Model run time stats:
+Process: activation_aer: 1.16 s (19.51% of of total time)
+Process: entrainment_aer: 0.53 s (8.93% of of total time)
+Process: mixing_aer: 1.16 s (19.46% of of total time)
+Process: sedimentation_ice: 0.49 s (8.18% of of total time)
+Process: mixing_ice: 0.51 s (8.54% of of total time)
+Process: data_allocation: 2.04 s (34.38% of of total time)
+
+
+Some heights were omitted because they are outside the processed LES dataset grid
+Model initalization done! Total processing time = 2.820229 s
+10% of model run completed. Elapsed time: 1.95 s.
+20% of model run completed. Elapsed time: 3.83 s.
+30% of model run completed. Elapsed time: 5.71 s.
+40% of model run completed. Elapsed time: 7.61 s.
+50% of model run completed. Elapsed time: 9.49 s.
+60% of model run completed. Elapsed time: 11.38 s.
+70% of model run completed. Elapsed time: 13.26 s.
+80% of model run completed. Elapsed time: 15.14 s.
+90% of model run completed. Elapsed time: 17.03 s.
+
+Model run finished! Total run time = 19.017956 s
+Model run time stats:
+Process: activation_aer: 3.52 s (18.50% of of total time)
+Process: entrainment_aer: 1.10 s (5.80% of of total time)
+Process: mixing_aer: 6.49 s (34.14% of of total time)
+Process: sedimentation_ice: 0.51 s (2.71% of of total time)
+Process: mixing_ice: 0.51 s (2.70% of of total time)
+Process: data_allocation: 6.73 s (35.40% of of total time)
+
+
+</pre></div></div>
+</div>
+<p>When using INAS, <span class="math notranslate nohighlight">\(n_s(T)\)</span> is first calculated for all the values in the temperature array, determined such that the smaller temperature represents the minimum temeprature over the entire height x time LES model output (<span class="math notranslate nohighlight">\(T_{min}\)</span>), and the largest temeprature represents a temperature just above -5 C (the array bins are calcualted using an increasing bin width following a geometric progression). INP concentrations are then allocated by multiplying <span class="math notranslate nohighlight">\(n_s(T)\)</span> by the surface area of
+all aerosols per diameter bin and recursively subtracting the sum of <span class="math notranslate nohighlight">\(n_s(T &gt; T_i)\)</span> from <span class="math notranslate nohighlight">\(n_s(T_i)\)</span>, where <span class="math notranslate nohighlight">\(i\)</span> designates a temperature bin, such that <span class="math notranslate nohighlight">\(\sum_{i=1}^{i=N_T} n_s(T_i)=n_s(T_{min})\)</span>, where <span class="math notranslate nohighlight">\(N_T\)</span> is the number of temperature bins. The “inp_init” field saves the initial INP height x diameter x time distribution and is shown below for a height of 400 m, in the temperature is very close to <span class="math notranslate nohighlight">\(T_{min}\)</span>. At every time step (<span class="math notranslate nohighlight">\(t\)</span>) at a given level
+<span class="math notranslate nohighlight">\(h\)</span>, all allocated INP associated with <span class="math notranslate nohighlight">\(T &gt; T_{LES}(h,t)\)</span> (<span class="math notranslate nohighlight">\(T_{LES}(h,t)\)</span> is the temperature harvested from the LES output) are consumed (summed over all temperature bins, resulting in a height x diameter array) and subtracted from the total aerosol concentration array <span class="math notranslate nohighlight">\(N_{aer}(h,t,D)\)</span>, allowing direct comparison with the <span class="math notranslate nohighlight">\(N_{aer}(h,t,D)\)</span> array from ABIFM, while maintaining full consistency with the aerosol surface area and temperature dependencies of the INAS
+<span class="math notranslate nohighlight">\(n_s\)</span> approach.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">inas_sgp_mix</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="s2">&quot;DesertDust&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;inp_init&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="mf">400.</span><span class="p">},</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;diam&quot;</span><span class="p">,</span><span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;plasma&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.collections.QuadMesh at 0x7f865a42fd90&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/Example_30_1.png" src="_images/Example_30_1.png" />
+</div>
+</div>
 </section>
 
 
@@ -2405,7 +2562,7 @@ Converting diameter dimension units for Al2O3_custom from meters to micrometers
   <div class="sphinxprev">
     <h4>Previous page</h4>
     <p class="topless"><a href="index.html"
-                          title="Previous page">&larr; Welcome to the LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!</a></p>
+                          title="Previous page">&larr; Welcome to the Aerosol-Cloud Column Model documentation!</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -2457,11 +2614,11 @@ Converting diameter dimension units for Al2O3_custom from meters to micrometers
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to the LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)’s documentation!"
+          <a href="index.html" title="Welcome to the Aerosol-Cloud Column Model documentation!"
              >previous</a> &nbsp; &nbsp;</li>
     <li><a href="index.html">LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</a> &#187;</li>
 
-        <li class="nav-item nav-item-this"><a href="">A Few Model Run Examples and Output Notebook</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Model Run Examples and Output Notebook</a></li> 
       </ul>
     </div>
     </div>

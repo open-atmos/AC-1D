@@ -214,12 +214,12 @@ def run_model(ci_model):
                                                                       n_inp_curr, np.nan), axis=0)
                                 inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                                     (np.tile(np.expand_dims(inp_fully_mixed, axis=0),
-                                             (np.sum(t_step_mix_mask), 1)) - n_inp_curr[t_step_mix_mask, :, :])
+                                             (np.sum(t_step_mix_mask), 1, 1)) - n_inp_curr[t_step_mix_mask, :, :])
                                 n_inp_curr[t_step_mix_mask, :, :] += inp_mixing
                             else:
                                 inp_fully_mixed = np.nanmean(np.where(np.tile(np.expand_dims(t_step_mix_mask,
                                                                                              axis=1),
-                                                                              (1, diam_dim_l)),
+                                                                              (1, ci_model.aer[key].ds["T"].size)),
                                                                       n_inp_curr, np.nan), axis=0)
                                 inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                                     (np.tile(np.expand_dims(inp_fully_mixed, axis=0),

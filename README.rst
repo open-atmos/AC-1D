@@ -14,7 +14,7 @@ Step-by-step (model operation)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. Profiles of temperature, RH, and cloud water mixing ratio are read in from LES output.  
-2. Model predicts evolution of Ninp(z,t) and Nice(z,t).  
+2. Model predicts evolution of Naer(z,t,D), Ninp(z,t,D,T) (INAS) or Ninp(z,t,T) (singular), and Nice(z,t).  
 3. Precipitation rates are estimated from LES number-weighted value at cloud base.  
 4. Predicted nucleation rate profiles are also saved and plotted.  
 
