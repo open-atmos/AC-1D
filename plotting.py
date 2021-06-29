@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import pint
 
+
 def generate_figure(subplot_shape=(1,), figsize=(15, 10), **kwargs):
     """
     Generate a figure window - effectively the same as calling the 'plt.subplots' method, only with
@@ -156,19 +157,16 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer_z=No
                         plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                         aer_dim = ci_model.T_dim
                 else:
-                    interp_diams = False
                     if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
                         if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
                             plot_data += ci_model.aer[which_pop[ii]].ds["n_aer"]
                         else:
-                            interp_diams = True
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
-                                               and values (interpolation will be added updated in future \
+                                               and values (interpolation might be added updated in future \
                                                updates)" % (aer_dim, aer_dim))
                     else:
-                        interp_diams = True
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
-                                           and values (interpolation will be added updated in future updates)" \
+                                           and values (interpolation might be added updated in future updates)"
                                            % (aer_dim, aer_dim))
             xf, yf = plot_data[x], plot_data[y]
             if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
@@ -349,19 +347,16 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
                         plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                         aer_dim = ci_model.T_dim
                 else:
-                    interp_diams = False
                     if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
                         if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
                             plot_data += ci_model.aer[which_pop[ii]].ds["n_aer"]
                         else:
-                            interp_diams = True
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
-                                               and values (interpolation will be added updated in future \
+                                               and values (interpolation might be added updated in future \
                                                updates)" % (aer_dim, aer_dim))
                     else:
-                        interp_diams = True
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
-                                           and values (interpolation will be added updated in future updates)" \
+                                           and values (interpolation might be added updated in future updates)"
                                            % (aer_dim, aer_dim))
             plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
         elif field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]:
@@ -534,19 +529,16 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
                         plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                         aer_dim = ci_model.T_dim
                 else:
-                    interp_diams = False
                     if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
                         if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
                             plot_data += ci_model.aer[which_pop[ii]].ds["n_aer"]
                         else:
-                            interp_diams = True
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
-                                               and values (interpolation will be added updated in future \
+                                               and values (interpolation might be added updated in future \
                                                updates)" % (aer_dim, aer_dim))
                     else:
-                        interp_diams = True
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
-                                           and values (interpolation will be added updated in future updates)" \
+                                           and values (interpolation might be added updated in future updates)"
                                            % (aer_dim, aer_dim))
             plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
         elif field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]:
@@ -600,7 +592,7 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
         raise RuntimeError("processed aerosol field still had 3 dimensions. Consider reducing by selecting \
                            a single values or indices or average/sum")
     elif plot_data.ndim == 2:
-        dim_2nd = [x for x in plot_data.dims if x != ci_model.height_dim][0]  # dimension to loop over (time unless aerosol).
+        dim_2nd = [x for x in plot_data.dims if x != ci_model.height_dim][0]  # dim to loop (time unless aerosol).
         for ii in range(plot_data[dim_2nd].size):
             if "units" in plot_data[dim_2nd].attrs:
                 label_p = label + " (%s = %.1f %s)" % (dim_2nd, plot_data[dim_2nd][ii],
@@ -636,7 +628,6 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
         ax.legend()
 
     return ax
-
 
 
 def PSD(ci_model, which_pop=None, field_to_plot="",
@@ -737,19 +728,16 @@ def PSD(ci_model, which_pop=None, field_to_plot="",
                     plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                     aer_dim = ci_model.T_dim
             else:
-                interp_diams = False
                 if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
                     if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
                         plot_data += ci_model.aer[which_pop[ii]].ds["n_aer"]
                     else:
-                        interp_diams = True
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
-                                           and values (interpolation will be added updated in future \
+                                           and values (interpolation might be added updated in future \
                                            updates)" % (aer_dim, aer_dim))
                 else:
-                    interp_diams = True
                     raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
-                                       and values (interpolation will be added updated in future updates)" \
+                                       and values (interpolation might be added updated in future updates)"
                                        % (aer_dim, aer_dim))
     else:
         raise KeyError("Could not find one or more of the requested aerosl population names: \
@@ -785,8 +773,6 @@ def PSD(ci_model, which_pop=None, field_to_plot="",
         heights = None
         times = None
         plot_data = plot_data.expand_dims("h_t")
-
-    #return plot_data
 
     for ii in range(plot_data["h_t"].size):
         label_p = label

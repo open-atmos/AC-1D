@@ -439,14 +439,13 @@ class ci_model():
         Here we assume that our droplets are in equilibrium with the environment at its given RH, hence, RH = a_w.
         """
         a_ice_w = \
-            (
-            np.exp(9.550426 - 5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) -
-                   0.00728332 * self.ds['T']) /
-            (np.exp(54.842763 - 6763.22 / self.ds['T'] -
-             4.210 * np.log(self.ds['T']) + 0.000367 * self.ds['T'] +
-             np.tanh(0.0415 * (self.ds['T'] - 218.8)) * (53.878 - 1331.22 / self.ds['T'] - 9.44523 *
-                                                         np.log(self.ds['T']) + 0.014025 * self.ds['T'])))
-        )
+            (np.exp(9.550426 - 5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) -
+                    0.00728332 * self.ds['T']) /
+             (np.exp(54.842763 - 6763.22 / self.ds['T'] -
+              4.210 * np.log(self.ds['T']) + 0.000367 * self.ds['T'] +
+              np.tanh(0.0415 * (self.ds['T'] - 218.8)) * (53.878 - 1331.22 / self.ds['T'] - 9.44523 *
+                                                          np.log(self.ds['T']) + 0.014025 * self.ds['T'])))
+             )
         self.ds["delta_aw"] = self.ds['RH'] - a_ice_w
         self.ds["S_ice"] = self.ds['RH'] / a_ice_w
         self.ds['delta_aw'].attrs['units'] = ""
@@ -577,7 +576,7 @@ class ci_model():
         Search for input parameters in the aer_info input list of dicts and convert units to SI.
         Quantity type is parsed by pint (for all valid unit strings see:
         https://github.com/hgrecco/pint/blob/master/pint/default_en.txt).
-        
+
         Parameters
         ----------
         param_list: list
@@ -590,9 +589,7 @@ class ci_model():
         for ii in range(len(self.aer_info)):
             for param in param_list:
                 if param in self.aer_info[ii]["psd"].keys():
-                    param_type = type(self.aer_info[ii]["psd"][param])
-                    param_val = (self.aer_info[ii]["psd"][param] * \
-                                 self.ureg(from_units)).to(to_units).magnitude
+                    param_val = (self.aer_info[ii]["psd"][param] * self.ureg(from_units)).to(to_units).magnitude
                     if type(self.aer_info[ii]["psd"][param]) == tuple:
                         self.aer_info[ii]["psd"][param] = tuple(param_val)
                     elif type(self.aer_info[ii]["psd"][param]) == list:
@@ -602,8 +599,7 @@ class ci_model():
                     print("'%s' (in aer_info's 'psd' keys) was input in %s units; now converted to %s (SI)" %
                           (param, from_units, to_units))
                 if param in self.aer_info[ii].keys():
-                    param_val = (self.aer_info[ii][param] * \
-                                       self.ureg(from_units)).to(to_units).magnitude
+                    param_val = (self.aer_info[ii][param] * self.ureg(from_units)).to(to_units).magnitude
                     if type(self.aer_info[ii][param]) == tuple:
                         self.aer_info[ii][param] = list(param_val)
                     elif type(self.aer_info[ii][param]) == list:

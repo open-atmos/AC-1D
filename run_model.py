@@ -5,6 +5,7 @@ import xarray as xr
 import numpy as np
 from time import time
 
+
 def run_model(ci_model):
     """
     Run the 1D model (output is stored in the ci_model object input to this method).
@@ -51,12 +52,12 @@ def run_model(ci_model):
             ci_model.aer[key].ds["inp_tot"].attrs["units"] = "$m^{-3}$"
             ci_model.aer[key].ds["inp_tot"].attrs["long_name"] = "Total prognosed INP subset number concentration"
 
-    if np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh,float)):  # Define nucleation w/ RH
+    if np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, float)):  # Define nucleation w/ RH
         in_cld_mask = ci_model.ds["RH"] >= ci_model.nuc_RH_thresh
-    elif np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh,str)):
+    elif np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, str)):
         if ci_model.nuc_RH_thresh == "use_ql":  # allow nucleation where ql > 0
             in_cld_mask = ci_model.ds["ql"] >= ci_model.in_cld_q_thresh
-    elif np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh,list)):
+    elif np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, list)):
         if ci_model.nuc_RH_thresh[0] == "use_RH_and_ql":  # allow nucleation where ql > 0 and/or RH > RH thresh
             in_cld_mask = np.logical_or(ci_model.ds["ql"] >= ci_model.in_cld_q_thresh,
                                         ci_model.ds["RH"] >= ci_model.nuc_RH_thresh[1])
@@ -85,7 +86,6 @@ def run_model(ci_model):
                 if ci_model.aer[key].is_INAS:
                     n_inp_prev = ci_model.aer[key].ds["inp_snap"].copy().values  # copy: INP conc in prev. step.
                     n_inp_curr = ci_model.aer[key].ds["inp_snap"].values  # ptr: INP conc. in current step.
-                    #n_aer_curr -= np.sum(n_inp_prev, axis=2)  # treat the INP separately from the rest of aerosol.
             else:
                 n_inp_prev = ci_model.aer[key].ds["inp"].values[:, it - 1, :]  # ptr: INP conc in prev. time step.
                 n_inp_curr = ci_model.aer[key].ds["inp"].values[:, it, :]  # ptr: INP conc. in current time step.
@@ -182,7 +182,7 @@ def run_model(ci_model):
                             aer_fully_mixed = np.nanmean(n_aer_curr, axis=0)
                             aer_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                                 (np.tile(np.expand_dims(aer_fully_mixed, axis=0), (ci_model.mod_nz, 1)) -
-                                n_aer_curr)
+                                 n_aer_curr)
                             n_aer_curr += aer_mixing
                         else:
                             aer_fully_mixed = np.nanmean(np.where(np.tile(np.expand_dims(t_step_mix_mask, axis=1),
@@ -234,7 +234,6 @@ def run_model(ci_model):
                 ci_model.aer[key].ds["n_aer"][:, it, :].values = n_aer_curr
             elif ci_model.aer[key].is_INAS:
                 ci_model.aer[key].ds["n_aer"][:, it, :].values = n_aer_curr
-                #ci_model.aer[key].ds["n_aer"][:, it, :].values = n_aer_curr + np.sum(n_inp_curr, axis=2)
                 ci_model.aer[key].ds["inp_snap"].values = n_inp_curr
                 ci_model.aer[key].ds["inp_tot"][:, it, :].values += np.sum(n_inp_curr, axis=2)
             else:
@@ -281,19 +280,19 @@ def run_model(ci_model):
     # Reassign units (often occurring in xarray in data allocation) & and add total INP to n_aero in INAS
     for key in ci_model.aer.keys():
         if 'diam' in ci_model.aer[key].ds.keys():
-            if not "units" in ci_model.aer[key].ds['diam'].attrs:
+            if "units" not in ci_model.aer[key].ds['diam'].attrs:
                 ci_model.aer[key].ds["diam"].attrs["units"] = r"$\mu m$"
         if 'T' in ci_model.aer[key].ds.keys():
-            if not "units" in ci_model.aer[key].ds['T'].attrs:
+            if "units" not in ci_model.aer[key].ds['T'].attrs:
                 ci_model.aer[key].ds["T"].attrs["units"] = r"$K$"
-        if not "units" in ci_model.aer[key].ds['time'].attrs:
+        if "units" not in ci_model.aer[key].ds['time'].attrs:
             ci_model.aer[key].ds["time"].attrs["units"] = r"$s$"
-        if not "units" in ci_model.aer[key].ds['height'].attrs:
+        if "units" not in ci_model.aer[key].ds['height'].attrs:
             ci_model.aer[key].ds["height"].attrs["units"] = r"$m$"
 
         if ci_model.aer[key].is_INAS:
             ci_model.aer[key].ds["n_aer"].values += ci_model.aer[key].ds["inp_tot"].values
-            
+
     # Finalize arrays
     for key in ci_model.aer.keys():
         for DA in ci_model.aer[key].ds.keys():

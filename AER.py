@@ -218,7 +218,6 @@ class AER_pop():
         self.ds = self.ds.assign_coords(diam_um=("diam", self.ds["diam_um"]))
         self.ds["diam_um"].attrs["units"] = "$\mu m$"
 
-
     def _random_name(self):
         """
         Generate random string name for population
@@ -251,8 +250,8 @@ class AER_pop():
             maximum temperature (in K) for T array (the edge of the final bin can be larger than T_max).
         """
         if ci_model.ds["T"].min() >= T_max:
-            raise RuntimeError('Minimum LES-informed temperature must be larger than %.2f K in'\
-                ' singular mode to allow any aerosol to activate' % T_max)
+            raise RuntimeError('Minimum LES-informed temperature must be larger than %.2f K in'
+                               ' singular mode to allow any aerosol to activate' % T_max)
         T_min = np.maximum(np.floor((ci_model.ds["T"].min().values) * 10) / 10, 233.15)
         T_array = np.array([T_min])
         while T_array[-1] < T_max:
@@ -286,10 +285,10 @@ class AER_pop():
                 self.singular_fun = \
                     lambda Tk, n_aer05, cf=3., alpha=0., beta=1.25, gamma=0.46, delta=-11.6: \
                     cf * (n_aer05 * 1e-6) ** (alpha * (273.16 - Tk) + beta) * \
-                    np.exp(gamma * (273.16 - Tk) + delta) * 1e3 # DeMott et al. (2015)
+                    np.exp(gamma * (273.16 - Tk) + delta) * 1e3  # DeMott et al. (2015)
             elif singular_fun == "D2010fit":
                 self.singular_fun = \
-                    lambda Tk: 0.117 * np.exp(-0.125 * (Tk - 273.2)) * 1e3 # DeMott et al. (2010) fig. 2 fit
+                    lambda Tk: 0.117 * np.exp(-0.125 * (Tk - 273.2)) * 1e3  # DeMott et al. (2010) fig. 2 fit
             elif singular_fun == "ND2012":
                 self.singular_fun = lambda Tk, s_area: \
                     np.exp(-0.517 * (Tk - 273.15) + 8.934) * s_area  # INAS Niemand et al. (2012)
@@ -324,7 +323,7 @@ class AER_pop():
                 # weight array vertically.
                 if self.n_init_weight_prof is not None:
                     tmp_n_inp = np.tile(np.expand_dims(self._weight_aer_prof(False), axis=1),
-                                      (1, self.ds["T"].size)) * tmp_n_inp
+                                        (1, self.ds["T"].size)) * tmp_n_inp
 
             elif 's_area' in self.singular_fun.__code__.co_varnames:  # 2nd argument is surface area
                 tmp_inp_array = np.zeros((self.ds["height"].size, self.ds["diam"].size, self.ds["T"].size))
@@ -340,7 +339,7 @@ class AER_pop():
                 # weight array vertically.
                 if self.n_init_weight_prof is not None:
                     tmp_n_inp = np.tile(np.expand_dims(self._weight_aer_prof(False), axis=(1, 2)),
-                                      (1, self.ds["diam"].size, self.ds["T"].size)) * tmp_n_inp
+                                        (1, self.ds["diam"].size, self.ds["T"].size)) * tmp_n_inp
 
         else:  # single input (temperature)
             tmp_n_inp = np.tile(np.expand_dims(np.flip(self.singular_fun(self.ds["T"].values)), axis=0),
@@ -370,7 +369,7 @@ class AER_pop():
                                              dims=("height", "time"))
             self.ds["ns_raw"].attrs["long_name"] = "INAS ns-equivalent singular treatment"
             self.ds["inp"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
-                                                      self.ds["T"].size)), dims=("height", "time", "T"))
+                                                    self.ds["T"].size)), dims=("height", "time", "T"))
             self.ds["inp"].loc[{"time": 0}] = np.flip(tmp_inp_array, axis=-1)
             self.ds["inp"].attrs["units"] = "$m^{-3}$"
             self.ds["inp"].attrs["long_name"] = "INP number concentration per temperature bin"
@@ -378,7 +377,7 @@ class AER_pop():
                                                                 np.tile(np.expand_dims(input_2[:, 0],
                                                                                        axis=1),
                                                                         (1, ci_model.ds["time"].size))) /
-                                               self.ds["dn_dlogD"].sum() * 100., dims=("height", "time"))
+                                              self.ds["dn_dlogD"].sum() * 100., dims=("height", "time"))
         else:
             self.ds["ns_raw"] = xr.DataArray(self.singular_fun(ci_model.ds["T"], 1), dims=("height", "time"))
             self.ds["ns_raw"].attrs["long_name"] = "INAS ns"
@@ -391,7 +390,7 @@ class AER_pop():
             self.ds["inp_pct"] = self.ds["ns_raw"] * (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum() / \
                 self.ds["dn_dlogD"].sum() * 100.
         self.ds["ns_raw"].values = np.where(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
-                                             self.ds["ns_raw"].values, 0)  # crop in-cloud pixels
+                                            self.ds["ns_raw"].values, 0)  # crop in-cloud pixels
         self.ds["inp_pct"].values = np.where(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
                                              self.ds["inp_pct"].values, 0)  # crop in-cloud pixels
         self.ds["inp_pct"].attrs["units"] = "$percent$"
@@ -418,18 +417,18 @@ class AER_pop():
             self.ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
             if pct_const is None:
                 pct_const = ci_model.delta_t
-            self.ds["inp_pct"] = self.ds["Jhet"] * (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum() * pct_const / \
-                self.ds["dn_dlogD"].sum() * 100.
+            self.ds["inp_pct"] = self.ds["Jhet"] * \
+                (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum() * pct_const / self.ds["dn_dlogD"].sum() * 100.
             self.ds["inp_pct"].attrs["units"] = "$percent$"
-            self.ds["inp_pct"].attrs["long_name"] = "INP percentage relative to total initial aerosol (using a time"
+            self.ds["inp_pct"].attrs["long_name"] = \
+                "INP percentage relative to total initial aerosol (using a time"
             "constant of %.0f s)" % pct_const
         self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
-                                                self.ds["diam"].size)),
-                                      dims=("height", "time", "diam"))
+                                                  self.ds["diam"].size)),
+                                        dims=("height", "time", "diam"))
         self.ds["n_aer"].loc[{"time": 0}] = np.tile(self.dn_dlogD, (self.ds["height"].size, 1))
         self.ds["n_aer"].attrs["units"] = "$m^{-3}$"
         self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration per diameter bin"
-
 
     def _weight_aer_prof(self, use_ABIFM=True):
         """
@@ -461,7 +460,7 @@ class AER_pop():
                                        self.n_init_weight_prof["weight"])
         if use_ABIFM:
             self.ds["n_aer"][{"time": 0}] = np.tile(np.expand_dims(weight_prof_interp, axis=1),
-                                                  (1, self.ds["diam"].size)) * self.ds["n_aer"][{"time": 0}]
+                                                    (1, self.ds["diam"].size)) * self.ds["n_aer"][{"time": 0}]
         else:  # Relevant for singular when considering particle diameters (e.g., D2010, D2015).
             return weight_prof_interp
 
@@ -563,7 +562,7 @@ class logn_AER(AER_pop):
             diam = diam[diam <= psd["diam_min"][1]]
         denom = np.sqrt(2 * np.pi) * np.log(psd["geom_sd"])
         if integrate_dn_dlogD:
-            diam_bin_mid = np.exp((np.log(diam[:-1]) + np.log(diam[1:])) / 2) # bin middle in log scale
+            diam_bin_mid = np.exp((np.log(diam[:-1]) + np.log(diam[1:])) / 2)  # bin middle in log scale
             argexp = np.log(diam_bin_mid / psd["diam_mean"]) / np.log(psd["geom_sd"])
             dn_dlogD = (n_init_max / denom) * np.exp(-0.5 * argexp**2)
             dn_dlogD_bin = np.diff(np.log(diam)) * dn_dlogD
