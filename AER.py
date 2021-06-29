@@ -69,8 +69,8 @@ class AER_pop():
         """
         aerosol population namelist
 
-        Parameters and Attributes
-        -------------------------
+        Parameters
+        ----------
         self.is_INAS: bool
             True - using INAS (aerosol are prognosed like in ABIFM).
         use_ABIFM: bool
@@ -261,6 +261,7 @@ class AER_pop():
     def _set_aer_conc_fun(self, singular_fun):
         """
         Set the INP initialization function for the singular approach.
+
         Parameters
         ---------
         singular_fun: str or lambda function
@@ -302,6 +303,7 @@ class AER_pop():
         """
         initialize the aerosol and INP concentration arrays as well as other diagnostic arrays for singular
         (height x time x temperature) or (height x time x diam).
+
         Parameters
         ---------
         ci_model: ci_model class object
@@ -404,7 +406,7 @@ class AER_pop():
         dn_dlogD has been calculated and that the ci_model object was already generated (with delta_aw, etc.).
 
         Parameters
-        ---------
+        ----------
         ci_model: ci_model class object
             Cloud-ice nucleation model object including all model initialization and prognosed field datasets.
         pct_const: float or None  (--ABIFM--)
@@ -434,6 +436,7 @@ class AER_pop():
         """
         apply weights on initial aerosol profile (weighting on n_init_max). If using singular then returning the
         weights profile
+
         Parameters
         ---------
         use_ABIFM: bool
@@ -497,8 +500,8 @@ class logn_AER(AER_pop):
         """
         Parameters as in the 'AER_pop' class
 
-        psd parameters
-        --------------
+        Parameters
+        ----------
         diam_mean: float
             geometric mean diameter [um]
         geom_sd: float
@@ -607,8 +610,8 @@ class multi_logn_AER(logn_AER):
         of values for each mode with the same length as diam_mean and geom_sd. Array bins are specified
         using scalars.
 
-        psd parameters
-        --------------
+        Parameters
+        ----------
         diam_mean: list or np.ndarray of float
             geometric mean diameter [um] for each model
         geom_sd: list or np.ndarray of float
@@ -663,8 +666,8 @@ class custom_AER(AER_pop):
         """
         Parameters as in the 'AER_pop' class
 
-        psd parameters
-        --------------
+        Parameters
+        ----------
         norm_to_n_init_max: bool
             If True then dn_dlogD is normalized such that sum(dn_dlogD) = n_init_max. In that case, n_init_max
             must be specified.

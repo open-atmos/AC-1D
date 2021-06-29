@@ -1,7 +1,7 @@
-INP module
+AER module
 ==========
 
-.. automodule:: INP
+.. automodule:: AER
    :members:
    :undoc-members:
    :show-inheritance:

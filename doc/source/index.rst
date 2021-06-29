@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to the Aerosol-Cloud Column Model documentation!
-========================================================
+Welcome to the Aerosol-Cloud Column Model (AC-1D) documentation!
+================================================================
 
 .. toctree::
    :maxdepth: 3

@@ -1,0 +1,352 @@
+
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>AER module &#8212; Aerosol-Cloud Column Model (AC-1D)  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/cloud.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-rendered-html.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noticia+Text:400,i,b,bi|Open+Sans:400,i,b,bi|Roboto+Mono:400,i,b,bi&amp;display=swap" type="text/css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+    
+    
+     
+        <script src="../_static/jquery.cookie.js"></script>
+    
+
+    
+     
+        <script src="../_static/cloud.base.js"></script>
+    
+
+    
+     
+        <script src="../_static/cloud.js"></script>
+    
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head><body>
+    <div class="relbar-top">
+        
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../index.html">Aerosol-Cloud Column Model (AC-1D)  documentation</a> &#187;</li>
+
+        <li class="nav-item nav-item-this"><a href="">AER module</a></li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS overrides for cloud theme */
+
+/* nicer titles and more space for info and warning logos */
+
+div.admonition p.admonition-title {
+    background: rgba(0, 0, 0, .05);
+    margin: .5em -1em;
+    margin-top: -.5em !important;
+    padding: .5em .5em .5em 2.65em;
+}
+
+/* indent single paragraph */
+div.admonition {
+    text-indent: 20px;
+}
+/* don't indent multiple paragraphs */
+div.admonition > p {
+    text-indent: 0;
+}
+/* remove excessive padding */
+div.admonition.inline-title p.admonition-title {
+    padding-left: .2em;
+}
+</style>
+<section id="module-AER">
+<span id="aer-module"></span><h1>AER module<a class="headerlink" href="#module-AER" title="Permalink to this headline">¶</a></h1>
+<p>This module includes the AER (aerosol) population class and its sub-classes for different PSDs.
+In addition, it includes the Jhet class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="AER.AER_pop">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AER.</span></span><span class="sig-name descname"><span class="pre">AER_pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dn_dlogD</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_weight_prof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#AER_pop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.AER_pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>class for aerosol population</p>
+<p>aerosol population namelist</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>self.is_INAS: bool</strong></dt><dd><p>True - using INAS (aerosol are prognosed like in ABIFM).</p>
+</dd>
+<dt><strong>use_ABIFM: bool</strong></dt><dd><p>True - use ABIFM, False - use singular.</p>
+</dd>
+<dt><strong>scheme: str</strong></dt><dd><p>“ABIFM” or “singular” or None when no input is provided.</p>
+</dd>
+<dt><strong>nucleus_type: str</strong></dt><dd><p>type of nucleus required for Jhet calculation (–ABIFM–)</p>
+</dd>
+<dt><strong>Jhet: Jhet class object</strong></dt><dd><p>To use with ABIFM (–ABIFM–)</p>
+</dd>
+<dt><strong>diam_cutff: float or tuple</strong></dt><dd><p>If float, minimum particle diameter to consider (0.5 by default, i.e., consider all sizes).
+If tuple, then lower and upper diameter limits (–singular–).</p>
+</dd>
+<dt><strong>T_array: list or ndarray</strong></dt><dd><p>discrete temperature [K] array for INP parametrization (–singular–).</p>
+</dd>
+<dt><strong>singular_fun: str or lambda function</strong></dt><dd><dl>
+<dt>If str, then:</dt><dd><ol class="arabic simple">
+<li><p>use “D2010” to use eq. 1 in DeMott et al., 2010.</p></li>
+<li><p>“D2015” to use eq. 2 in DeMott et al..</p></li>
+<li><p>“D2010fit” to use the temperature dependence fit from fig. 2 caption in DeMott et al., 2010.</p></li>
+</ol>
+<p>4. “ND20212 to use surface area temperature-based fit (eq. 5) in Niemand et al., JAS, 2012.
+Use a lambda function for INP parametrization typically as a function of T (–singular–).</p>
+</dd>
+</dl>
+<p>Use “D2010” (default) if None.
+Notes:
+The D2015 has default values of the five coefficients from eq. 2 (cf - calibration correction factor,
+alpha, beta, gamma, delta); these might be coded as optional input parameters for the AER class in
+the future.
+“D2010fit” does not consider aerosol PSDs.</p>
+</dd>
+<dt><strong>singular_scale: float</strong></dt><dd><p>Scale factor for ‘singular_fun’ (1 by default) (–singular–).</p>
+</dd>
+<dt><strong>n_init_max: float</strong></dt><dd><p>total initial aerosol concentration [m-3].</p>
+</dd>
+<dt><strong>diam: list or ndarray or scalar</strong></dt><dd><p>discrete particle diameter array [um]</p>
+</dd>
+<dt><strong>dn_dlogD: list or ndarray or scalar</strong></dt><dd><p>discrete particle number per size bin (sums to n_init_max) [m-3]</p>
+</dd>
+<dt><strong>psd_type: str</strong></dt><dd><p>population type e.g., “mono”, “logn”, “multi_logn”, “custom”.</p>
+</dd>
+<dt><strong>psd: dict</strong></dt><dd><p>dictionary providing psd parameter information enabling full psd reproduction.</p>
+</dd>
+<dt><strong>name: str</strong></dt><dd><p>population name (or tag).</p>
+</dd>
+<dt><strong>n_init_weight_prof: dict or None</strong></dt><dd><p>a dict with keys “height” and “weight”. Each key contains a list or np.ndarray of length s (s &gt; 1)
+determining PSD heights [m] and weighting profiles. Weights are applied on n_init such that
+n_init(z) = n_init_max * weighting_factor(z), i.e., a weighted_aer_prof filled with ones means
+that n_init(z) = n_init_max.
+Weights are generally expected to have values between 0 and 1. If at least one weight value &gt; 1,
+then the profile is normalized such that the maximum value equals 1. heights are interpolated
+between the specified heights, and the edge values are used for extrapolation (can be used to set
+different aerosol source layers at model initialization, and combined with turbulence weighting,
+allows the emulation of cloud-driven mixing.</p>
+</dd>
+<dt><strong>ci_model: ci_model class</strong></dt><dd><p>Containing variables such as the requested domain size, LES time averaging option
+(ci_model.t_averaged_les), custom or LES grid information (ci_model.custom_vert_grid),
+and LES xr.DataSet object(ci_model.les) after being processed.
+All these required data are automatically set when a ci_model class object is assigned
+during model initialization.</p>
+</dd>
+<dt><strong>ds: Xarray Dataset</strong></dt><dd><p>will be shaped and incorporate all aerosol population in the domain:
+ABIFM: height x time x diameter
+singular: height x time x T</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="AER.Jhet">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AER.</span></span><span class="sig-name descname"><span class="pre">Jhet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Illite'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeff_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Jhet_coeff.csv'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#Jhet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.Jhet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to load Jhet LUT and assign c and m coefficient values based on requested aerosol type.</p>
+<p>set the ABIFM linear fit coefficients for the aerosol type.</p>
+<dl class="simple">
+<dt>nucleus_type: str</dt><dd><p>aerosol type to use (must match the LUT (not case sensitive).</p>
+</dd>
+<dt>coeff_filename: str</dt><dd><p>path and filename of Jhet coefficients’ Table. By default using the values from Table 1 in Knopf and
+Alpert, 2013, DOI: 10.1039/C3FD00035D.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="AER.custom_AER">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AER.</span></span><span class="sig-name descname"><span class="pre">custom_AER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_weight_prof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#custom_AER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.custom_AER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#AER.AER_pop" title="AER.AER_pop"><code class="xref py py-class docutils literal notranslate"><span class="pre">AER.AER_pop</span></code></a></p>
+<p>custom aerosol PSD (‘dn_dlogD’ and ‘diam’ with optional normalization to n_init_max).</p>
+<p>Parameters as in the ‘AER_pop’ class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>norm_to_n_init_max: bool</strong></dt><dd><p>If True then dn_dlogD is normalized such that sum(dn_dlogD) = n_init_max. In that case, n_init_max
+must be specified.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="AER.logn_AER">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AER.</span></span><span class="sig-name descname"><span class="pre">logn_AER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_weight_prof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct_discrete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#logn_AER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.logn_AER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#AER.AER_pop" title="AER.AER_pop"><code class="xref py py-class docutils literal notranslate"><span class="pre">AER.AER_pop</span></code></a></p>
+<p>Log-normal aerosol PSD.</p>
+<p>Parameters as in the ‘AER_pop’ class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>diam_mean: float</strong></dt><dd><p>geometric mean diameter [um]</p>
+</dd>
+<dt><strong>geom_sd: float</strong></dt><dd><p>geometric standard deviation</p>
+</dd>
+<dt><strong>n_bins: int</strong></dt><dd><p>number of bins in psd array</p>
+</dd>
+<dt><strong>diam_min: float or 2-element tuple</strong></dt><dd><p>minimum diameter [um]. If a 2-element tuple, then the 1st element is the minimum diameter
+and the 2nd is the maximum diameter cutoff (large diameters will not be considered).</p>
+</dd>
+<dt><strong>m_ratio: float</strong></dt><dd><p>bin-tp-bin mass ratio (smaller numbers give more finely resolved grid).
+Effectively, the diameter ratio between consecutive bins is m_ratio**(1/3).</p>
+</dd>
+<dt><strong>correct_discrete: bool</strong></dt><dd><p>normalize dn_dlogD so that sum(dn_dlogD) = n_init_tot (typically, a correction of
+~0.5-1.0% due to discretization)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="AER.mono_AER">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AER.</span></span><span class="sig-name descname"><span class="pre">mono_AER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_weight_prof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#mono_AER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.mono_AER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#AER.AER_pop" title="AER.AER_pop"><code class="xref py py-class docutils literal notranslate"><span class="pre">AER.AER_pop</span></code></a></p>
+<p>Uniform (fixed) aerosol diameter.</p>
+<p>Parameters as in the ‘AER_pop’ class (fixed diameter can be specified in the ‘psd’ dict under the ‘diam’
+key or in the diam).</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="AER.multi_logn_AER">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">AER.</span></span><span class="sig-name descname"><span class="pre">multi_logn_AER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_weight_prof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct_discrete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#multi_logn_AER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.multi_logn_AER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#AER.logn_AER" title="AER.logn_AER"><code class="xref py py-class docutils literal notranslate"><span class="pre">AER.logn_AER</span></code></a></p>
+<p>Multiple log-normal aerosol PSD.</p>
+<p>Parameters as in the ‘AER_pop’ class. Note that n_init_max should be a list or np.ndarray
+of values for each mode with the same length as diam_mean and geom_sd. Array bins are specified
+using scalars.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>diam_mean: list or np.ndarray of float</strong></dt><dd><p>geometric mean diameter [um] for each model</p>
+</dd>
+<dt><strong>geom_sd: list or np.ndarray of float</strong></dt><dd><p>geometric standard deviation for each mode</p>
+</dd>
+<dt><strong>n_bins: int</strong></dt><dd><p>number of bins in psd array</p>
+</dd>
+<dt><strong>diam_min: float or 2-element tuple</strong></dt><dd><p>minimum diameter [um]. If a 2-element tuple, then the 1st element is the minimum diameter
+and the 2nd is the maximum diameter cutoff (large diameters will not be considered).</p>
+</dd>
+<dt><strong>m_ratio: float</strong></dt><dd><p>bin-tp-bin mass ratio (smaller numbers give more finely resolved grid).
+Effectively, the diameter ratio between consecutive bins is m_ratio**(1/3).</p>
+</dd>
+<dt><strong>correct_discrete: bool</strong></dt><dd><p>normalize dn_dlogD so that sum(dn_dlogD) = n_init_tot (typically, a correction of
+~0.5-1.0% due to discretization)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/API/AER.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+    
+    
+        <div class="sidebar-toggle-group no-js">
+            
+            <button class="sidebar-toggle" id="sidebar-hide" title="Hide the sidebar menu">
+                 «
+                <span class="show-for-small">hide menu</span>
+                
+            </button>
+            <button class="sidebar-toggle" id="sidebar-show" title="Show the sidebar menu">
+                
+                <span class="show-for-small">menu</span>
+                <span class="hide-for-small">sidebar</span>
+                 »
+            </button>
+        </div>
+    
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../index.html">Aerosol-Cloud Column Model (AC-1D)  documentation</a> &#187;</li>
+
+        <li class="nav-item nav-item-this"><a href="">AER module</a></li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Israel Silber, Ann Fridlind.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

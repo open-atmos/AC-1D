@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)'
+project = 'Aerosol-Cloud Column Model (AC-1D)'
 copyright = '2021, Israel Silber, Ann Fridlind'
 author = 'Israel Silber, Ann Fridlind'
 
