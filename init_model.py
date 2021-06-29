@@ -627,7 +627,7 @@ class ci_model():
         for DA in self.ds.keys():
             if isinstance(self.ds[DA].data, pint.Quantity):
                 if self.ds[DA].data.check(to_units):
-                    Converted.append("The units of ''%s' converted from %s to %s" %
+                    Converted.append("The units of '%s' converted from %s to %s" %
                                      (DA, self.ds[DA].attrs["units"], to_units))
                     self.ds[DA].data = self.ds[DA].data.to(to_units)
                     self.ds[DA].attrs["units"] = r"$%s$" % to_units

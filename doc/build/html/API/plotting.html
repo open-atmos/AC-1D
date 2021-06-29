@@ -98,22 +98,24 @@ div.admonition.inline-title p.admonition-title {
 <p>This module provides multiple methods to plot model output.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="plotting.PSD">
-<span class="sig-prename descclassname"><span class="pre">plotting.</span></span><span class="sig-name descname"><span class="pre">PSD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_pop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Time_dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Height_dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tight_layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/plotting.html#PSD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plotting.PSD" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">plotting.</span></span><span class="sig-name descname"><span class="pre">PSD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_pop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Time_dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Height_dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tight_layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/plotting.html#PSD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plotting.PSD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates an aerosol population PSD plots</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>ci_model: ci_model class</strong></dt><dd><p>Containing model run output.</p>
 </dd>
-<dt><strong>which_pop: str or None</strong></dt><dd><p>Name of aerosol population to plot. If field_to_plot is “Jhet” then plotting the population’s Jhet.
-If None, then plot a field from the ci_model.ds xr.Dataset.</p>
+<dt><strong>field_to_plot: str</strong></dt><dd><p>Name of field to plot. This input parameter can only have an effect in INAS (if “inp_tot” is
+requested).</p>
+</dd>
+<dt><strong>which_pop: str or None</strong></dt><dd><p>Name of aerosol population to plot.</p>
 </dd>
 <dt><strong>Time: float, int, 2-element tuple, list, or None</strong></dt><dd><p>Time elements, range, or values to treat from the dim. Options:
-1. float to specify a dim coordinate value to use for plotting.
+1. float to specify a dim coordinate value to use for plotting  (need to match the current dim units).
 2. int for coordinate index.
-3. tuple of floats to define a range of values.
+3. tuple of floats to define a range of values (need to match the current dim units).
 4. tuple of ints to define a range of indices.
-5. list or np.darray of floats to define a specific values.
+5. list or np.darray of floats to define a specific values (need to match the current dim units).
 6. list or np.darray of ints to define a specific indices.
 7. None to take the full coordinate range.</p>
 </dd>
@@ -121,11 +123,11 @@ If None, then plot a field from the ci_model.ds xr.Dataset.</p>
 non-treatment (keep dim), respectively.</p>
 </dd>
 <dt><strong>Height: float, int, 2-element tuple, list, or None</strong></dt><dd><p>Height elements, range, or values to treat from the dim. Options:
-1. float to specify a dim coordinate value to use for plotting.
+1. float to specify a dim coordinate value to use for plotting (need to match the current dim units).
 2. int for coordinate index.
-3. tuple of floats to define a range of values.
+3. tuple of floats to define a range of values (need to match the current dim units).
 4. tuple of ints to define a range of indices.
-5. list or np.darray of floats to define a specific values.
+5. list or np.darray of floats to define a specific values (need to match the current dim units).
 6. list or np.darray of ints to define a specific indices.
 7. None to take the full coordinate range.</p>
 </dd>
@@ -151,17 +153,17 @@ and “log” for “diam” (ABIFM).</p>
 <dt><strong>tight_layout: bool</strong></dt><dd><p>If True, using a tight layout (no text overlap or text cut at figure edges) - typically, the
 desired behavior).</p>
 </dd>
-<dt><strong>xtick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis ticks.</p>
+<dt><strong>xtick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis ticks (check that values match the current dim units).</p>
 </dd>
 <dt><strong>xticklabel: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis tick labels.</p>
 </dd>
-<dt><strong>ytick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis ticks</p>
+<dt><strong>ytick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis ticks (check that values match the current dim units).</p>
 </dd>
 <dt><strong>yticklabel: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis tick labels.</p>
 </dd>
-<dt><strong>xlim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>xlim range</p>
+<dt><strong>xlim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>xlim range (check that values match the current dim units).</p>
 </dd>
-<dt><strong>ylim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>ylim range</p>
+<dt><strong>ylim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>ylim range (check that values match the current dim units).</p>
 </dd>
 <dt><strong>legend: bool or None</strong></dt><dd><p>if None, placing legend if processed plot_data has ndim &gt;= 2.</p>
 </dd>
@@ -177,28 +179,36 @@ desired behavior).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="plotting.curtain">
-<span class="sig-prename descclassname"><span class="pre">plotting.</span></span><span class="sig-name descname"><span class="pre">curtain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_pop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'height'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aer_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cubehelix'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tight_layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/plotting.html#curtain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plotting.curtain" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">plotting.</span></span><span class="sig-name descname"><span class="pre">curtain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_pop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aer_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cubehelix'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tight_layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/plotting.html#curtain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plotting.curtain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a curtain plot of an aerosol population or another model field.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>ci_model: ci_model class</strong></dt><dd><p>Containing model run output.</p>
 </dd>
-<dt><strong>which_pop: list, str, or None</strong></dt><dd><p>Name of aerosol population to plot. If field_to_plot is “Jhet” then plotting the population’s Jhet.
+<dt><strong>which_pop: list, str, or None</strong></dt><dd><p>Name of aerosol population to plot. If field_to_plot is “Jhet” (ABIFM), “ns_raw” (singular), or “inp_pct”
+(singular) then plotting the population’s Jhet, raw ns parameterization (or estimate using singular), or
+the INP percentage relative to the total initial aerosol concentration (ignoring vertical weighting),
+respectively.
 If a list, then adding all aerosol populations together after checking that the “diam” (ABIFM) or “T”
 (singular) arrays have the same length and values.
 If None, then plot a field from the ci_model.ds xr.Dataset.</p>
 </dd>
-<dt><strong>field_to_plot: str</strong></dt><dd><p>Name of field to plot. If “Jhet” then remember to provide ‘which_pop’.</p>
+<dt><strong>field_to_plot: str</strong></dt><dd><p>Name of field to plot. If “Jhet” (ABIFM), “ns_raw” (singular), or “inp_pct” (singular) then remember to
+provide ‘which_pop’.</p>
 </dd>
-<dt><strong>x: str</strong></dt><dd><p>coordinate to place on the x-axis - choose between “time”, “height”, “diam” (ABIFM), or “T” (singular).</p>
+<dt><strong>x: str</strong></dt><dd><p>coordinate to place on the x-axis - choose between “time”, “height”, “diam” (ABIFM), or “T” (singular).
+“time”, “height”, “diam”, and “T” are automatically changed to “time_h”, “height_km”, “diam_um”, and “T_C”
+if these converted units serve as the current ‘ci_model’ object xr.Dataset’s dims (x is None).</p>
 </dd>
-<dt><strong>y: str</strong></dt><dd><p>coordinate to place on the y-axis - choose between “time”, “height”, “diam” (ABIFM), or “T” (singular).</p>
+<dt><strong>y: str</strong></dt><dd><p>coordinate to place on the y-axis - choose between “time”, “height”, “diam” (ABIFM), or “T” (singular).
+“time”, “height”, “diam”, and “T” are automatically changed to “time_h”, “height_km”, “diam_um”, and “T_C”
+if these converted units serve as the current ‘ci_model’ object xr.Dataset’s dims (y is None).</p>
 </dd>
 <dt><strong>aer_z: float, int, 2-element tuple, or None</strong></dt><dd><p>Only for plotting of the aerosol field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
 for plotting, int for 3rd coordinate index, tuple of floats to define a range of values (plotting a mean
 of that coordinate range), tuple of ints to define a range of indices (plotting a mean of that coordinate
-indices range), and None to plot mean over the full coordinate range.</p>
+indices range), and None to plot mean over the full coordinate range (values should match the dim units).</p>
 </dd>
 <dt><strong>dim_treat: str</strong></dt><dd><p>Relevant if aer_z is a tuple or None. Use “mean”, “sum”, or “sd” for mean, sum, or standard deviation,
 respectively.</p>
@@ -234,17 +244,17 @@ and “log” for “diam” (ABIFM).</p>
 <dt><strong>tight_layout: bool</strong></dt><dd><p>If True, using a tight layout (no text overlap or text cut at figure edges) - typically, the
 desired behavior).</p>
 </dd>
-<dt><strong>xtick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis ticks.</p>
+<dt><strong>xtick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis ticks (need to match the current dim units).</p>
 </dd>
 <dt><strong>xticklabel: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis tick labels.</p>
 </dd>
-<dt><strong>ytick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis ticks</p>
+<dt><strong>ytick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis ticks (need to match the current dim units).</p>
 </dd>
 <dt><strong>yticklabel: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis tick labels.</p>
 </dd>
-<dt><strong>xlim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>xlim range</p>
+<dt><strong>xlim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>xlim range (need to match the current dim units).</p>
 </dd>
-<dt><strong>ylim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>ylim range</p>
+<dt><strong>ylim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>ylim range (need to match the current dim units).</p>
 </dd>
 </dl>
 </dd>
@@ -287,17 +297,17 @@ desired behavior).</p>
 </dd>
 <dt><strong>font_size: float or None</strong></dt><dd><p>set font size in panel</p>
 </dd>
-<dt><strong>xtick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis ticks.</p>
+<dt><strong>xtick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis ticks (check that values match the current dim units).</p>
 </dd>
 <dt><strong>xticklabel: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis tick labels.</p>
 </dd>
-<dt><strong>ytick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis ticks</p>
+<dt><strong>ytick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis ticks (check that values match the current dim units).</p>
 </dd>
 <dt><strong>yticklabel: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis tick labels.</p>
 </dd>
-<dt><strong>xlim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>xlim range</p>
+<dt><strong>xlim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>xlim range (check that values match the current dim units).</p>
 </dd>
-<dt><strong>ylim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>ylim range</p>
+<dt><strong>ylim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>ylim range (check that values match the current dim units).</p>
 </dd>
 </dl>
 </dd>
@@ -339,11 +349,11 @@ some default parameter values.</p>
 <dt><strong>dim_name: str</strong></dt><dd><p>name of array coordinates to treat.</p>
 </dd>
 <dt><strong>dim_vals_inds: float, int, 2-element tuple, list, or None</strong></dt><dd><p>elements, range, or values to treat from the dim. Options:
-1. float to specify a dim coordinate value to use for plotting.
+1. float to specify a dim coordinate value to use for plotting (check that values match current dim units).
 2. int for coordinate index.
-3. tuple of floats to define a range of values.
+3. tuple of floats to define a range of values (check that values match the current dim units).
 4. tuple of ints to define a range of indices.
-5. list or np.darray of floats to define a specific values.
+5. list or np.darray of floats to define a specific values (check that values match the current dim units).
 6. list or np.darray of ints to define a specific indices.
 7. None to take the full coordinate range.</p>
 </dd>
@@ -363,34 +373,35 @@ Use “mean”, “sum”, or “sd” for mean, sum, or standard deviation, res
 
 <dl class="py function">
 <dt class="sig sig-object py" id="plotting.profile">
-<span class="sig-prename descclassname"><span class="pre">plotting.</span></span><span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_pop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aer_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Time_dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tight_layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cld_bnd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/plotting.html#profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plotting.profile" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">plotting.</span></span><span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_pop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aer_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Time_dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tight_layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cld_bnd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/plotting.html#profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plotting.profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates aerosol population or other model output field’s profile</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>ci_model: ci_model class</strong></dt><dd><p>Containing model run output.</p>
 </dd>
-<dt><strong>field_to_plot: str</strong></dt><dd><p>Name of field to plot. If “Jhet” then remember to provide ‘which_pop’.</p>
-</dd>
-<dt><strong>which_pop: str or None</strong></dt><dd><p>Name of aerosol population to plot. If field_to_plot is “Jhet” then plotting the population’s Jhet.
-If None, then plot a field from the ci_model.ds xr.Dataset.</p>
-</dd>
-<dt><strong>field_to_plot: str</strong></dt><dd><p>Name of field to plot. If “Jhet” then remember to provide ‘which_pop’.</p>
+<dt><strong>which_pop: str or None</strong></dt><dd><p>Name of aerosol population to plot. If field_to_plot is “Jhet” (ABIFM), “ns_raw” (singular), or “inp_pct”
+(singular) then plotting the population’s Jhet, raw ns parameterization (or estimate using singular), or
+the INP percentage relative to the total initial aerosol concentration (ignoring vertical weighting),
+respectively. If None, then plot a field from the ci_model.ds xr.Dataset.
+Name of field to plot.
+If “Jhet” (ABIFM), “ns_raw” (singular), or “inp_pct” (singular) then remember to
+provide ‘which_pop’.</p>
 </dd>
 <dt><strong>aer_z: float, int, 2-element tuple, or None</strong></dt><dd><p>Only for plotting of the n_aer field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
 for plotting, int for 3rd coordinate index, tuple of floats to define a range of values (plotting a mean
 of that coordinate range), tuple of ints to define a range of indices (plotting a mean of that coordinate
-indices range), and None to plot mean over the full coordinate range.</p>
+indices range), and None to plot mean over the full coordinate range (values should match the dim units).</p>
 </dd>
 <dt><strong>dim_treat: str</strong></dt><dd><p>Relevant if aer_z is a tuple or None. Use “mean”, “sum”, or “sd” for mean, sum, or standard deviation,
 respectively.</p>
 </dd>
 <dt><strong>Time: float, int, 2-element tuple, list, or None</strong></dt><dd><p>Time elements, range, or values to treat from the dim. Options:
-1. float to specify a dim coordinate value to use for plotting.
+1. float to specify a dim coordinate value to use for plotting (need to match the current dim units).
 2. int for coordinate index.
-3. tuple of floats to define a range of values.
+3. tuple of floats to define a range of values (need to match the current dim units).
 4. tuple of ints to define a range of indices.
-5. list or np.darray of floats to define a specific values.
+5. list or np.darray of floats to define a specific values (need to match the current dim units).
 6. list or np.darray of ints to define a specific indices.
 7. None to take the full coordinate range.</p>
 </dd>
@@ -414,19 +425,21 @@ and “log” for “diam” (ABIFM).</p>
 <dt><strong>tight_layout: bool</strong></dt><dd><p>If True, using a tight layout (no text overlap or text cut at figure edges) - typically, the
 desired behavior).</p>
 </dd>
-<dt><strong>xtick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis ticks.</p>
+<dt><strong>xtick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis ticks (need to match the current dim units).</p>
 </dd>
 <dt><strong>xticklabel: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis tick labels.</p>
 </dd>
-<dt><strong>ytick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis ticks</p>
+<dt><strong>ytick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis ticks (need to match the current dim units).</p>
 </dd>
 <dt><strong>yticklabel: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis tick labels.</p>
 </dd>
-<dt><strong>xlim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>xlim range</p>
-</dd>
-<dt><strong>ylim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>ylim range</p>
-</dd>
 <dt><strong>legend: bool or None</strong></dt><dd><p>if None, placing legend if processed plot_data has ndim = 2.</p>
+</dd>
+<dt><strong>xlim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>xlim range (need to match the current dim units).</p>
+</dd>
+<dt><strong>ylim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>ylim range (need to match the current dim units).</p>
+</dd>
+<dt><strong>legend_label: str or None:</strong></dt><dd><p>Label to set for the legend (only valid if plotting a single curve). Using default if None.</p>
 </dd>
 <dt><strong>cld_bnd: bool or dict</strong></dt><dd><p>if True, plotting cloud boundary patches and/or lines. If dict, then can include the keys ‘p_color’,
 ‘p_alpha’, ‘l_color’, ‘l_width’, ‘l_style’, and ‘x_rng’ for cloud boundaries’ patch color and transparency,
@@ -446,34 +459,36 @@ set ‘p_color’ to None to avoid generating a patch and ‘l_color’ to None 
 
 <dl class="py function">
 <dt class="sig sig-object py" id="plotting.tseries">
-<span class="sig-prename descclassname"><span class="pre">plotting.</span></span><span class="sig-name descname"><span class="pre">tseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_pop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aer_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Height_dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tight_layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/plotting.html#tseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plotting.tseries" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">plotting.</span></span><span class="sig-name descname"><span class="pre">tseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_pop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aer_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Height_dim_treat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tight_layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticklabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/plotting.html#tseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plotting.tseries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates aerosol or other model output field’s time series</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>ci_model: ci_model class</strong></dt><dd><p>Containing model run output.</p>
 </dd>
-<dt><strong>field_to_plot: str</strong></dt><dd><p>Name of field to plot. If “Jhet” then remember to provide ‘which_pop’.</p>
-</dd>
-<dt><strong>which_pop: str or None</strong></dt><dd><p>Name of aerosol population to plot. If field_to_plot is “Jhet” then plotting the population’s Jhet.
+<dt><strong>which_pop: str or None</strong></dt><dd><p>Name of aerosol population to plot. If field_to_plot is “Jhet” (ABIFM), “ns_raw” (singular), or “inp_pct”
+(singular) then plotting the population’s Jhet, raw ns parameterization (or estimate using singular), or
+the INP percentage relative to the total initial aerosol concentration (ignoring vertical weighting),
+respectively.
 If None, then plot a field from the ci_model.ds xr.Dataset.</p>
 </dd>
-<dt><strong>field_to_plot: str</strong></dt><dd><p>Name of field to plot. If “Jhet” then remember to provide ‘which_pop’.</p>
+<dt><strong>field_to_plot: str</strong></dt><dd><p>Name of field to plot. If “Jhet” (ABIFM), “ns_raw” (singular), or “inp_pct” (singular) then remember to
+provide ‘which_pop’.</p>
 </dd>
 <dt><strong>aer_z: float, int, 2-element tuple, or None</strong></dt><dd><p>Only for plotting of the aerosol field (ndim=3). Use a float to specify a 3rd dim coordinate value to use
 for plotting, int for 3rd coordinate index, tuple of floats to define a range of values (plotting a mean
 of that coordinate range), tuple of ints to define a range of indices (plotting a mean of that coordinate
-indices range), and None to plot mean over the full coordinate range.</p>
+indices range), and None to plot mean over the full coordinate range (values should match the dim units).</p>
 </dd>
 <dt><strong>dim_treat: str</strong></dt><dd><p>Relevant if aer_z is a tuple or None. Use “mean”, “sum”, or “sd” for mean, sum, or standard deviation,
 respectively.</p>
 </dd>
 <dt><strong>Height: float, int, 2-element tuple, list, or None</strong></dt><dd><p>Height elements, range, or values to treat from the dim. Options:
-1. float to specify a dim coordinate value to use for plotting.
+1. float to specify a dim coordinate value to use for plotting (need to match the current dim units).
 2. int for coordinate index.
-3. tuple of floats to define a range of values.
+3. tuple of floats to define a range of values (need to match the current dim units).
 4. tuple of ints to define a range of indices.
-5. list or np.darray of floats to define a specific values.
+5. list or np.darray of floats to define a specific values (need to match the current dim units).
 6. list or np.darray of ints to define a specific indices.
 7. None to take the full coordinate range.</p>
 </dd>
@@ -497,19 +512,21 @@ and “log” for “diam” (ABIFM).</p>
 <dt><strong>tight_layout: bool</strong></dt><dd><p>If True, using a tight layout (no text overlap or text cut at figure edges) - typically, the
 desired behavior).</p>
 </dd>
-<dt><strong>xtick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis ticks.</p>
+<dt><strong>xtick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis ticks (need to match the current dim units).</p>
 </dd>
 <dt><strong>xticklabel: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as x-axis tick labels.</p>
 </dd>
-<dt><strong>ytick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis ticks</p>
+<dt><strong>ytick: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis ticks (need to match the current dim units).</p>
 </dd>
 <dt><strong>yticklabel: list, np.ndarray, or None</strong></dt><dd><p>if provided, then used as y-axis tick labels.</p>
 </dd>
-<dt><strong>xlim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>xlim range</p>
-</dd>
-<dt><strong>ylim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>ylim range</p>
-</dd>
 <dt><strong>legend: bool or None</strong></dt><dd><p>if None, placing legend if processed plot_data has ndim = 2.</p>
+</dd>
+<dt><strong>xlim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>xlim range (need to match the current dim units).</p>
+</dd>
+<dt><strong>ylim: 2-elemnt tuple (or list) or None</strong></dt><dd><p>ylim range (need to match the current dim units).</p>
+</dd>
+<dt><strong>legend_label: str or None:</strong></dt><dd><p>Label to set for the legend (only valid if plotting a single curve). Using default if None.</p>
 </dd>
 </dl>
 </dd>

@@ -1,5 +1,5 @@
 1D model for ice formation from INP
-==============================================
+===================================
 
 The goal of this simplified 1D model is to enable the comparison and evaluation of different ice formation mechanisms from the literature against observational constraints. The model is informed from LES case study output. The default Arctic case study is described and simulated by Fridlind et al. (2012).
 
@@ -25,6 +25,7 @@ Requirements
 * Matplotlib (https://matplotlib.org)
 * Pandas (https://pandas.pydata.org)
 * Xarray (http://xarray.pydata.org)
+* pint (https://pint.readthedocs.io/en/stable/)
 
 Documentation
 -----------------
