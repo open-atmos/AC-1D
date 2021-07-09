@@ -265,8 +265,8 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
         2. int for coordinate index.
         3. tuple of floats to define a range of values (need to match the current dim units).
         4. tuple of ints to define a range of indices.
-        5. list or np.darray of floats to define a specific values (need to match the current dim units).
-        6. list or np.darray of ints to define a specific indices.
+        5. list or np.ndarray of floats to define a specific values (need to match the current dim units).
+        6. list or np.ndarray of ints to define a specific indices.
         7. None to take the full coordinate range.
     Height_dim_treat: str
         How to treat the height dimension. Use "mean", "sum", "sd", None for mean, sum, standard deviation,
@@ -441,8 +441,8 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
         2. int for coordinate index.
         3. tuple of floats to define a range of values (need to match the current dim units).
         4. tuple of ints to define a range of indices.
-        5. list or np.darray of floats to define a specific values (need to match the current dim units).
-        6. list or np.darray of ints to define a specific indices.
+        5. list or np.ndarray of floats to define a specific values (need to match the current dim units).
+        6. list or np.ndarray of ints to define a specific indices.
         7. None to take the full coordinate range.
     Time_dim_treat: str
         How to treat the time dimension. Use "mean", "sum", "sd", None for mean, sum, standard deviation,
@@ -654,8 +654,8 @@ def PSD(ci_model, which_pop=None, field_to_plot="",
         2. int for coordinate index.
         3. tuple of floats to define a range of values (need to match the current dim units).
         4. tuple of ints to define a range of indices.
-        5. list or np.darray of floats to define a specific values (need to match the current dim units).
-        6. list or np.darray of ints to define a specific indices.
+        5. list or np.ndarray of floats to define a specific values (need to match the current dim units).
+        6. list or np.ndarray of ints to define a specific indices.
         7. None to take the full coordinate range.
     Time_dim_treat: str
         How to treat the time dimension. Use "mean", "sum", "sd", None for mean, sum, standard deviation,
@@ -666,8 +666,8 @@ def PSD(ci_model, which_pop=None, field_to_plot="",
         2. int for coordinate index.
         3. tuple of floats to define a range of values (need to match the current dim units).
         4. tuple of ints to define a range of indices.
-        5. list or np.darray of floats to define a specific values (need to match the current dim units).
-        6. list or np.darray of ints to define a specific indices.
+        5. list or np.ndarray of floats to define a specific values (need to match the current dim units).
+        6. list or np.ndarray of ints to define a specific indices.
         7. None to take the full coordinate range.
     Height_dim_treat: str
         How to treat the height dimension. Use "mean", "sum", "sd", None for mean, sum, standard deviation,
@@ -896,8 +896,8 @@ def process_dim(plot_data, dim_name, dim_vals_inds, dim_treat="sum"):
         2. int for coordinate index.
         3. tuple of floats to define a range of values (check that values match the current dim units).
         4. tuple of ints to define a range of indices.
-        5. list or np.darray of floats to define a specific values (check that values match the current dim units).
-        6. list or np.darray of ints to define a specific indices.
+        5. list or np.ndarray of floats to define a specific values (check that values match the current dim units).
+        6. list or np.ndarray of ints to define a specific indices.
         7. None to take the full coordinate range.
     dim_treat: str
         Relevant if dim_vals_inds is a tuple, list, np.ndarray, or None.
