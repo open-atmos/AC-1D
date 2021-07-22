@@ -206,11 +206,16 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer_z=No
     if np.logical_and(yscale is None, y == ci_model.diam_dim):
         yscale = "log"
 
+    def corners(array):
+        data = array.values
+        delta = data[1] - data[0]
+        return np.concatenate(((data[0] - delta/2,), data + delta/2))
+
     if log_plot is True:
-        mesh = ax.pcolormesh(xf, yf, plot_data, norm=colors.LogNorm(vmin=vmin, vmax=vmax),
+        mesh = ax.pcolormesh(corners(xf), corners(yf), plot_data, norm=colors.LogNorm(vmin=vmin, vmax=vmax),
                              cmap=cmap, **kwargs)
     else:
-        mesh = ax.pcolormesh(xf, yf, plot_data, cmap=cmap,
+        mesh = ax.pcolormesh(corners(xf), corners(yf), plot_data, cmap=cmap,
                              vmin=vmin, vmax=vmax, **kwargs)
 
     fine_tuning(ax, title, xscale, yscale, grid, xlabel, ylabel, tight_layout, font_size, xtick, xticklabel,
