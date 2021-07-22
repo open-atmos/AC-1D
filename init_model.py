@@ -6,7 +6,6 @@ import numpy as np
 from time import time
 import LES
 import AER
-import plotting
 from run_model import run_model as Run
 import pint
 
@@ -419,9 +418,6 @@ class ci_model():
         self.height_dim = "height"
         self.T_dim = "T"  # setting the T dim even though it is only set when allocating an AER object.
         self.diam_dim = "diam"  # setting the diam dim even though it is only set when allocating an AER object.
-
-        # Add plotting routines
-        self.plot = plotting
 
         # Run the model
         self.do_entrain = do_entrain
