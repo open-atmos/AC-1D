@@ -543,7 +543,7 @@ class logn_AER(AER_pop):
         n_init_max: float
             total initial aerosol concentration [m-3].
         integrate_dn_dlogD: bool
-            True - integrate dn_dlogD using the trapezoidal rule, False - normalize.
+            True - integrate dn_dlogD using the trapezoidal rule, False - normalize (origianl code).
 
         Returns
         -------
