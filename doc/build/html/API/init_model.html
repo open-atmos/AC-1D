@@ -104,6 +104,30 @@ div.admonition.inline-title p.admonition-title {
 1. All initialization model parameters
 2. LES output dataset used to initialize and inform the model (ci_model.les).
 3. Model output  output fields (ci_model.ds).</p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.generate_figure" title="init_model.ci_model.generate_figure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_figure</span></code></a>(**kwargs)</p></td>
+<td><p>A method for generating a figure object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.plot_curtain" title="init_model.ci_model.plot_curtain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_curtain</span></code></a>(**kwargs)</p></td>
+<td><p>A method for curtain plots based on the object’s xr.DataSet</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.plot_profile" title="init_model.ci_model.plot_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_profile</span></code></a>(**kwargs)</p></td>
+<td><p>A method for profile plots based on the object’s xr.DataSet</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.plot_psd" title="init_model.ci_model.plot_psd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_psd</span></code></a>(**kwargs)</p></td>
+<td><p>A method for PSD plots based on the object’s xr.DataSet</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.plot_tseries" title="init_model.ci_model.plot_tseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_tseries</span></code></a>(**kwargs)</p></td>
+<td><p>A method for time series plots based on the object’s xr.DataSet</p></td>
+</tr>
+</tbody>
+</table>
 <p>Model namelists and unit conversion coefficient required for the 1D model.
 The LES class includes methods to processes model output and prepare the out fields for the 1D model.</p>
 <dl class="field-list">
@@ -295,6 +319,60 @@ NOTE: default in the ci_model class (“ql_pbl”) is different than in the DHAR
 </dl>
 </dd>
 </dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.generate_figure" title="init_model.ci_model.generate_figure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_figure</span></code></a>(**kwargs)</p></td>
+<td><p>A method for generating a figure object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.plot_curtain" title="init_model.ci_model.plot_curtain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_curtain</span></code></a>(**kwargs)</p></td>
+<td><p>A method for curtain plots based on the object’s xr.DataSet</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.plot_profile" title="init_model.ci_model.plot_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_profile</span></code></a>(**kwargs)</p></td>
+<td><p>A method for profile plots based on the object’s xr.DataSet</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.plot_psd" title="init_model.ci_model.plot_psd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_psd</span></code></a>(**kwargs)</p></td>
+<td><p>A method for PSD plots based on the object’s xr.DataSet</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.plot_tseries" title="init_model.ci_model.plot_tseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_tseries</span></code></a>(**kwargs)</p></td>
+<td><p>A method for time series plots based on the object’s xr.DataSet</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="init_model.ci_model.generate_figure">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">generate_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model.generate_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model.generate_figure" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method for generating a figure object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="init_model.ci_model.plot_curtain">
+<span class="sig-name descname"><span class="pre">plot_curtain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model.plot_curtain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model.plot_curtain" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method for curtain plots based on the object’s xr.DataSet</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="init_model.ci_model.plot_profile">
+<span class="sig-name descname"><span class="pre">plot_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model.plot_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model.plot_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method for profile plots based on the object’s xr.DataSet</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="init_model.ci_model.plot_psd">
+<span class="sig-name descname"><span class="pre">plot_psd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model.plot_psd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model.plot_psd" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method for PSD plots based on the object’s xr.DataSet</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="init_model.ci_model.plot_tseries">
+<span class="sig-name descname"><span class="pre">plot_tseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model.plot_tseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model.plot_tseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>A method for time series plots based on the object’s xr.DataSet</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
