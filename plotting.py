@@ -29,11 +29,11 @@ def generate_figure(subplot_shape=(1,), figsize=(15, 10), **kwargs):
     return fig, ax
 
 
-def curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer_z=None, dim_treat="sum",
-            cmap="cubehelix", vmin="auto", vmax="auto", ax=None, colorbar=True, cbar_label=None,
-            xscale=None, yscale=None, log_plot=False, title=None, grid=False, xlabel=None, ylabel=None,
-            tight_layout=True, font_size=None, xtick=None, xticklabel=None, ytick=None, yticklabel=None,
-            xlim=None, ylim=None, **kwargs):
+def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer_z=None, dim_treat="sum",
+                 cmap="cubehelix", vmin="auto", vmax="auto", ax=None, colorbar=True, cbar_label=None,
+                 xscale=None, yscale=None, log_plot=False, title=None, grid=False, xlabel=None, ylabel=None,
+                 tight_layout=True, font_size=None, xtick=None, xticklabel=None, ytick=None, yticklabel=None,
+                 xlim=None, ylim=None, **kwargs):
     """
     Generate a curtain plot of an aerosol population or another model field.
 
@@ -209,7 +209,7 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer_z=No
     def corners(array):
         data = array.values
         delta = data[1] - data[0]
-        return np.concatenate(((data[0] - delta/2,), data + delta/2))
+        return np.concatenate(((data[0] - delta / 2,), data + delta / 2))
 
     if log_plot is True:
         mesh = ax.pcolormesh(corners(xf), corners(yf), plot_data, norm=colors.LogNorm(vmin=vmin, vmax=vmax),
@@ -235,11 +235,11 @@ def curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer_z=No
     return ax
 
 
-def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="sum",
-            Height=None, Height_dim_treat="mean", ax=None,
-            yscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
-            font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
-            xlim=None, ylim=None, legend_label=None, **kwargs):
+def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="sum",
+                 Height=None, Height_dim_treat="mean", ax=None,
+                 yscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
+                 font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
+                 xlim=None, ylim=None, legend_label=None, **kwargs):
     """
     Generates aerosol or other model output field's time series
 
@@ -411,11 +411,11 @@ def tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
     return ax
 
 
-def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="sum",
-            Time=None, Time_dim_treat="mean", ax=None,
-            xscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
-            font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
-            xlim=None, ylim=None, legend_label=None, cld_bnd=False, **kwargs):
+def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="sum",
+                 Time=None, Time_dim_treat="mean", ax=None,
+                 xscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
+                 font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
+                 xlim=None, ylim=None, legend_label=None, cld_bnd=False, **kwargs):
 
     """
     Generates aerosol population or other model output field's profile
@@ -635,11 +635,11 @@ def profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_treat="s
     return ax
 
 
-def PSD(ci_model, which_pop=None, field_to_plot="",
-        Time=None, Time_dim_treat=None, Height=None, Height_dim_treat=None, ax=None,
-        xscale=None, yscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
-        font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
-        xlim=None, ylim=None, **kwargs):
+def plot_psd(ci_model, which_pop=None, field_to_plot="",
+             Time=None, Time_dim_treat=None, Height=None, Height_dim_treat=None, ax=None,
+             xscale=None, yscale=None, title=None, grid=False, xlabel=None, ylabel=None, tight_layout=True,
+             font_size=16, xtick=None, xticklabel=None, ytick=None, yticklabel=None, legend=None,
+             xlim=None, ylim=None, **kwargs):
 
     """
     Generates an aerosol population PSD plots
@@ -901,8 +901,8 @@ def process_dim(plot_data, dim_name, dim_vals_inds, dim_treat="sum"):
         2. int for coordinate index.
         3. tuple of floats to define a range of values (check that values match the current dim units).
         4. tuple of ints to define a range of indices.
-        5. list or np.ndarray of floats to define a specific values (check that values match the current dim units).
-        6. list or np.ndarray of ints to define a specific indices.
+        5. list or np.ndarray of floats to define specific values (check that values match the current dim units).
+        6. list or np.ndarray of ints to define specific indices.
         7. None to take the full coordinate range.
     dim_treat: str
         Relevant if dim_vals_inds is a tuple, list, np.ndarray, or None.

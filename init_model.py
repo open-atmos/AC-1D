@@ -420,9 +420,6 @@ class ci_model():
         self.T_dim = "T"  # setting the T dim even though it is only set when allocating an AER object.
         self.diam_dim = "diam"  # setting the diam dim even though it is only set when allocating an AER object.
 
-        # Add plotting routines
-        self.plot = plotting
-
         # Run the model
         self.do_entrain = do_entrain
         self.do_mix_aer = do_mix_aer
@@ -703,3 +700,34 @@ class ci_model():
                     print("Converting diameter dimension units for %s from Celsius to Kelvin" % key)
                     self.aer[key].ds = self.aer[key].ds.swap_dims({"T_C": "T"})
                     self.T_dim = "T"
+
+    @staticmethod
+    def generate_figure(**kwargs):
+        """
+        A method for generating a figure object.
+        """
+        return plotting.generate_figure(**kwargs)
+
+    def plot_curtain(self, **kwargs):
+        """
+        A method for curtain plots based on the object's xr.DataSet
+        """
+        return plotting.plot_curtain(self, **kwargs)
+
+    def plot_tseries(self, **kwargs):
+        """
+        A method for time series plots based on the object's xr.DataSet
+        """
+        return plotting.plot_tseries(self, **kwargs)
+
+    def plot_profile(self, **kwargs):
+        """
+        A method for profile plots based on the object's xr.DataSet
+        """
+        return plotting.plot_profile(self, **kwargs)
+
+    def plot_psd(self, **kwargs):
+        """
+        A method for PSD plots based on the object's xr.DataSet
+        """
+        return plotting.plot_psd(self, **kwargs)
