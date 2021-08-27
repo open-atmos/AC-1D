@@ -91,7 +91,8 @@ class AER_pop():
                 1. use "D2010" to use eq. 1 in DeMott et al., 2010.
                 2. "D2015" to use eq. 2 in DeMott et al..
                 3. "D2010fit" to use the temperature dependence fit from fig. 2 caption in DeMott et al., 2010.
-                4. "ND20212 to use surface area temperature-based fit (eq. 5) in Niemand et al., JAS, 2012.
+                4. "ND2012 to use surface area temperature-based fit (eq. 5) in Niemand et al., JAS, 2012.
+                5. "SC2020" to use surface area temperature-based fit (eq. 5) in Schill et al., PNAS, 2020.
                 Use a lambda function for INP parametrization typically as a function of T (--singular--).
             Use "D2010" (default) if None.
             Notes:
@@ -269,7 +270,8 @@ class AER_pop():
                 1. use "D2010" to use eq. 1 in DeMott et al., 2010.
                 2. "D2015" to use eq. 2 in DeMott et al..
                 3. "D2010fit" to use the temperature dependence fit from fig. 2 caption in DeMott et al., 2010.
-                4. "ND20212 to use surface area temperature-based fit (eq. 5) in Niemand et al., JAS, 2012.
+                4. "ND2012" to use surface area temperature-based fit (eq. 5) in Niemand et al., JAS, 2012.
+                5. "SC2020" to use surface area temperature-based fit (eq. 5) in Schill et al., PNAS, 2020.
             Use a lambda function for INP parametrization typically as a function of T (--singular--).
             Use "D2010" (default) if None.
             Notes:
@@ -293,6 +295,9 @@ class AER_pop():
             elif singular_fun == "ND2012":
                 self.singular_fun = lambda Tk, s_area: \
                     np.exp(-0.517 * (Tk - 273.15) + 8.934) * s_area  # INAS Niemand et al. (2012)
+            elif singular_fun == "SC2020":
+                self.singular_fun = lambda Tk, s_area: \
+                    np.exp(1.844 - 0.687 * (Tk - 273.15) - 0.00597 * (Tk - 273.15)**2) * s_area  # INAS soot Schill et al. (2020)        
             else:
                 raise NameError("The singular treatment %s is not implemented in the model. Check the \
                                 input string." % singular_fun)

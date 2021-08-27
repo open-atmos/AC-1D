@@ -224,7 +224,8 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
     if colorbar:
         cb = plt.colorbar(mesh, ax=ax)
         if cbar_label is None:
-            cb.set_label("%s" % plot_data.attrs["units"])
+            if "units" in plot_data.attrs:
+                cb.set_label("%s" % plot_data.attrs["units"])
         else:
             cb.set_label(cbar_label)
         if font_size is not None:
@@ -379,7 +380,10 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
     if xlabel is None:
         xlabel = "%s [%s]" % ("time", plot_data[ci_model.time_dim].attrs["units"])
     if ylabel is None:
-        ylabel = "%s [%s]" % (label, plot_data.attrs["units"])
+        if "units" in plot_data.attrs:
+            ylabel = "%s [%s]" % (label, plot_data.attrs["units"])
+        else:
+            ylabel = label
 
     if plot_data.ndim == 3:
         raise RuntimeError("processed aerosol field still has 3 dimensions. Consider reducing by selecting \
@@ -561,7 +565,10 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
     if ylabel is None:
         ylabel = "%s [%s]" % ("height", plot_data[ci_model.height_dim].attrs["units"])
     if xlabel is None:
-        xlabel = "%s [%s]" % (label, plot_data.attrs["units"])
+        if "units" in plot_data.attrs:
+            xlabel = "%s [%s]" % (label, plot_data.attrs["units"])
+        else:
+            xlabel = label
 
     if isinstance(cld_bnd, (bool, dict)):
         if isinstance(cld_bnd, bool):
@@ -759,7 +766,10 @@ def plot_psd(ci_model, which_pop=None, field_to_plot="",
     if xlabel is None:
         xlabel = "%s [%s]" % ("Diameter", plot_data[ci_model.diam_dim].attrs["units"])
     if ylabel is None:
-        ylabel = "%s [%s]" % (label, plot_data.attrs["units"])
+        if "units" in plot_data.attrs:
+            ylabel = "%s [%s]" % (label, plot_data.attrs["units"])
+        else:
+            ylabel = label
 
     if plot_data.ndim == 3:
         plot_data = plot_data.stack(h_t=(ci_model.height_dim, ci_model.time_dim))
