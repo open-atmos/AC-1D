@@ -7,6 +7,7 @@ from time import time
 import LES
 import AER
 import plotting
+import copy
 from run_model import run_model as Run
 import pint
 
@@ -19,7 +20,8 @@ class ci_model():
     3. Model output  output fields (ci_model.ds).
     """
     def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
-                 custom_vert_grid=None, w_e_ent=0.1e-3, deplete_entrained=False, tau_mix=1800.,
+                 custom_vert_grid=None, w_e_ent=0.1e-3, deplete_entrained=False, entrain_to_cth=True,
+                 tau_mix=1800.,
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
@@ -59,6 +61,11 @@ class ci_model():
             If True, then entrain from cloud top definition consistent with the 'cbh_det_method' input parameter
             and correspondingly deplete aerosol from the grid cell right above CTH.
             If False, then entrain using the initial CTH aerosol concentrations (infinite reservoir, no depletion).
+        entrain_to_cth: bool
+            If True, entrain from the free atmosphere to cloud top after calculating the corresponding delta.
+            If False, entrain from the free atmosphere to the surface layer (and calculate the delta using the
+            surface aerosol concentration value (i.e., an extreme entrainment case), while using that dz is as at
+            cloud top (i.e., using dz value at cth and not dz = z_surf).
         tau_mix: dict or float
             boundary-layer mixing time scale [s].
             if a float then using its value throughout the simulation time.
@@ -320,6 +327,7 @@ class ci_model():
         # init entrainment
         self.w_e_ent = w_e_ent
         self.deplete_entrained = deplete_entrained
+        self.entrain_to_cth = entrain_to_cth
         self._set_1D_or_2D_var_from_AERut(w_e_ent, "w_e_ent", "$m/s$", "Cloud-top entrainment rate")
         if self.les["time"].size > 1:
             self._set_1D_or_2D_var_from_AERut({"time": self.les["time"].values,
@@ -373,7 +381,7 @@ class ci_model():
 
         # allocate aerosol population Datasets
         self.aer = {}
-        self.aer_info = aer_info  # save the aerosol info dict for reference.
+        self.aer_info = copy.deepcopy(aer_info)  # save the aerosol info dict for reference in a deep copy.
         self.input_conc_units, self.input_diam_units = input_conc_units, input_diam_units
         self._convert_input_to_SI()  # Convert input concentration and/or diameter parameters to SI (if requested).
         optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # optional aerosol class input params.
@@ -410,10 +418,10 @@ class ci_model():
         self.ds["height"].attrs["units"] = "$m$"
         self.ds["time"].attrs["units"] = "$s$"
         self.ds["height_km"] = self.ds["height"].copy() / 1e3  # add coordinates for height in km.
-        self.ds = self.ds.assign_coords(height_km=("height", self.ds["height_km"]))
+        self.ds = self.ds.assign_coords(height_km=("height", self.ds["height_km"].values))
         self.ds["height_km"].attrs["units"] = "$km$"
         self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
-        self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"]))
+        self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"].values))
         self.ds["time_h"].attrs["units"] = "$h$"
         self.time_dim = "time"
         self.height_dim = "height"
@@ -591,7 +599,7 @@ class ci_model():
                         self.aer_info[ii]["psd"][param] = tuple(param_val)
                     elif type(self.aer_info[ii]["psd"][param]) == list:
                         self.aer_info[ii]["psd"][param] = list(param_val)
-                    else:  # np.ndarray or scalar
+                    else:  # scalar or np.ndarray
                         self.aer_info[ii]["psd"][param] = param_val
                     print("'%s' (in aer_info's 'psd' keys) was input in %s units; now converted to %s (SI)" %
                           (param, from_units, to_units))
@@ -601,7 +609,7 @@ class ci_model():
                         self.aer_info[ii][param] = list(param_val)
                     elif type(self.aer_info[ii][param]) == list:
                         self.aer_info[ii][param] = list(param_val)
-                    else:
+                    else:  # scalar or np.ndarray 
                         self.aer_info[ii][param] = param_val
                     print("'%s' (in aer_info) was input in %s units; now converted to %s (SI)" %
                           (param, from_units, to_units))

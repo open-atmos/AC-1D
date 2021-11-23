@@ -273,7 +273,7 @@ class DHARMA(LES):
 
         # using the default ISDAC model output if None.
         if les_out_path is None:
-            les_out_path = 'data_les/shi3_isdac_sfc6_pTqv_fthqv_lw_3_abifm_final/'
+            les_out_path = 'data_les/SHEBA_DHARMA_Baseline/'
         if les_out_filename is None:
             les_out_filename = 'dharma.soundings.cdf'
         self.les_out_path = les_out_path

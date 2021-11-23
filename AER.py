@@ -203,10 +203,10 @@ class AER_pop():
             self.ds["height"].attrs["units"] = "$m$"
             self.ds["time"].attrs["units"] = "$s$"
             self.ds["height_km"] = self.ds["height"].copy() / 1e3  # add coordinates for height in km.
-            self.ds = self.ds.assign_coords(height_km=("height", self.ds["height_km"]))
+            self.ds = self.ds.assign_coords(height_km=("height", self.ds["height_km"].values))
             self.ds["height_km"].attrs["units"] = "$km$"
             self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
-            self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"]))
+            self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"].values))
             self.ds["time_h"].attrs["units"] = "$h$"
 
         else:
@@ -216,7 +216,7 @@ class AER_pop():
         self.ds["diam"].attrs["units"] = r"$m$"
         self.ds["diam"].attrs["long_name"] = "Bin-middle particle diameter"
         self.ds["diam_um"] = self.ds["diam"].copy() * 1e6  # add coordinates for diameter in microns
-        self.ds = self.ds.assign_coords(diam_um=("diam", self.ds["diam_um"]))
+        self.ds = self.ds.assign_coords(diam_um=("diam", self.ds["diam_um"].values))
         self.ds["diam_um"].attrs["units"] = "$\mu m$"
 
     def _random_name(self):
@@ -363,7 +363,7 @@ class AER_pop():
             tmp_inp_array *= self.singular_scale
 
         self.ds["T_C"] = self.ds["T"].copy() - 273.15  # add coordinates for temperature in Celsius
-        self.ds = self.ds.assign_coords(T_C=("T", self.ds["T_C"]))
+        self.ds = self.ds.assign_coords(T_C=("T", self.ds["T_C"].values))
         self.ds["T_C"].attrs["units"] = "$° C$"
         self.ds["T"].attrs["units"] = "$K$"  # set coordinate attributes.
 

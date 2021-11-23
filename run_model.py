@@ -41,6 +41,16 @@ def run_model(ci_model):
                         (ci_model.mod_nz, 1)) - np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
                                                         (1, ci_model.mod_nt))), axis=0)
     cth_ind = np.where(cth_ind == 0, -9999, cth_ind)
+    if ci_model.entrain_to_cth:  # entrain to cth
+        ent_target_ind = cth_ind
+        ent_delta_z = ci_model.ds["delta_z"].values
+    else:  # entrain to PBL base (surface by default)
+        ent_target_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["mixing_base"].values, axis=0),
+                                   (ci_model.mod_nz, 1)) - np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
+                                                                   (1, ci_model.mod_nt))), axis=0)
+        ent_target_ind = np.where(ent_target_ind == 0, -9999, ent_target_ind)
+        ent_delta_z = ci_model.ds["mixing_top"] - ci_model.ds["mixing_base"]
+    ent_delta_n_ind = ent_target_ind  # index to use for delta_n calculation
 
     # init total INP arrays for INAS
     for key in ci_model.aer.keys():
@@ -132,44 +142,45 @@ def run_model(ci_model):
                     if ci_model.deplete_entrained:  # using cloud top data (aerosol difference) for entrainment
                         if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
                             aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
-                                (n_aer_curr[cth_ind[it - 1] + 1, :] - n_aer_curr[cth_ind[it - 1], :])
+                                ent_delta_z[cth_ind[it - 1]] * ci_model.delta_t * \
+                                (n_aer_curr[cth_ind[it - 1] + 1, :] - n_aer_curr[ent_delta_n_ind[it - 1], :])
                             n_aer_curr[cth_ind[it - 1] + 1, :] -= aer_ent  # update aerosol conc. just above cth.
-                            n_aer_curr[cth_ind[it - 1], :] += aer_ent
+                            n_aer_curr[ent_target_ind[it - 1], :] += aer_ent
                     else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
                         aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                            ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
+                            ent_delta_z[cth_ind[it - 1]] * ci_model.delta_t * \
                             (ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0, :] -
-                             n_aer_curr[cth_ind[it - 1], :])
-                        n_aer_curr[cth_ind[it - 1], :] += aer_ent
+                             n_aer_curr[ent_delta_n_ind[it - 1], :])
+                        n_aer_curr[ent_target_ind[it - 1], :] += aer_ent
                 if not ci_model.use_ABIFM:  # INP entrainment
                     if ci_model.deplete_entrained:  # using cloud top data (INP difference) for entrainment
                         if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
                             if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
                                 inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                    ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
-                                    (n_inp_curr[cth_ind[it - 1] + 1, :, :] - n_inp_curr[cth_ind[it - 1], :, :])
-                                n_inp_curr[cth_ind[it - 1], :, :] += inp_ent
+                                    ent_delta_z.values[cth_ind[it - 1]] * ci_model.delta_t * \
+                                    (n_inp_curr[cth_ind[it - 1] + 1, :, :] -
+                                     n_inp_curr[ent_delta_n_ind[it - 1], :, :])
+                                n_inp_curr[ent_target_ind[it - 1], :, :] += inp_ent
                                 n_inp_curr[cth_ind[it - 1] + 1, :, :] -= inp_ent  # update INP conc. just above cth
                             else:
                                 inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                    ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
-                                    (n_inp_curr[cth_ind[it - 1] + 1, :] - n_inp_curr[cth_ind[it - 1], :])
-                                n_inp_curr[cth_ind[it - 1], :] += inp_ent
+                                    ent_delta_z[cth_ind[it - 1]] * ci_model.delta_t * \
+                                    (n_inp_curr[cth_ind[it - 1] + 1, :] - n_inp_curr[ent_delta_n_ind[it - 1], :])
+                                n_inp_curr[ent_target_ind[it - 1], :] += inp_ent
                                 n_inp_curr[cth_ind[it - 1] + 1, :] -= inp_ent  # update INP conc. just above cth.
                     else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
                         if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
                             inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
+                                ent_delta_z[cth_ind[it - 1]] * ci_model.delta_t * \
                                 (ci_model.aer[key].ds["inp_init"].values[cth_ind[it - 1], :, :] -
-                                 n_inp_curr[cth_ind[it - 1], :, :])
-                            n_inp_curr[cth_ind[it - 1], :, :] += inp_ent
+                                 n_inp_curr[ent_delta_n_ind[it - 1], :, :])
+                            n_inp_curr[ent_target_ind[it - 1], :, :] += inp_ent
                         else:
                             inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                ci_model.ds["delta_z"].values[cth_ind[it - 1]] * ci_model.delta_t * \
+                                ent_delta_z[cth_ind[it - 1]] * ci_model.delta_t * \
                                 (ci_model.aer[key].ds["inp"].values[cth_ind[it - 1], 0, :] -
-                                 n_inp_curr[cth_ind[it - 1], :])
-                            n_inp_curr[cth_ind[it - 1], :] += inp_ent
+                                 n_inp_curr[ent_delta_n_ind[it - 1], :])
+                            n_inp_curr[ent_target_ind[it - 1], :] += inp_ent
                 run_stats["entrainment_aer"] += (time() - t_process)
                 t_proc += time() - t_process
 
