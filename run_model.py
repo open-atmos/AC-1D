@@ -38,7 +38,7 @@ def run_model(ci_model):
 
     # find indices of cloud-top height (based on ci_model.entrain_to_cth) for entrainment calculations
     use_cth_4_delta_n_calc = False  # if True, always use cth to calculate delta_N for entrainment.
-    use_cth_delta_z = False  # if True, delta_z at cth for ent calc. Otherwise, delta_z = source - target
+    use_cth_delta_z = True  # if True, delta_z at cth for ent calc. Otherwise, delta_z = source - target
     cth_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["lowest_cth"].values, axis=0),
                         (ci_model.mod_nz, 1)) - np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
                                                         (1, ci_model.mod_nt))), axis=0)
