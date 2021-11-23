@@ -385,7 +385,7 @@ class ci_model():
         self.v_f_ice = v_f_ice
         self._set_1D_or_2D_var_from_AERut(v_f_ice, "v_f_ice", "$m/s$", "Number-weighted ice crystal fall velocity")
 
-        # init and apply heating rates
+        # init and apply heating rates (prior to calculating delta_aw and/or other activation-related variables)
         self.heat_rate, self.input_heatrate_units = heat_rate, input_heatrate_units
         if self.heat_rate is not None:
             self._set_1D_or_2D_var_from_AERut(heat_rate, "heat_rate", "$K/hr$", "Atmospheric heating rate")
