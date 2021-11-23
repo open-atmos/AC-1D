@@ -21,11 +21,11 @@ class ci_model():
     """
     def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
                  custom_vert_grid=None, w_e_ent=0.1e-3, deplete_entrained=False, entrain_to_cth=True,
-                 tau_mix=1800.,
+                 tau_mix=1800., heat_rate=None,
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
-                 input_conc_units=None, input_diam_units=None,
+                 input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
                  do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True, run_model=True):
         """
         Model namelists and unit conversion coefficient required for the 1D model.
@@ -70,6 +70,12 @@ class ci_model():
             boundary-layer mixing time scale [s].
             if a float then using its value throughout the simulation time.
             if a dict, then treated as in the case of a dict for w_e_ent.
+        heat_rate: xr DataArray, dict, or float
+            heating rate over the domain added to the LES output sounding (negative values = cooling) [K s-1]
+            if a float then using its value throughout the simulation time.
+            if a dict, then treated as in the case of a dict for w_e_ent.
+            if an xr DataArray, must contain the "height" [m] and "time" [s] coordinates. Values outside the
+            coordinate range are extrapolated using the nearest edge values.
         mixing_bounds: two-element tuple or list, or None
             Determining the mixing layer (especially relevant when using time-varying LES input).
             The first element provides a fixed lowest range of mixing (float), a time varying range (dict as
@@ -165,6 +171,9 @@ class ci_model():
             An str specifies the input aerosol diameter units that will be converted to SI in pre-processing.
             Relevant input parameters are: diam (mono, custom) diam_mean (logn, multi_logn), diam_min
             (logn, multi_logn), and diam_cutoff.
+        input_heatrate_units: str or None
+            An str specifies the input heating rate units that will be converted to SI in pre-processing.
+            The relevant input parameters is: heat_rate.
         do_entrain: bool
             determines whether aerosols entrainment will be performed.
         do_mix_aer: bool
@@ -375,6 +384,16 @@ class ci_model():
         # init number weighted ice fall velocity
         self.v_f_ice = v_f_ice
         self._set_1D_or_2D_var_from_AERut(v_f_ice, "v_f_ice", "$m/s$", "Number-weighted ice crystal fall velocity")
+
+        # init and apply heating rates
+        self.heat_rate, self.input_heatrate_units = heat_rate, input_heatrate_units
+        if self.heat_rate is not None:
+            self._set_1D_or_2D_var_from_AERut(heat_rate, "heat_rate", "$K/hr$", "Atmospheric heating rate")
+            if self.input_heatrate_units is not None:
+                self.ds["heat_rate"].values = \
+                    (self.ds["heat_rate"].values * self.ureg(self.input_heatrate_units)).to("K * s^{-1}").magnitude
+            for t in range(1, self.mod_nt):
+                self.ds["T"].values[:, t:] += self.ds["heat_rate"].isel({"time": [t]}).values * delta_t
 
         # calculate delta_aw
         self._calc_delta_aw()
