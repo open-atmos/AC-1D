@@ -50,7 +50,6 @@ def run_model(ci_model):
         ent_target_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["mixing_base"].values, axis=0),
                                    (ci_model.mod_nz, 1)) - np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
                                                                    (1, ci_model.mod_nt))), axis=0)
-        ent_target_ind = np.where(ent_target_ind == 0, -9999, ent_target_ind)
         if not use_cth_delta_z:
             ent_delta_z = ci_model.ds["mixing_top"] - ci_model.ds["mixing_base"]
     if use_cth_4_delta_n_calc:
@@ -58,16 +57,20 @@ def run_model(ci_model):
     else:
         ent_delta_n_ind = ent_target_ind  # index to use for delta_n calculation
 
-    # init total INP arrays for INAS
+    # init total INP arrays for INAS and subtract from n_aer (effective independent prognosed fields)
     for key in ci_model.aer.keys():
         if ci_model.aer[key].is_INAS:
             ci_model.aer[key].ds["inp_tot"] = xr.DataArray(np.zeros_like(ci_model.aer[key].ds["n_aer"]),
                                                            dims=("height", "time", "diam"))
             ci_model.aer[key].ds["inp_tot"][:, 0, :].values += \
                 ci_model.aer[key].ds["inp_snap"].copy().sum("T").values
+            ci_model.aer[key].ds["n_aer"][:, 0, :].values -= \
+                ci_model.aer[key].ds["inp_tot"][:, 0, :].copy().values
             ci_model.aer[key].ds["inp_tot"].attrs["units"] = "$m^{-3}$"
             ci_model.aer[key].ds["inp_tot"].attrs["long_name"] = "Total prognosed INP subset number concentration"
-
+        elif np.logical_and(not ci_model.use_ABIFM, not ci_model.aer[key].is_INAS):
+            ci_model.aer[key].ds["n_aer"][:, 0].values -= \
+                ci_model.aer[key].ds["inp"][:, 0, :].copy().sum("T").values
     if np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, float)):  # Define nucleation w/ RH
         in_cld_mask = ci_model.ds["RH"] >= ci_model.nuc_RH_thresh
     elif np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, str)):
@@ -102,7 +105,10 @@ def run_model(ci_model):
                 if ci_model.aer[key].is_INAS:
                     n_inp_prev = ci_model.aer[key].ds["inp_snap"].copy().values  # copy: INP conc in prev. step.
                     n_inp_curr = ci_model.aer[key].ds["inp_snap"].values  # ptr: INP conc. in current step.
-            else:
+            else:  # no aerosol diameter information under singular so n_aer_curr is a 1-D array (nz).
+                n_aer_prev = ci_model.aer[key].ds["n_aer"].values[:, it - 1]  # ptr: aerosol conc in prev. step.
+                n_aer_curr = ci_model.aer[key].ds["n_aer"].values[:, it]  # ptr: aerosol conc. in current step.
+                n_aer_curr += n_aer_prev
                 n_inp_prev = ci_model.aer[key].ds["inp"].values[:, it - 1, :]  # ptr: INP conc in prev. time step.
                 n_inp_curr = ci_model.aer[key].ds["inp"].values[:, it, :]  # ptr: INP conc. in current time step.
                 n_inp_curr += n_inp_prev
@@ -135,8 +141,10 @@ def run_model(ci_model):
             else:
                 n_inp_curr -= aer_act  # Subtract from aerosol reservoir (INP subset).
                 if ci_model.aer[key].is_INAS:
+                    n_aer_curr -= aer_act.sum(axis=2)  # Subtract from aerosol reservoir.
                     n_ice_curr += aer_act.sum(axis=(1, 2))  # Add from reservoir (*currently*, w/o aerosol memory)
                 else:
+                    n_aer_curr -= aer_act.sum(axis=1)  # Subtract from aerosol reservoir.
                     n_ice_curr += aer_act.sum(axis=1)  # Add from reservoir (*currently*, w/o aerosol memory)
             run_stats["activation_aer"] += (time() - t_process)
             t_proc += time() - t_process
@@ -158,6 +166,20 @@ def run_model(ci_model):
                             (ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0, :] -
                              n_aer_curr[ent_delta_n_ind[it - 1], :])
                         n_aer_curr[ent_target_ind[it - 1], :] += aer_ent
+                else:  # 1-D processing of n_aer_curr for singular.
+                    if ci_model.deplete_entrained:  # using cloud top data (aerosol difference) for entrainment
+                        if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
+                            aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
+                                ent_delta_z[it - 1] * ci_model.delta_t * \
+                                (n_aer_curr[cth_ind[it - 1] + 1] - n_aer_curr[ent_delta_n_ind[it - 1]])
+                            n_aer_curr[cth_ind[it - 1] + 1] -= aer_ent  # update aerosol conc. just above cth.
+                            n_aer_curr[ent_target_ind[it - 1]] += aer_ent
+                    else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
+                        aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
+                            ent_delta_z[it - 1] * ci_model.delta_t * \
+                            (ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0] -
+                             n_aer_curr[ent_delta_n_ind[it - 1]])
+                        n_aer_curr[ent_target_ind[it - 1]] += aer_ent
                 if not ci_model.use_ABIFM:  # INP entrainment
                     if ci_model.deplete_entrained:  # using cloud top data (INP difference) for entrainment
                         if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
@@ -193,8 +215,8 @@ def run_model(ci_model):
             # Turbulent mixing of aerosol
             if ci_model.do_mix_aer:
                 t_process = time()
-                if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):  # aerosol mixing
-                    if np.any(t_step_mix_mask):  # checking that some mixing takes place.
+                if np.any(t_step_mix_mask):  # checking that some mixing takes place
+                    if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):  # aerosol mixing
                         if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
                             aer_fully_mixed = np.nanmean(n_aer_curr, axis=0)
                             aer_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
@@ -209,6 +231,18 @@ def run_model(ci_model):
                                 (np.tile(np.expand_dims(aer_fully_mixed, axis=0), (np.sum(t_step_mix_mask), 1)) -
                                  n_aer_curr[t_step_mix_mask, :])
                             n_aer_curr[t_step_mix_mask, :] += aer_mixing
+                    else:
+                        if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
+                            aer_fully_mixed = np.nanmean(n_aer_curr, axis=0)
+                            aer_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                                (np.tile(np.expand_dims(aer_fully_mixed, axis=0), (ci_model.mod_nz, 1)) -
+                                 n_aer_curr)
+                            n_aer_curr += aer_mixing
+                        else:
+                            aer_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_aer_curr, np.nan))
+                            aer_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                                (aer_fully_mixed - n_aer_curr[t_step_mix_mask])
+                            n_aer_curr[t_step_mix_mask] += aer_mixing
                 if not ci_model.use_ABIFM:  # INP mixing
                     if np.any(t_step_mix_mask):  # checking that some mixing takes place.
                         if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
@@ -252,9 +286,10 @@ def run_model(ci_model):
             elif ci_model.aer[key].is_INAS:
                 ci_model.aer[key].ds["n_aer"][:, it, :].values = n_aer_curr
                 ci_model.aer[key].ds["inp_snap"].values = n_inp_curr
-                ci_model.aer[key].ds["inp_tot"][:, it, :].values += np.sum(n_inp_curr, axis=2)
+                ci_model.aer[key].ds["inp_tot"][:, it, :].values = np.sum(n_inp_curr, axis=2)
             else:
                 ci_model.aer[key].ds["inp"].values[:, it, :] = n_inp_curr
+                ci_model.aer[key].ds["n_aer"][:, it].values = n_aer_curr
 
         # Sedimentation of ice (after aerosol were activated).
         if ci_model.do_sedim:
@@ -309,7 +344,8 @@ def run_model(ci_model):
 
         if ci_model.aer[key].is_INAS:
             ci_model.aer[key].ds["n_aer"].values += ci_model.aer[key].ds["inp_tot"].values
-
+        elif np.logical_and(not ci_model.use_ABIFM, not ci_model.aer[key].is_INAS): 
+            ci_model.aer[key].ds["n_aer"].values += ci_model.aer[key].ds["inp"].copy().sum("T").values
     # Finalize arrays
     for key in ci_model.aer.keys():
         for DA in ci_model.aer[key].ds.keys():

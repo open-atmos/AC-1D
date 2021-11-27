@@ -367,7 +367,15 @@ class AER_pop():
         self.ds["T_C"].attrs["units"] = "$° C$"
         self.ds["T"].attrs["units"] = "$K$"  # set coordinate attributes.
 
-        if not self.is_INAS:
+        if not self.is_INAS:  # singular
+            self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size)),
+                                            dims=("height", "time"))
+            self.ds["n_aer"].loc[{"time": 0}] = np.sum(self.dn_dlogD)
+            if self.n_init_weight_prof is not None:
+                self.ds["n_aer"].loc[{"time": 0}] = \
+                    self._weight_aer_prof(False) * self.ds["n_aer"].loc[{"time": 0}]
+            self.ds["n_aer"].attrs["units"] = "$m^{-3}$"
+            self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration"
             self.ds["ns_raw"] = xr.DataArray(self.singular_fun(ci_model.ds["T"],
                                                                np.tile(np.expand_dims(input_2[:, 0],
                                                                                       axis=1),
@@ -385,7 +393,7 @@ class AER_pop():
                                                                                        axis=1),
                                                                         (1, ci_model.ds["time"].size))) /
                                               self.ds["dn_dlogD"].sum() * 100., dims=("height", "time"))
-        else:
+        else:  # INAS
             self.ds["ns_raw"] = xr.DataArray(self.singular_fun(ci_model.ds["T"], 1), dims=("height", "time"))
             self.ds["ns_raw"].attrs["long_name"] = "INAS ns"
             self.ds["inp_snap"] = xr.DataArray(tmp_inp_array, dims=("height", "diam", "T"))

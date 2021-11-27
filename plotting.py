@@ -147,15 +147,15 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
                           field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
-                        if field_to_plot == "inp_tot":
-                            plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
-                        else:
-                            plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
+                    if np.logical_and(field_to_plot == "inp_tot", ci_model.aer[which_pop[ii]].is_INAS):
+                        plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
                         aer_dim = ci_model.diam_dim
-                    else:
+                    elif np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS):
                         plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                         aer_dim = ci_model.T_dim
+                    else:
+                        plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
+                        aer_dim = ci_model.diam_dim
                 else:
                     if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
                         if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
@@ -164,6 +164,8 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                                and values (interpolation might be added updated in future \
                                                updates)" % (aer_dim, aer_dim))
+                    elif not ci_model.aer[which_pop[ii]].is_INAS:
+                        plot_data += ci_model.aer[which_pop[ii]].ds["n_aer"]
                     else:
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                            and values (interpolation might be added updated in future updates)"
@@ -178,7 +180,9 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
                 raise RuntimeError("something is not right - too many optional fields \
                                    (check 'x' and 'y' string values)")
             z = possible_fields.pop()
-            plot_data = process_dim(plot_data, z, aer_z, dim_treat)
+            if np.logical_or(np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM),
+                             np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS)):
+                plot_data = process_dim(plot_data, z, aer_z, dim_treat)
         elif field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]:
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
@@ -340,18 +344,18 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
                           field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
-                        if field_to_plot == "inp_tot":
-                            label = "%s %s" % (which_pop[ii], "INP conc.")
-                            plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
-                        else:
-                            label = "%s %s" % (which_pop[ii], "conc.")
-                            plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
+                    if np.logical_and(field_to_plot == "inp_tot", ci_model.aer[which_pop[ii]].is_INAS):
+                        label = "%s %s" % (which_pop[ii], "INP conc.")
+                        plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
                         aer_dim = ci_model.diam_dim
-                    else:
+                    elif np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS):
                         label = "%s %s" % (which_pop[ii], "INP T spec.")
                         plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                         aer_dim = ci_model.T_dim
+                    else:
+                        label = "%s %s" % (which_pop[ii], "conc.")
+                        plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
+                        aer_dim = ci_model.diam_dim
                 else:
                     if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
                         if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
@@ -360,11 +364,15 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                                and values (interpolation might be added updated in future \
                                                updates)" % (aer_dim, aer_dim))
+                    elif not ci_model.aer[which_pop[ii]].is_INAS:
+                        plot_data += ci_model.aer[which_pop[ii]].ds["n_aer"]
                     else:
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                            and values (interpolation might be added updated in future updates)"
                                            % (aer_dim, aer_dim))
-            plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
+            if np.logical_or(np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM),
+                             np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS)):
+                plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
         elif field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]:
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
@@ -525,18 +533,18 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
                           field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
-                        if field_to_plot == "inp_tot":
-                            label = "%s %s" % (which_pop[ii], "INP conc.")
-                            plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
-                        else:
-                            label = "%s %s" % (which_pop[ii], "conc.")
-                            plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
+                    if np.logical_and(field_to_plot == "inp_tot", ci_model.aer[which_pop[ii]].is_INAS):
+                        label = "%s %s" % (which_pop[ii], "INP conc.")
+                        plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
                         aer_dim = ci_model.diam_dim
-                    else:
+                    elif np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS):
                         label = "%s %s" % (which_pop[ii], "INP T spec.")
                         plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                         aer_dim = ci_model.T_dim
+                    else:
+                        label = "%s %s" % (which_pop[ii], "conc.")
+                        plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
+                        aer_dim = ci_model.diam_dim
                 else:
                     if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
                         if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
@@ -545,11 +553,15 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
                             raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                                and values (interpolation might be added updated in future \
                                                updates)" % (aer_dim, aer_dim))
+                    elif not ci_model.aer[which_pop[ii]].is_INAS:
+                        plot_data += ci_model.aer[which_pop[ii]].ds["n_aer"]
                     else:
                         raise RuntimeError("different aerosol %s dim - %s arrays must have the same length \
                                            and values (interpolation might be added updated in future updates)"
                                            % (aer_dim, aer_dim))
-            plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
+            if np.logical_or(np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM),
+                             np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS)):
+                plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
         elif field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]:
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
