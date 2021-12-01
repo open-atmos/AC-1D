@@ -30,7 +30,8 @@ def generate_figure(subplot_shape=(1,), figsize=(15, 10), **kwargs):
 
 
 def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer_z=None, dim_treat="sum",
-                 cmap="cubehelix", vmin="auto", vmax="auto", ax=None, colorbar=True, cbar_label=None,
+                 cmap=None, vmin="auto", vmax="auto", auto_diverging=True,
+                 ax=None, colorbar=True, cbar_label=None,
                  xscale=None, yscale=None, log_plot=False, title=None, grid=False, xlabel=None, ylabel=None,
                  tight_layout=True, font_size=None, xtick=None, xticklabel=None, ytick=None, yticklabel=None,
                  xlim=None, ylim=None, **kwargs):
@@ -71,9 +72,13 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
     cmap: str or matplotlib.cm.cmap
         colormap to use to use
     vmin: str or float
-        if "auto" then using 5th percentil. If float, defining minimum colormap value
+        if "auto" then using 1st percentil. If float, defining minimum colormap value
     vmax: str or float
         if "auto" then using 99th percentil. If float, defining maximum colormap value
+    auto_diverging: bool
+        if True and vmin and/or vmax are "auto" then setting these two variables such that vmin = -x and
+        vmax = x where x is max(abs(1st, 99th)). Applicable only to fields specified in the code under the
+        'diverging_vars' list.
     ax: matplotlib axis handle
         axes to plot on. If None, then creating a new figure.
     colorbar: bool
@@ -122,6 +127,11 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
     if y is None:
         y = ci_model.height_dim
 
+    aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct"]
+    aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix", "budget_aer_act"]
+    aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
+                           "budget_aer_mix": "mixing budget", "budget_aer_act": "activation budget"}
+    diverging_vars = ["budget_aer_mix", "budget_aer_act"]
     if which_pop is None:  # plot a field from ci_model.ds
         if field_to_plot in ci_model.ds.keys():
             plot_data = ci_model.ds[field_to_plot].copy()
@@ -130,12 +140,12 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
-            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["Jhet", "inp_pct"]):
+            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in aer_pop_aux_fields):
                 if np.logical_and(not ci_model.use_ABIFM, field_to_plot == "Jhet"):
                     raise KeyError("Jhet was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 xf, yf = ci_model.ds[x], ci_model.ds[y]
-            elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["ns_raw", "inp_pct"]):
+            elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in aer_pop_aux_fields):
                 if np.logical_and(ci_model.use_ABIFM, field_to_plot in ["ns_raw"]):
                     raise KeyError("%s was requested but use_ABIFM is True. Please check your input!" %
                                    field_to_plot)
@@ -144,18 +154,20 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
             else:
                 which_pop = [which_pop]
         if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]),
-                          field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]):
+                          field_to_plot not in aer_pop_aux_fields):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    if np.logical_and(field_to_plot == "inp_tot", ci_model.aer[which_pop[ii]].is_INAS):
-                        plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
-                        aer_dim = ci_model.diam_dim
-                    elif np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS):
-                        plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
-                        aer_dim = ci_model.T_dim
-                    else:
+                    if np.logical_and(field_to_plot in aer_pop_w_diams,
+                                      field_to_plot in ci_model.aer[which_pop[ii]].ds.keys()):
+                        plot_data = ci_model.aer[which_pop[ii]].ds[field_to_plot].copy()
+                        label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str[field_to_plot])
+                    else:  # Default - simply plot n_aer
                         plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
+                        label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str["n_aer"])
+                    if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
                         aer_dim = ci_model.diam_dim
+                    else:
+                        aer_dim = ci_model.T_dim
                 else:
                     if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
                         if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
@@ -183,7 +195,7 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
             if np.logical_or(np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM),
                              np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS)):
                 plot_data = process_dim(plot_data, z, aer_z, dim_treat)
-        elif field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]:
+        elif field_to_plot not in aer_pop_aux_fields:
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
@@ -195,10 +207,20 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
     if x == plot_data.dims[0]:
         plot_data = plot_data.transpose()
 
-    if vmin == "auto":
-        vmin = np.percentile(plot_data, 1)
-    if vmax == "auto":
-        vmax = np.percentile(plot_data, 99)
+    if cmap is None:
+        if np.logical_and(auto_diverging, field_to_plot in diverging_vars):
+            cmap = "bwr"
+        else:
+            cmap = "cubehelix"
+
+    if np.logical_or(vmin == "auto", vmax == "auto"):
+        if vmin == "auto":
+            vmin = np.percentile(plot_data, 1)
+        if vmax == "auto":
+            vmax = np.percentile(plot_data, 99)
+        if np.logical_and(auto_diverging, field_to_plot in diverging_vars):
+            vmin = np.max(np.abs([vmin, vmax])) * (-1)
+            vmax = np.max(np.abs([vmin, vmax]))
 
     if xlabel is None:
         xlabel = "%s [%s]" % (x, plot_data[x].attrs["units"])
@@ -319,6 +341,12 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
     -------
     ax: Matplotlib axes handle
     """
+    aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct", "budget_aer_act", "pbl_aer_tot_rel_frac",
+                          "pbl_aer_tot_decay_rate"]
+    aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix", "budget_aer_ent"]
+    aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
+                           "budget_aer_mix": "mix budget", "budget_aer_ent": "entrainment budget",
+                           "budget_aer_act": "activation budget"}
     if which_pop is None:  # plot a field from ci_model.ds
         if field_to_plot in ci_model.ds.keys():
             plot_data = ci_model.ds[field_to_plot].copy()
@@ -327,12 +355,12 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
-            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["Jhet", "inp_pct"]):
+            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in aer_pop_aux_fields):
                 if np.logical_and(not ci_model.use_ABIFM, field_to_plot == "Jhet"):
                     raise KeyError("Jhet was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 label = "%s %s" % (which_pop, field_to_plot)
-            elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["ns_raw", "inp_pct"]):
+            elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in aer_pop_aux_fields):
                 if np.logical_and(ci_model.use_ABIFM, field_to_plot in ["ns_raw"]):
                     raise KeyError("%s was requested but use_ABIFM is True. Please check your input!" %
                                    field_to_plot)
@@ -341,21 +369,20 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
             else:
                 which_pop = [which_pop]
         if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]),
-                          field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]):
+                          field_to_plot not in aer_pop_aux_fields):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    if np.logical_and(field_to_plot == "inp_tot", ci_model.aer[which_pop[ii]].is_INAS):
-                        label = "%s %s" % (which_pop[ii], "INP conc.")
-                        plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
-                        aer_dim = ci_model.diam_dim
-                    elif np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS):
-                        label = "%s %s" % (which_pop[ii], "INP T spec.")
-                        plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
-                        aer_dim = ci_model.T_dim
-                    else:
-                        label = "%s %s" % (which_pop[ii], "conc.")
+                    if np.logical_and(field_to_plot in aer_pop_w_diams,
+                                      field_to_plot in ci_model.aer[which_pop[ii]].ds.keys()):
+                        plot_data = ci_model.aer[which_pop[ii]].ds[field_to_plot].copy()
+                        label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str[field_to_plot])
+                    else:  # Default - simply plot n_aer
                         plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
+                        label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str["n_aer"])
+                    if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
                         aer_dim = ci_model.diam_dim
+                    else:
+                        aer_dim = ci_model.T_dim
                 else:
                     if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
                         if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
@@ -373,7 +400,7 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
             if np.logical_or(np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM),
                              np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS)):
                 plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
-        elif field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]:
+        elif field_to_plot not in aer_pop_aux_fields:
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
@@ -508,6 +535,10 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
     -------
     ax: Matplotlib axes handle
     """
+    aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct", "pbl_aer_tot_rel_frac", "pbl_aer_tot_decay_rate"]
+    aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix"]
+    aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
+                           "budget_aer_mix": "mix budget", "budget_aer_act": "activation budget"}
     if which_pop is None:  # plot a field from ci_model.ds
         if field_to_plot in ci_model.ds.keys():
             plot_data = ci_model.ds[field_to_plot].copy()
@@ -516,12 +547,12 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
             raise KeyError("Could not find the field: '%s' in ci_model.ds. Check for typos, etc." % field_to_plot)
     elif isinstance(which_pop, (list, str)):
         if isinstance(which_pop, str):
-            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["Jhet", "inp_pct"]):
+            if np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in aer_pop_aux_fields):
                 if np.logical_and(not ci_model.use_ABIFM, field_to_plot == "Jhet"):
                     raise KeyError("Jhet for was requested but use_ABIFM is False. Please check your input!")
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 label = "%s %s" % (which_pop, field_to_plot)
-            elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in ["ns_raw", "inp_pct"]):
+            elif np.logical_and(which_pop in ci_model.aer.keys(), field_to_plot in aer_pop_aux_fields):
                 if np.logical_and(ci_model.use_ABIFM, field_to_plot in ["ns_raw"]):
                     raise KeyError("%s was requested but use_ABIFM is True. Please check your input!" %
                                    field_to_plot)
@@ -530,21 +561,20 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
             else:
                 which_pop = [which_pop]
         if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]),
-                          field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]):
+                          field_to_plot not in aer_pop_aux_fields):
             for ii in range(len(which_pop)):
                 if ii == 0:
-                    if np.logical_and(field_to_plot == "inp_tot", ci_model.aer[which_pop[ii]].is_INAS):
-                        label = "%s %s" % (which_pop[ii], "INP conc.")
-                        plot_data = ci_model.aer[which_pop[ii]].ds["inp_tot"].copy()  # plot INP subset field
-                        aer_dim = ci_model.diam_dim
-                    elif np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS):
-                        label = "%s %s" % (which_pop[ii], "INP T spec.")
-                        plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
-                        aer_dim = ci_model.T_dim
-                    else:
-                        label = "%s %s" % (which_pop[ii], "conc.")
+                    if np.logical_and(field_to_plot in aer_pop_w_diams,
+                                      field_to_plot in ci_model.aer[which_pop[ii]].ds.keys()):
+                        plot_data = ci_model.aer[which_pop[ii]].ds[field_to_plot].copy()
+                        label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str[field_to_plot])
+                    else:  # Default - simply plot n_aer
                         plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
+                        label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str["n_aer"])
+                    if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
                         aer_dim = ci_model.diam_dim
+                    else:
+                        aer_dim = ci_model.T_dim
                 else:
                     if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:
                         if np.all(plot_data[aer_dim].values == ci_model.aer[which_pop[ii]].ds[aer_dim].values):
@@ -562,7 +592,7 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
             if np.logical_or(np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM),
                              np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS)):
                 plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
-        elif field_to_plot not in ["Jhet", "ns_raw", "inp_pct"]:
+        elif field_to_plot not in aer_pop_aux_fields:
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
@@ -734,6 +764,8 @@ def plot_psd(ci_model, which_pop=None, field_to_plot="",
     -------
     ax: Matplotlib axes handle
     """
+    aer_pop_w_diams = ["inp", "inp_tot", "n_aer"]
+    aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc."}
     if isinstance(which_pop, str):
         which_pop = [which_pop]
     if np.all([x in ci_model.aer.keys() for x in which_pop]):
@@ -750,6 +782,17 @@ def plot_psd(ci_model, which_pop=None, field_to_plot="",
                 else:
                     label = "%s %s" % (which_pop[ii], "INP T spec.")
                     plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
+                    aer_dim = ci_model.T_dim
+                if np.logical_and(field_to_plot in aer_pop_w_diams,
+                                  field_to_plot in ci_model.aer[which_pop[ii]].ds.keys()):
+                    plot_data = ci_model.aer[which_pop[ii]].ds[field_to_plot].copy()
+                    label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str[field_to_plot])
+                else:  # Default - simply plot n_aer
+                    plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
+                    label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str["n_aer"])
+                if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
+                    aer_dim = ci_model.diam_dim
+                else:
                     aer_dim = ci_model.T_dim
             else:
                 if plot_data[aer_dim].size == ci_model.aer[which_pop[ii]].ds[aer_dim].size:

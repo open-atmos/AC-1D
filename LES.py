@@ -243,7 +243,7 @@ class DHARMA(LES):
             Fieldnames to crop from the LES output (required to properly run the model).
             If None, then cropping the minimum number of required fields using DHARMA's namelist convention
             (Temperature [K], q_liq [kg/kg], RH [fraction], precipitation flux [mm/h], and ice number
-            concentration [cm^-3]).
+            concentration [m^-3]).
         height_ind_2crop: list, str, or None
             Indices of heights to crop from the model output (e.g., up to the PBL top).
             if str then different definitions for PBL:
@@ -264,7 +264,7 @@ class DHARMA(LES):
         self.Ni_field = {"name": "ntot_3", "scaling": 1e6}  # scale to m^-3
         self.pflux_field = {"name": "pflux_3", "scaling": 1}  # scale to mm/h
         self.T_field = {"name": "T", "addition": 0}  # scale to K (addition)
-        self.q_liq_field = {"name": "ql", "scaling": 1}  # scale to kg/kg
+        self.q_liq_field = {"name": "ql", "scaling": 1e-3}  # scale to kg/kg
         self.RH_field = {"name": "RH", "scaling": 1. / 100.}  # scale to fraction
         self.model_name = "DHARMA"
         self.time_dim = "time"

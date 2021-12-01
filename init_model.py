@@ -26,7 +26,8 @@ class ci_model():
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
-                 do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True, run_model=True):
+                 do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True,
+                 output_budgets=False, output_aer_decay=True, run_model=True):
         """
         Model namelists and unit conversion coefficient required for the 1D model.
         The LES class includes methods to processes model output and prepare the out fields for the 1D model.
@@ -182,6 +183,11 @@ class ci_model():
             determines whether mixing of ice will be performed.
         do_sedim: bool
             determines whether ice sedimentation will be performed.
+        output_budgets: bool
+            If True, then activation, entrainment, and mixing budgest are provided in the model output.
+        output_aer_decay: bool
+            If True, then generating an output field of the relative fraction of PBL aerosol relative to
+            initial value, as well as the decay rate between consecutive time steps.
         run_model: bool
             True - run model once initialization is done.
 
@@ -376,7 +382,7 @@ class ci_model():
             for t in range(self.mod_nt):
                 rel_ind = np.arange(
                     np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_base"].values[t])),
-                    np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_top"].values[t])))
+                    np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_top"].values[t]))+1) # inc. top
                 mixing_mask[rel_ind, t] = True
             self.ds["mixing_mask"] = xr.DataArray(mixing_mask, dims=("height", "time"))
         self.ds["mixing_mask"].attrs["long_name"] = "Mixing-layer mask (True --> mixed)"
@@ -452,6 +458,8 @@ class ci_model():
         self.do_mix_aer = do_mix_aer
         self.do_mix_ice = do_mix_ice
         self.do_sedim = do_sedim
+        self.output_budgets = output_budgets
+        self.output_aer_decay = output_aer_decay
         if run_model:
             Run(self)
 
