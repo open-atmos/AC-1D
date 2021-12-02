@@ -122,7 +122,8 @@ def run_model(ci_model):
             Complete_counter += print_delta_percent
             print("%.0f%% of model run completed. Elapsed time: %.2f s." % (Complete_counter, time() - Now))
 
-        n_ice_prev = ci_model.ds["Ni_nuc"].values[:, it - 1]  # pointer for nucleated ice in prev. time step.
+        n_ice_prev = np.zeros_like(ci_model.ds["Ni_nuc"].values[:, it - 1])
+        n_ice_prev += ci_model.ds["Ni_nuc"].values[:, it - 1]
         n_ice_curr = ci_model.ds["Ni_nuc"].values[:, it]  # pointer for nucleated ice in current time step.
         n_ice_curr += n_ice_prev
         if ci_model.output_budgets:
@@ -135,18 +136,22 @@ def run_model(ci_model):
 
         for key in ci_model.aer.keys():
             if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):
-                n_aer_prev = ci_model.aer[key].ds["n_aer"].values[:, it - 1, :]  # ptr: aerosol conc in prev. step.
+                n_aer_prev = np.zeros_like(ci_model.aer[key].ds["n_aer"].values[:, it - 1, :])
+                n_aer_prev += ci_model.aer[key].ds["n_aer"].values[:, it - 1, :]
                 n_aer_curr = ci_model.aer[key].ds["n_aer"].values[:, it, :]  # ptr: aerosol conc. in current step.
                 n_aer_curr += n_aer_prev
                 diam_dim_l = ci_model.aer[key].ds["diam"].size
                 if ci_model.aer[key].is_INAS:
-                    n_inp_prev = ci_model.aer[key].ds["inp_snap"].copy().values  # copy: INP conc in prev. step.
+                    n_inp_prev = np.zeros_like(ci_model.aer[key].ds["inp_snap"].values)
+                    n_inp_prev += ci_model.aer[key].ds["inp_snap"].values
                     n_inp_curr = ci_model.aer[key].ds["inp_snap"].values  # ptr: INP conc. in current step.
             else:  # no aerosol diameter information under singular so n_aer_curr is a 1-D array (nz).
-                n_aer_prev = ci_model.aer[key].ds["n_aer"].values[:, it - 1]  # ptr: aerosol conc in prev. step.
+                n_aer_prev = np.zeros_like(ci_model.aer[key].ds["n_aer"].values[:, it - 1])
+                n_aer_prev +=ci_model.aer[key].ds["n_aer"].values[:, it - 1]
                 n_aer_curr = ci_model.aer[key].ds["n_aer"].values[:, it]  # ptr: aerosol conc. in current step.
                 n_aer_curr += n_aer_prev
-                n_inp_prev = ci_model.aer[key].ds["inp"].values[:, it - 1, :]  # ptr: INP conc in prev. time step.
+                n_inp_prev = np.zeros_like(ci_model.aer[key].ds["inp"].values[:, it - 1, :])
+                n_inp_prev += ci_model.aer[key].ds["inp"].values[:, it - 1, :]
                 n_inp_curr = ci_model.aer[key].ds["inp"].values[:, it, :]  # ptr: INP conc. in current time step.
                 n_inp_curr += n_inp_prev
 
@@ -212,14 +217,14 @@ def run_model(ci_model):
                         if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
                             aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
                                 ent_delta_z[it - 1] * ci_model.delta_t * \
-                                (n_aer_curr[cth_ind[it - 1] + 1, :] - n_aer_curr[ent_delta_n_ind[it - 1], :])
+                                (n_aer_prev[cth_ind[it - 1] + 1, :] - n_aer_prev[ent_delta_n_ind[it - 1], :])
                             n_aer_curr[cth_ind[it - 1] + 1, :] -= aer_ent  # update aerosol conc. just above cth.
                             n_aer_curr[ent_target_ind[it - 1], :] += aer_ent
                     else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
                         aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
                             ent_delta_z[it - 1] * ci_model.delta_t * \
                             (ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0, :] -
-                             n_aer_curr[ent_delta_n_ind[it - 1], :])
+                             n_aer_prev[ent_delta_n_ind[it - 1], :])
                         n_aer_curr[ent_target_ind[it - 1], :] += aer_ent
                     if ci_model.output_budgets:
                         budget_aer_ent += aer_ent / ci_model.delta_t
@@ -230,14 +235,14 @@ def run_model(ci_model):
                         if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
                             aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
                                 ent_delta_z[it - 1] * ci_model.delta_t * \
-                                (n_aer_curr[cth_ind[it - 1] + 1] - n_aer_curr[ent_delta_n_ind[it - 1]])
+                                (n_aer_prev[cth_ind[it - 1] + 1] - n_aer_prev[ent_delta_n_ind[it - 1]])
                             n_aer_curr[cth_ind[it - 1] + 1] -= aer_ent  # update aerosol conc. just above cth.
                             n_aer_curr[ent_target_ind[it - 1]] += aer_ent
                     else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
                         aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
                             ent_delta_z[it - 1] * ci_model.delta_t * \
                             (ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0] -
-                             n_aer_curr[ent_delta_n_ind[it - 1]])
+                             n_aer_prev[ent_delta_n_ind[it - 1]])
                         n_aer_curr[ent_target_ind[it - 1]] += aer_ent
                     if ci_model.output_budgets:
                         budget_aer_ent[it] += aer_ent / ci_model.delta_t
@@ -249,8 +254,8 @@ def run_model(ci_model):
                             if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
                                 inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
                                     ent_delta_z.values[cth_ind[it - 1]] * ci_model.delta_t * \
-                                    (n_inp_curr[cth_ind[it - 1] + 1, :, :] -
-                                     n_inp_curr[ent_delta_n_ind[it - 1], :, :])
+                                    (n_inp_prev[cth_ind[it - 1] + 1, :, :] -
+                                     n_inp_prev[ent_delta_n_ind[it - 1], :, :])
                                 n_inp_curr[ent_target_ind[it - 1], :, :] += inp_ent
                                 n_inp_curr[cth_ind[it - 1] + 1, :, :] -= inp_ent  # update INP conc. just above cth
                                 if ci_model.output_budgets:
@@ -258,7 +263,7 @@ def run_model(ci_model):
                             else:
                                 inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
                                     ent_delta_z[it - 1] * ci_model.delta_t * \
-                                    (n_inp_curr[cth_ind[it - 1] + 1, :] - n_inp_curr[ent_delta_n_ind[it - 1], :])
+                                    (n_inp_prev[cth_ind[it - 1] + 1, :] - n_inp_prev[ent_delta_n_ind[it - 1], :])
                                 n_inp_curr[ent_target_ind[it - 1], :] += inp_ent
                                 n_inp_curr[cth_ind[it - 1] + 1, :] -= inp_ent  # update INP conc. just above cth.
                                 if ci_model.output_budgets:
@@ -268,7 +273,7 @@ def run_model(ci_model):
                             inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
                                 ent_delta_z[it - 1] * ci_model.delta_t * \
                                 (ci_model.aer[key].ds["inp_init"].values[cth_ind[it - 1], :, :] -
-                                 n_inp_curr[ent_delta_n_ind[it - 1], :, :])
+                                 n_inp_prev[ent_delta_n_ind[it - 1], :, :])
                             n_inp_curr[ent_target_ind[it - 1], :, :] += inp_ent
                             if ci_model.output_budgets:
                                 budget_aer_ent += inp_ent.sum(axis=inp_sum_dim-1) / ci_model.delta_t
@@ -276,7 +281,7 @@ def run_model(ci_model):
                             inp_ent = (ci_model.ds["w_e_ent"].values[it - 1] / \
                                 ent_delta_z[it - 1] * ci_model.delta_t * \
                                 (ci_model.aer[key].ds["inp"].values[cth_ind[it - 1], 0, :] -
-                                 n_inp_curr[ent_delta_n_ind[it - 1], :]))
+                                 n_inp_prev[ent_delta_n_ind[it - 1], :]))
                             n_inp_curr[ent_target_ind[it - 1], :] += inp_ent
                             if ci_model.output_budgets:
                                 budget_aer_ent[it] += inp_ent.sum(axis=inp_sum_dim-1) / ci_model.delta_t
@@ -289,10 +294,10 @@ def run_model(ci_model):
                 if np.any(t_step_mix_mask):  # checking that some mixing takes place
                     if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):  # aerosol mixing
                         if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
-                            aer_fully_mixed = np.nanmean(n_aer_curr, axis=0)
+                            aer_fully_mixed = np.nanmean(n_aer_prev, axis=0)
                             aer_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                                 (np.tile(np.expand_dims(aer_fully_mixed, axis=0), (ci_model.mod_nz, 1)) -
-                                 n_aer_curr)
+                                 n_aer_prev)
                             n_aer_curr += aer_mixing
                             if ci_model.output_budgets:
                                 budget_aer_mix += aer_mixing / ci_model.delta_t
@@ -300,40 +305,40 @@ def run_model(ci_model):
                         else:
                             aer_fully_mixed = np.nanmean(np.where(np.tile(np.expand_dims(t_step_mix_mask, axis=1),
                                                                           (1, diam_dim_l)),
-                                                                  n_aer_curr, np.nan), axis=0)
+                                                                  n_aer_prev, np.nan), axis=0)
                             aer_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                                 (np.tile(np.expand_dims(aer_fully_mixed, axis=0), (np.sum(t_step_mix_mask), 1)) -
-                                 n_aer_curr[t_step_mix_mask, :])
+                                 n_aer_prev[t_step_mix_mask, :])
                             n_aer_curr[t_step_mix_mask, :] += aer_mixing
                             if ci_model.output_budgets:
                                 budget_aer_mix[t_step_mix_mask, :] += aer_mixing / ci_model.delta_t
                     else:
                         if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
-                            aer_fully_mixed = np.nanmean(n_aer_curr)
+                            aer_fully_mixed = np.nanmean(n_aer_prev)
                             aer_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                                (aer_fully_mixed - n_aer_curr)
+                                (aer_fully_mixed - n_aer_prev)
                             n_aer_curr += aer_mixing
                             if ci_model.output_budgets:
                                 budget_aer_mix += aer_mixing / ci_model.delta_t
                         else:
-                            aer_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_aer_curr, np.nan))
+                            aer_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_aer_prev, np.nan))
                             aer_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                                (aer_fully_mixed - n_aer_curr[t_step_mix_mask])
+                                (aer_fully_mixed - n_aer_prev[t_step_mix_mask])
                             n_aer_curr[t_step_mix_mask] += aer_mixing
                             if ci_model.output_budgets:
                                 budget_aer_mix[t_step_mix_mask] += aer_mixing / ci_model.delta_t
                 if not ci_model.use_ABIFM:  # INP mixing
                     if np.any(t_step_mix_mask):  # checking that some mixing takes place.
                         if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
-                            inp_fully_mixed = np.nanmean(n_inp_curr, axis=0)
+                            inp_fully_mixed = np.nanmean(n_inp_prev, axis=0)
                             if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
                                 inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                                     (np.tile(np.expand_dims(inp_fully_mixed, axis=0), (ci_model.mod_nz, 1, 1)) -
-                                     n_inp_curr)
+                                     n_inp_prev)
                             else:
                                 inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                                     (np.tile(np.expand_dims(inp_fully_mixed, axis=0), (ci_model.mod_nz, 1)) -
-                                     n_inp_curr)
+                                     n_inp_prev)
                             n_inp_curr += inp_mixing
                             if ci_model.output_budgets:
                                 budget_aer_mix += inp_mixing.sum(axis=inp_sum_dim) / ci_model.delta_t
@@ -343,10 +348,10 @@ def run_model(ci_model):
                                                                                              axis=(1, 2)),
                                                                               (1, diam_dim_l,
                                                                                ci_model.aer[key].ds["T"].size)),
-                                                                      n_inp_curr, np.nan), axis=0)
+                                                                      n_inp_prev, np.nan), axis=0)
                                 inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                                     (np.tile(np.expand_dims(inp_fully_mixed, axis=0),
-                                             (np.sum(t_step_mix_mask), 1, 1)) - n_inp_curr[t_step_mix_mask, :, :])
+                                             (np.sum(t_step_mix_mask), 1, 1)) - n_inp_prev[t_step_mix_mask, :, :])
                                 n_inp_curr[t_step_mix_mask, :, :] += inp_mixing
                                 if ci_model.output_budgets:
                                     budget_aer_mix[t_step_mix_mask, :] += \
@@ -355,10 +360,10 @@ def run_model(ci_model):
                                 inp_fully_mixed = np.nanmean(np.where(np.tile(np.expand_dims(t_step_mix_mask,
                                                                                              axis=1),
                                                                               (1, ci_model.aer[key].ds["T"].size)),
-                                                                      n_inp_curr, np.nan), axis=0)
+                                                                      n_inp_prev, np.nan), axis=0)
                                 inp_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
                                     (np.tile(np.expand_dims(inp_fully_mixed, axis=0),
-                                             (np.sum(t_step_mix_mask), 1)) - n_inp_curr[t_step_mix_mask, :])
+                                             (np.sum(t_step_mix_mask), 1)) - n_inp_prev[t_step_mix_mask, :])
                                 n_inp_curr[t_step_mix_mask, :] += inp_mixing
                                 if ci_model.output_budgets:
                                     budget_aer_mix[t_step_mix_mask] += \
@@ -381,10 +386,10 @@ def run_model(ci_model):
         if ci_model.do_sedim:
             t_process = time()
             if ci_model.ds["v_f_ice"].ndim == 2:
-                ice_sedim_out = n_ice_curr * ci_model.ds["v_f_ice"].values[:, it - 1] * ci_model.delta_t / \
+                ice_sedim_out = n_ice_prev * ci_model.ds["v_f_ice"].values[:, it - 1] * ci_model.delta_t / \
                     ci_model.ds["delta_z"].values
             else:
-                ice_sedim_out = n_ice_curr * ci_model.ds["v_f_ice"].values[it - 1] * ci_model.delta_t / \
+                ice_sedim_out = n_ice_prev * ci_model.ds["v_f_ice"].values[it - 1] * ci_model.delta_t / \
                     ci_model.ds["delta_z"].values
             ice_sedim_in = np.zeros(ci_model.mod_nz)
             ice_sedim_in[:-1] += ice_sedim_out[1:]
@@ -400,16 +405,16 @@ def run_model(ci_model):
             t_process = time()
             if np.any(t_step_mix_mask):  # checking that some mixing takes place.
                 if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
-                    ice_fully_mixed = np.nanmean(n_ice_curr, axis=0)
+                    ice_fully_mixed = np.nanmean(n_ice_prev, axis=0)
                     ice_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                        (ice_fully_mixed - n_ice_curr)
+                        (ice_fully_mixed - n_ice_prev)
                     n_ice_curr += ice_mixing
                     if ci_model.output_budgets:
                         budget_ice_mix += ice_mixing / ci_model.delta_t
                 else:
-                    ice_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_ice_curr, np.nan), axis=0)
+                    ice_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_ice_prev, np.nan), axis=0)
                     ice_mixing = ci_model.delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                        (ice_fully_mixed - n_ice_curr[t_step_mix_mask])
+                        (ice_fully_mixed - n_ice_prev[t_step_mix_mask])
                     n_ice_curr[t_step_mix_mask] += ice_mixing
                     if ci_model.output_budgets:
                         budget_ice_mix[t_step_mix_mask] += ice_mixing / ci_model.delta_t
@@ -443,7 +448,7 @@ def run_model(ci_model):
         else:
             sum_dims = (ci_model.height_dim, ci_model.diam_dim)  # for aer decay calculations if output_aer_decay
 
-        # Calculate decay statistics
+        # Calculate INP and aerosol decay statistics
         if ci_model.output_aer_decay:
             ci_model.aer[key].ds["pbl_aer_tot_rel_frac"] = \
                 xr.DataArray((ci_model.aer[key].ds["n_aer"] * ci_model.ds["delta_z"] *
@@ -459,6 +464,41 @@ def run_model(ci_model):
                              dims=(ci_model.time_dim),
                              attrs={"units": "$m^{-2} s^{-1}$",
                                     "long_name": "Total PBL aerosol decay rate (multiplied by -1)"})
+            if ci_model.use_ABIFM:
+                ci_model.aer[key].ds["pbl_inp_tot_rel_frac"] = \
+                    xr.DataArray(ci_model.aer[key].ds["pbl_aer_tot_rel_frac"].values,
+                                 dims=(ci_model.time_dim))
+                ci_model.aer[key].ds["pbl_inp_tot"] = \
+                    xr.DataArray((ci_model.aer[key].ds["n_aer"] * ci_model.ds["delta_z"] *
+                                  ci_model.ds["mixing_mask"]).sum(sum_dims),
+                                 dims=(ci_model.time_dim))
+            elif ci_model.aer[key].is_INAS:
+                ci_model.aer[key].ds["pbl_inp_tot_rel_frac"] = \
+                    xr.DataArray((ci_model.aer[key].ds["inp_tot"] * ci_model.ds["delta_z"] *
+                                  ci_model.ds["mixing_mask"]).sum(sum_dims) /
+                                 (ci_model.aer[key].ds["inp_tot"].isel({ci_model.time_dim: 0}) *
+                                  ci_model.ds["delta_z"] * ci_model.ds["mixing_mask"]).sum(sum_dims),
+                                 dims=(ci_model.time_dim))
+                ci_model.aer[key].ds["pbl_inp_tot"] = \
+                    xr.DataArray((ci_model.aer[key].ds["inp_tot"] * ci_model.ds["delta_z"] *
+                                  ci_model.ds["mixing_mask"]).sum(sum_dims),
+                                 dims=(ci_model.time_dim))
+            else:
+                ci_model.aer[key].ds["pbl_inp_tot_rel_frac"] = \
+                    xr.DataArray((ci_model.aer[key].ds["inp"] * ci_model.ds["delta_z"] *
+                                  ci_model.ds["mixing_mask"]).sum((ci_model.height_dim, ci_model.T_dim)) /
+                                 (ci_model.aer[key].ds["inp"].isel({ci_model.time_dim: 0}) *
+                                  ci_model.ds["delta_z"] *
+                                  ci_model.ds["mixing_mask"]).sum((ci_model.height_dim, ci_model.T_dim)),
+                                 dims=(ci_model.time_dim))
+                ci_model.aer[key].ds["pbl_inp_tot"] = \
+                    xr.DataArray((ci_model.aer[key].ds["inp"] * ci_model.ds["delta_z"] *
+                                  ci_model.ds["mixing_mask"]).sum((ci_model.height_dim, ci_model.T_dim)),
+                                 dims=(ci_model.time_dim))
+            ci_model.aer[key].ds["pbl_inp_tot_rel_frac"].attrs["long_name"] = \
+                "Fraction of total PBL activatable INP relative to initial"
+            ci_model.aer[key].ds["pbl_inp_tot"].attrs["long_name"] = "Total PBL INP path"
+            ci_model.aer[key].ds["pbl_inp_tot"].attrs["units"] = "$m^{-2}$"
 
     # Finalize arrays
     for key in ci_model.aer.keys():

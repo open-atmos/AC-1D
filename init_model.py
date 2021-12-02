@@ -453,7 +453,7 @@ class ci_model():
         self.T_dim = "T"  # setting the T dim even though it is only set when allocating an AER object.
         self.diam_dim = "diam"  # setting the diam dim even though it is only set when allocating an AER object.
 
-        # Run the model
+        # Run the model and reassign coordinate unit attributes (typically lost in xr.DataArray manipulations)
         self.do_entrain = do_entrain
         self.do_mix_aer = do_mix_aer
         self.do_mix_ice = do_mix_ice
@@ -462,6 +462,16 @@ class ci_model():
         self.output_aer_decay = output_aer_decay
         if run_model:
             Run(self)
+            self.ds["height_km"].attrs["units"] = "$km$"
+            self.ds["time"].attrs["units"] = "$s$"
+            self.ds["height_km"].attrs["units"] = "$km$"
+            self.ds["height"].attrs["units"] = "$m$"
+            for key in self.aer.keys():
+                self.aer[key].ds["height_km"].attrs["units"] = "$km$"
+                self.aer[key].ds["time"].attrs["units"] = "$s$"
+                self.aer[key].ds["height_km"].attrs["units"] = "$km$"
+                self.aer[key].ds["height"].attrs["units"] = "$m$"
+
 
     def _calc_delta_aw(self):
         """
