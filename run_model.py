@@ -471,8 +471,7 @@ def run_model(ci_model):
                 ci_model.aer[key].ds["pbl_inp_mean"] = \
                     xr.DataArray((ci_model.aer[key].ds["n_aer"] *
                                   ci_model.ds["mixing_mask"]).sum(sum_dims) /
-                                  np.tile(np.expand_dims(ci_model.ds["mixing_mask"], axis=2),
-                                          (1, 1, ci_model.aer[key].ds[ci_model.diam_dim].size)).sum(axis=(0, 2)),
+                                  ci_model.ds["mixing_mask"].sum(axis=0),
                                  dims=(ci_model.time_dim))
             elif ci_model.aer[key].is_INAS:
                 ci_model.aer[key].ds["pbl_inp_tot_rel_frac"] = \
@@ -484,8 +483,7 @@ def run_model(ci_model):
                 ci_model.aer[key].ds["pbl_inp_mean"] = \
                     xr.DataArray((ci_model.aer[key].ds["inp_tot"] *
                                   ci_model.ds["mixing_mask"]).sum(sum_dims) /
-                                  np.tile(np.expand_dims(ci_model.ds["mixing_mask"], axis=2),
-                                          (1, 1, ci_model.aer[key].ds[ci_model.diam_dim].size)).sum(axis=(0, 2)),
+                                  ci_model.ds["mixing_mask"].sum(axis=0),
                                  dims=(ci_model.time_dim))
             else:
                 ci_model.aer[key].ds["pbl_inp_tot_rel_frac"] = \
@@ -498,8 +496,7 @@ def run_model(ci_model):
                 ci_model.aer[key].ds["pbl_inp_mean"] = \
                     xr.DataArray((ci_model.aer[key].ds["inp"] *
                                   ci_model.ds["mixing_mask"]).sum((ci_model.height_dim, ci_model.T_dim)) /
-                                  np.tile(np.expand_dims(ci_model.ds["mixing_mask"], axis=2),
-                                          (1, 1, ci_model.aer[key].ds[ci_model.T_dim].size)).sum(axis=(0, 2)),
+                                  ci_model.ds["mixing_mask"].sum(axis=0),
                                  dims=(ci_model.time_dim))
             ci_model.aer[key].ds["pbl_inp_tot_rel_frac"].attrs["long_name"] = \
                 "Fraction of total PBL activatable INP relative to initial"
