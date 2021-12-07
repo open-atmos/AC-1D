@@ -344,7 +344,7 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
     ax: Matplotlib axes handle
     """
     aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct", "budget_aer_act", "pbl_aer_tot_rel_frac",
-                          "pbl_aer_tot_decay_rate", "pbl_inp_tot_rel_frac", "pbl_inp_tot"]
+                          "pbl_aer_tot_decay_rate", "pbl_inp_tot_rel_frac", "pbl_inp_mean"]
     aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix", "budget_aer_ent"]
     aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
                            "budget_aer_mix": "mix budget", "budget_aer_ent": "entrainment budget",
@@ -538,7 +538,7 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
     ax: Matplotlib axes handle
     """
     aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct", "pbl_aer_tot_rel_frac", "pbl_aer_tot_decay_rate",
-                          "pbl_inp_tot_rel_frac", "pbl_inp_tot"]
+                          "pbl_inp_tot_rel_frac", "pbl_inp_mean"]
     aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix"]
     aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
                            "budget_aer_mix": "mix budget", "budget_aer_act": "activation budget"}

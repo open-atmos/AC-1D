@@ -253,7 +253,7 @@ class AER_pop():
         if ci_model.ds["T"].min() >= T_max:
             raise RuntimeError('Minimum LES-informed temperature must be larger than %.2f K in'
                                ' singular mode to allow any aerosol to activate' % T_max)
-        T_min = np.maximum(np.floor((ci_model.ds["T"].min().values) * 10) / 10, 233.15)
+        T_min = 0. + np.maximum(ci_model.ds["T"].min().values, 233.15)
         T_array = np.array([T_min])
         while T_array[-1] < T_max:
             T_array = np.append(T_array, [T_array[-1] + dT0 * dT_exp ** (len(T_array) - 1)])
