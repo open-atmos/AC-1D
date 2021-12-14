@@ -26,7 +26,7 @@ class ci_model():
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
-                 do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True,
+                 do_act=True, do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True,
                  output_budgets=False, output_aer_decay=True, run_model=True):
         """
         Model namelists and unit conversion coefficient required for the 1D model.
@@ -175,6 +175,8 @@ class ci_model():
         input_heatrate_units: str or None
             An str specifies the input heating rate units that will be converted to SI in pre-processing.
             The relevant input parameters is: heat_rate.
+        do_act: bool
+            determines whether aerosol (INP) activation will be performed.
         do_entrain: bool
             determines whether aerosols entrainment will be performed.
         do_mix_aer: bool
@@ -454,6 +456,7 @@ class ci_model():
         self.diam_dim = "diam"  # setting the diam dim even though it is only set when allocating an AER object.
 
         # Run the model and reassign coordinate unit attributes (typically lost in xr.DataArray manipulations)
+        self.do_act = do_act
         self.do_entrain = do_entrain
         self.do_mix_aer = do_mix_aer
         self.do_mix_ice = do_mix_ice

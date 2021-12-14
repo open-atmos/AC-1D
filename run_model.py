@@ -49,7 +49,7 @@ def run_model(ci_model, t_splitting=True):
             ci_model.ds["budget_ice_sedim"] = \
                 xr.DataArray(np.zeros_like(ci_model.ds["T"]), dims=("height", "time"),
                              attrs={"units": "$m^{-3} s^{-1}$"})
-        ci_model.ds["tot_budget_0_test"] = \
+        ci_model.ds["net_budget_0_test"] = \
             xr.DataArray(np.zeros_like(ci_model.ds["time"], dtype=float), dims=("time"),
                          attrs={"units": "$m^{-3}$"})
 
@@ -110,14 +110,14 @@ def run_model(ci_model, t_splitting=True):
                                  attrs={"units": "$m^{-3} s^{-1}$"})
 
     if np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, float)):  # Define nucleation w/ RH
-        in_cld_mask = ci_model.ds["RH"] >= ci_model.nuc_RH_thresh
+        in_cld_mask = ci_model.ds["RH"].values >= ci_model.nuc_RH_thresh
     elif np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, str)):
         if ci_model.nuc_RH_thresh == "use_ql":  # allow nucleation where ql > 0
-            in_cld_mask = ci_model.ds["ql"] >= ci_model.in_cld_q_thresh
+            in_cld_mask = ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh
     elif np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, list)):
         if ci_model.nuc_RH_thresh[0] == "use_RH_and_ql":  # allow nucleation where ql > 0 and/or RH > RH thresh
-            in_cld_mask = np.logical_or(ci_model.ds["ql"] >= ci_model.in_cld_q_thresh,
-                                        ci_model.ds["RH"] >= ci_model.nuc_RH_thresh[1])
+            in_cld_mask = np.logical_or(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
+                                        ci_model.ds["RH"].values >= ci_model.nuc_RH_thresh[1])
 
     for it in range(1, ci_model.mod_nt):
 
@@ -181,56 +181,58 @@ def run_model(ci_model, t_splitting=True):
                     inp_sum_dim = 1
 
             # Activate aerosol
-            t_process = time()
-            if ci_model.use_ABIFM:
-                AA, JJ = np.meshgrid(ci_model.aer[key].ds["surf_area"].values,
-                                     ci_model.aer[key].ds["Jhet"].values[:, it - 1])
-                aer_act = np.minimum(n_aer_prev * JJ * AA * delta_t, n_aer_prev)
-                if ci_model.nuc_RH_thresh is not None:
-                    aer_act = np.where(np.tile(np.expand_dims(in_cld_mask[:, it - 1], axis=1), (1, diam_dim_l)),
-                                       aer_act, 0.)
-            else:
-                TTi, TTm = np.meshgrid(ci_model.aer[key].ds["T"].values,
-                                       np.where(ci_model.ds["ql"].values[:, it - 1] >= ci_model.in_cld_q_thresh,
-                                                ci_model.ds["T"].values[:, it - 1], np.nan))  # ignore noncld cells
-                if ci_model.aer[key].is_INAS:
-                    aer_act = np.minimum(np.where(np.tile(np.expand_dims(TTi >= TTm, axis=1), (1, diam_dim_l, 1)),
-                                                  n_inp_prev, 0), n_inp_prev)
+            if ci_model.do_act:
+                t_process = time()
+                if ci_model.use_ABIFM:
+                    AA, JJ = np.meshgrid(ci_model.aer[key].ds["surf_area"].values,
+                                         ci_model.aer[key].ds["Jhet"].values[:, it - 1])
+                    aer_act = np.minimum(n_aer_prev * JJ * AA * delta_t, n_aer_prev)
+                    if ci_model.nuc_RH_thresh is not None:
+                        aer_act = np.where(np.tile(np.expand_dims(in_cld_mask[:, it - 1], axis=1), (1, diam_dim_l)),
+                                           aer_act, 0.)
                 else:
-                    aer_act = np.minimum(np.where(TTi >= TTm, n_inp_prev, 0), n_inp_prev)
-            if ci_model.aer[key].is_INAS:
-                ci_model.ds["nuc_rate"].values[:, it] += aer_act.sum(axis=(1, 2)) / delta_t  # nuc. rate
-            else:
-                ci_model.ds["nuc_rate"].values[:, it] += aer_act.sum(axis=1) / delta_t  # nucleation rate
-            if ci_model.use_ABIFM:
-                n_aer_curr -= aer_act  # Subtract from aerosol reservoir.
-                n_ice_curr += aer_act.sum(axis=1)  # Add from aerosol reservoir (*currently*, w/o aerosol memory)
-                if ci_model.output_budgets:
-                    budget_aer_act -= aer_act / delta_t
-            else:
-                n_inp_curr -= aer_act  # Subtract from aerosol reservoir (INP subset).
-                if ci_model.aer[key].is_INAS:
-                    n_ice_curr += aer_act.sum(axis=(1, 2))  # Add from reservoir (*currently*, w/o aerosol memory)
-                else:
-                    n_ice_curr += aer_act.sum(axis=1)  # Add from reservoir (*currently*, w/o aerosol memory)
-                if ci_model.output_budgets:
-                    budget_aer_act -= aer_act.sum(axis=inp_sum_dim) / delta_t
-            run_stats["activation_aer"] += (time() - t_process)
-            t_proc += time() - t_process
-
-            if t_splitting:
-                place_resolved_aer(ci_model, key, it, n_aer_curr, n_inp_curr, inp_tot_add=True)
-                if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):
-                    n_aer_prev = np.zeros_like(ci_model.aer[key].ds["n_aer"].values[:, it - 1, :])
-                    n_aer_prev += ci_model.aer[key].ds["n_aer"].values[:, it, :]
+                    TTi, TTm = np.meshgrid(ci_model.aer[key].ds["T"].values,
+                                           np.where(ci_model.ds["ql"].values[:, it - 1] >= ci_model.in_cld_q_thresh,
+                                                    ci_model.ds["T"].values[:, it - 1], np.nan))  # ignore noncld cells
                     if ci_model.aer[key].is_INAS:
-                        n_inp_prev = np.zeros_like(ci_model.aer[key].ds["inp_snap"].values)
-                        n_inp_prev += ci_model.aer[key].ds["inp_snap"].values
-                else:  # no aerosol diameter information under singular so n_aer_curr is a 1-D array (nz).
-                    n_aer_prev = np.zeros_like(ci_model.aer[key].ds["n_aer"].values[:, it - 1])
-                    n_aer_prev += ci_model.aer[key].ds["n_aer"].values[:, it]
-                    n_inp_prev = np.zeros_like(ci_model.aer[key].ds["inp"].values[:, it - 1, :])
-                    n_inp_prev += ci_model.aer[key].ds["inp"].values[:, it, :]
+                        aer_act = np.minimum(np.where(np.tile(np.expand_dims(TTi >= TTm, axis=1), (1, diam_dim_l, 1)),
+                                                      n_inp_prev, 0), n_inp_prev)
+                    else:
+                        aer_act = np.minimum(np.where(TTi >= TTm, n_inp_prev, 0), n_inp_prev)
+                if ci_model.aer[key].is_INAS:
+                    ci_model.ds["nuc_rate"].values[:, it] += aer_act.sum(axis=(1, 2)) / delta_t  # nuc. rate
+                else:
+                    ci_model.ds["nuc_rate"].values[:, it] += aer_act.sum(axis=1) / delta_t  # nucleation rate
+                if ci_model.use_ABIFM:
+                    n_aer_curr -= aer_act  # Subtract from aerosol reservoir.
+                    n_ice_curr += aer_act.sum(axis=1)  # Add from aerosol reservoir (*currently*, w/o aerosol memory)
+                    if ci_model.output_budgets:
+                        budget_aer_act -= aer_act / delta_t
+                else:
+                    n_inp_curr -= aer_act  # Subtract from aerosol reservoir (INP subset).
+                    if ci_model.aer[key].is_INAS:
+                        n_ice_curr += aer_act.sum(axis=(1, 2))  # Add from reservoir (*currently*, w/o aerosol memory)
+                    else:
+                        n_ice_curr += aer_act.sum(axis=1)  # Add from reservoir (*currently*, w/o aerosol memory)
+                    if ci_model.output_budgets:
+                        budget_aer_act -= aer_act.sum(axis=inp_sum_dim) / delta_t
+                run_stats["activation_aer"] += (time() - t_process)
+                t_proc += time() - t_process
+
+                # time splitting (separating activation from other processes - relevant only if do_act is True).
+                if t_splitting:
+                    place_resolved_aer(ci_model, key, it, n_aer_curr, n_inp_curr, inp_tot_add=True)
+                    if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):
+                        n_aer_prev = np.zeros_like(ci_model.aer[key].ds["n_aer"].values[:, it - 1, :])
+                        n_aer_prev += ci_model.aer[key].ds["n_aer"].values[:, it, :]
+                        if ci_model.aer[key].is_INAS:
+                            n_inp_prev = np.zeros_like(ci_model.aer[key].ds["inp_snap"].values)
+                            n_inp_prev += ci_model.aer[key].ds["inp_snap"].values
+                    else:  # no aerosol diameter information under singular so n_aer_curr is a 1-D array (nz).
+                        n_aer_prev = np.zeros_like(ci_model.aer[key].ds["n_aer"].values[:, it - 1])
+                        n_aer_prev += ci_model.aer[key].ds["n_aer"].values[:, it]
+                        n_inp_prev = np.zeros_like(ci_model.aer[key].ds["inp"].values[:, it - 1, :])
+                        n_inp_prev += ci_model.aer[key].ds["inp"].values[:, it, :]
 
             # Cloud-top entrainment of aerosol and/or INP (depending on scheme).
             if ci_model.do_entrain:
@@ -400,22 +402,22 @@ def run_model(ci_model, t_splitting=True):
             place_resolved_aer(ci_model, key, it, n_aer_curr, n_inp_curr)
             if ci_model.output_budgets:
                 if ci_model.use_ABIFM:
-                    ci_model.ds["tot_budget_0_test"][it] += \
+                    ci_model.ds["net_budget_0_test"].values[it] += \
                         (ci_model.aer[key].ds["n_aer"].values[:, it - 1, :] - \
                         n_aer_curr).sum()
                 elif ci_model.aer[key].is_INAS:
-                    ci_model.ds["tot_budget_0_test"][it] += \
+                    ci_model.ds["net_budget_0_test"].values[it] += \
                         (ci_model.aer[key].ds["n_aer"].values[:, it - 1] - n_aer_curr).sum() + \
                          (n_inp_prev_ref - n_inp_curr).sum()
                 else:
-                    ci_model.ds["tot_budget_0_test"][it] += \
+                    ci_model.ds["net_budget_0_test"].values[it] += \
                         (ci_model.aer[key].ds["n_aer"].values[:, it - 1] - n_aer_curr).sum() + \
                         (ci_model.aer[key].ds["inp"].values[:, it - 1, :] - n_inp_curr).sum()
                 if ci_model.do_entrain:
                     if ci_model.use_ABIFM:
-                        ci_model.ds["tot_budget_0_test"][it] += aer_ent.sum()
+                        ci_model.ds["net_budget_0_test"].values[it] += aer_ent.sum()
                     else:
-                        ci_model.ds["tot_budget_0_test"][it] += (aer_ent + inp_ent).sum()
+                        ci_model.ds["net_budget_0_test"].values[it] += (aer_ent + inp_ent).sum()
 
         # Sedimentation of ice (after aerosol were activated).
         if ci_model.do_sedim:
@@ -459,7 +461,7 @@ def run_model(ci_model, t_splitting=True):
         # Place resolved ice
         ci_model.ds["Ni_nuc"][:, it].values = n_ice_curr
         if ci_model.output_budgets:
-            ci_model.ds["tot_budget_0_test"][it] += \
+            ci_model.ds["net_budget_0_test"].values[it] += \
                 (n_ice_prev - n_ice_curr).sum() - ice_sedim_out[0].sum()
 
         run_stats["data_allocation"] += (time() - t_loop - t_proc)
@@ -595,7 +597,6 @@ def place_resolved_aer(ci_model, key, it, n_aer_curr, n_inp_curr=None, inp_tot_a
         ci_model.aer[key].ds["n_aer"][:, it, :].values = n_aer_curr
     elif ci_model.aer[key].is_INAS:
         ci_model.aer[key].ds["n_aer"][:, it, :].values = n_aer_curr
-        #ci_model.aer[key].ds["inp_snap"].values = n_inp_curr
         if inp_tot_add:
             ci_model.aer[key].ds["inp_tot"][:, it, :].values += np.sum(n_inp_curr, axis=2)
     else:
