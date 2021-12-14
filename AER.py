@@ -370,7 +370,7 @@ class AER_pop():
         if not self.is_INAS:  # singular
             self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size)),
                                             dims=("height", "time"))
-            self.ds["n_aer"].loc[{"time": 0}] = np.sum(self.dn_dlogD)
+            self.ds["n_aer"].loc[{"time": 0}] = np.sum(self.ds["dn_dlogD"].values)
             if self.n_init_weight_prof is not None:
                 self.ds["n_aer"].loc[{"time": 0}] = \
                     self._weight_aer_prof(False) * self.ds["n_aer"].loc[{"time": 0}]
@@ -441,7 +441,8 @@ class AER_pop():
         self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
                                                   self.ds["diam"].size)),
                                         dims=("height", "time", "diam"))
-        self.ds["n_aer"].loc[{"time": 0}] = np.tile(self.dn_dlogD, (self.ds["height"].size, 1))
+        self.ds["n_aer"].loc[{"time": 0}] = np.tile(np.expand_dims(self.ds["dn_dlogD"].values, axis=0),
+                                                    (self.ds["height"].size, 1))
         self.ds["n_aer"].attrs["units"] = "$m^{-3}$"
         self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration per diameter bin"
 

@@ -49,6 +49,9 @@ def run_model(ci_model, t_splitting=True):
             ci_model.ds["budget_ice_sedim"] = \
                 xr.DataArray(np.zeros_like(ci_model.ds["T"]), dims=("height", "time"),
                              attrs={"units": "$m^{-3} s^{-1}$"})
+        ci_model.ds["tot_budget_0_test"] = \
+            xr.DataArray(np.zeros_like(ci_model.ds["time"], dtype=float), dims=("time"),
+                         attrs={"units": "$m^{-3}$"})
 
     # find indices of cloud-top height (based on ci_model.entrain_to_cth) for entrainment calculations
     use_cth_4_delta_n_calc = False  # if True, always use cth to calculate delta_N for entrainment.
@@ -145,6 +148,9 @@ def run_model(ci_model, t_splitting=True):
                 n_aer_curr += n_aer_prev
                 diam_dim_l = ci_model.aer[key].ds["diam"].size
                 if ci_model.aer[key].is_INAS:
+                    if ci_model.output_budgets:
+                        n_inp_prev_ref = np.zeros_like(ci_model.aer[key].ds["inp_snap"].values)
+                        n_inp_prev_ref += ci_model.aer[key].ds["inp_snap"].values
                     n_inp_prev = np.zeros_like(ci_model.aer[key].ds["inp_snap"].values)
                     n_inp_prev += ci_model.aer[key].ds["inp_snap"].values
                     n_inp_curr = ci_model.aer[key].ds["inp_snap"].values  # ptr: INP conc. in current step.
@@ -392,6 +398,24 @@ def run_model(ci_model, t_splitting=True):
 
             # Place resolved aerosol and/or INP
             place_resolved_aer(ci_model, key, it, n_aer_curr, n_inp_curr)
+            if ci_model.output_budgets:
+                if ci_model.use_ABIFM:
+                    ci_model.ds["tot_budget_0_test"][it] += \
+                        (ci_model.aer[key].ds["n_aer"].values[:, it - 1, :] - \
+                        n_aer_curr).sum()
+                elif ci_model.aer[key].is_INAS:
+                    ci_model.ds["tot_budget_0_test"][it] += \
+                        (ci_model.aer[key].ds["n_aer"].values[:, it - 1] - n_aer_curr).sum() + \
+                         (n_inp_prev_ref - n_inp_curr).sum()
+                else:
+                    ci_model.ds["tot_budget_0_test"][it] += \
+                        (ci_model.aer[key].ds["n_aer"].values[:, it - 1] - n_aer_curr).sum() + \
+                        (ci_model.aer[key].ds["inp"].values[:, it - 1, :] - n_inp_curr).sum()
+                if ci_model.do_entrain:
+                    if ci_model.use_ABIFM:
+                        ci_model.ds["tot_budget_0_test"][it] += aer_ent.sum()
+                    else:
+                        ci_model.ds["tot_budget_0_test"][it] += (aer_ent + inp_ent).sum()
 
         # Sedimentation of ice (after aerosol were activated).
         if ci_model.do_sedim:
@@ -434,6 +458,9 @@ def run_model(ci_model, t_splitting=True):
 
         # Place resolved ice
         ci_model.ds["Ni_nuc"][:, it].values = n_ice_curr
+        if ci_model.output_budgets:
+            ci_model.ds["tot_budget_0_test"][it] += \
+                (n_ice_prev - n_ice_curr).sum() - ice_sedim_out[0].sum()
 
         run_stats["data_allocation"] += (time() - t_loop - t_proc)
 
@@ -568,7 +595,7 @@ def place_resolved_aer(ci_model, key, it, n_aer_curr, n_inp_curr=None, inp_tot_a
         ci_model.aer[key].ds["n_aer"][:, it, :].values = n_aer_curr
     elif ci_model.aer[key].is_INAS:
         ci_model.aer[key].ds["n_aer"][:, it, :].values = n_aer_curr
-        ci_model.aer[key].ds["inp_snap"].values = n_inp_curr
+        #ci_model.aer[key].ds["inp_snap"].values = n_inp_curr
         if inp_tot_add:
             ci_model.aer[key].ds["inp_tot"][:, it, :].values += np.sum(n_inp_curr, axis=2)
     else:
