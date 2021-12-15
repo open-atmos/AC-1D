@@ -199,6 +199,11 @@ def run_model(ci_model, t_splitting=True):
                                                       n_inp_prev, 0), n_inp_prev)
                     else:
                         aer_act = np.minimum(np.where(TTi >= TTm, n_inp_prev, 0), n_inp_prev)
+                    if ci_model.use_tau_act:
+                        if ci_model.implicit_act:
+                            aer_act = aer_act - aer_act / (1 + delta_t / ci_model.tau_act)  # n(t) - n(t+1)
+                        else:
+                            aer_act = aer_act * delta_t /  ci_model.tau_act
                 if ci_model.aer[key].is_INAS:
                     ci_model.ds["nuc_rate"].values[:, it] += aer_act.sum(axis=(1, 2)) / delta_t  # nuc. rate
                 else:
@@ -242,16 +247,17 @@ def run_model(ci_model, t_splitting=True):
                         ci_model.deplete_entrained,
                         cth_ind[it - 1] < ci_model.mod_nz):  # reservoir depletion (if not at domain top)
                         if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
-                            aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                ent_delta_z[it - 1] * delta_t * \
-                                (n_aer_prev[cth_ind[it - 1] + 1, :] - n_aer_prev[ent_delta_n_ind[it - 1], :])
+                            aer_ent = solve_entrainment(
+                                ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                                n_aer_prev[cth_ind[it - 1] + 1, :], n_aer_prev[ent_delta_n_ind[it - 1], :],
+                                ci_model.implicit_ent)
                             n_aer_curr[cth_ind[it - 1] + 1, :] -= aer_ent  # update aerosol conc. just above cth.
                             n_aer_curr[ent_target_ind[it - 1], :] += aer_ent
                     else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
-                        aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                            ent_delta_z[it - 1] * delta_t * \
-                            (ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0, :] -
-                             n_aer_prev[ent_delta_n_ind[it - 1], :])
+                        aer_ent = solve_entrainment(
+                            ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                            ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0, :],
+                            n_aer_prev[ent_delta_n_ind[it - 1], :], ci_model.implicit_ent)
                         n_aer_curr[ent_target_ind[it - 1], :] += aer_ent
                     if ci_model.output_budgets:
                         budget_aer_ent += aer_ent / delta_t
@@ -260,16 +266,17 @@ def run_model(ci_model, t_splitting=True):
                         ci_model.deplete_entrained,
                         cth_ind[it - 1] < ci_model.mod_nz):  # reservoir depletion (if not at domain top)
                         if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
-                            aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                ent_delta_z[it - 1] * delta_t * \
-                                (n_aer_prev[cth_ind[it - 1] + 1] - n_aer_prev[ent_delta_n_ind[it - 1]])
+                            aer_ent = solve_entrainment(
+                                ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                                n_aer_prev[cth_ind[it - 1] + 1], n_aer_prev[ent_delta_n_ind[it - 1]],
+                                ci_model.implicit_ent)
                             n_aer_curr[cth_ind[it - 1] + 1] -= aer_ent  # update aerosol conc. just above cth.
                             n_aer_curr[ent_target_ind[it - 1]] += aer_ent
                     else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
-                        aer_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                            ent_delta_z[it - 1] * delta_t * \
-                            (ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0] -
-                             n_aer_prev[ent_delta_n_ind[it - 1]])
+                        aer_ent = solve_entrainment(
+                            ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                            ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0],
+                            n_aer_prev[ent_delta_n_ind[it - 1]], ci_model.implicit_ent)
                         n_aer_curr[ent_target_ind[it - 1]] += aer_ent
                     if ci_model.output_budgets:
                         budget_aer_ent[it] += aer_ent / delta_t
@@ -279,36 +286,37 @@ def run_model(ci_model, t_splitting=True):
                         cth_ind[it - 1] < ci_model.mod_nz):  # reservoir depletion (if not at domain top)
                         if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
                             if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
-                                inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                    ent_delta_z.values[cth_ind[it - 1]] * delta_t * \
-                                    (n_inp_prev[cth_ind[it - 1] + 1, :, :] -
-                                     n_inp_prev[ent_delta_n_ind[it - 1], :, :])
+                                inp_ent = solve_entrainment(
+                                    ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                                    n_inp_prev[cth_ind[it - 1] + 1, :, :],
+                                    n_inp_prev[ent_delta_n_ind[it - 1], :, :], ci_model.implicit_ent)
                                 n_inp_curr[ent_target_ind[it - 1], :, :] += inp_ent
                                 n_inp_curr[cth_ind[it - 1] + 1, :, :] -= inp_ent  # update INP conc. just above cth
                                 if ci_model.output_budgets:
                                     budget_aer_ent += inp_ent.sum(axis=inp_sum_dim-1) / delta_t
                             else:
-                                inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                    ent_delta_z[it - 1] * delta_t * \
-                                    (n_inp_prev[cth_ind[it - 1] + 1, :] - n_inp_prev[ent_delta_n_ind[it - 1], :])
+                                inp_ent = solve_entrainment(
+                                    ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                                    n_inp_prev[cth_ind[it - 1] + 1, :],
+                                    n_inp_prev[ent_delta_n_ind[it - 1], :], ci_model.implicit_ent)
                                 n_inp_curr[ent_target_ind[it - 1], :] += inp_ent
                                 n_inp_curr[cth_ind[it - 1] + 1, :] -= inp_ent  # update INP conc. just above cth.
                                 if ci_model.output_budgets:
                                     budget_aer_ent[it] += inp_ent.sum(axis=inp_sum_dim-1) / delta_t
                     else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
                         if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
-                            inp_ent = ci_model.ds["w_e_ent"].values[it - 1] / \
-                                ent_delta_z[it - 1] * delta_t * \
-                                (ci_model.aer[key].ds["inp_init"].values[cth_ind[it - 1], :, :] -
-                                 n_inp_prev[ent_delta_n_ind[it - 1], :, :])
+                            inp_ent = solve_entrainment(
+                                ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                                ci_model.aer[key].ds["inp_init"].values[cth_ind[it - 1], :, :],
+                                n_inp_prev[ent_delta_n_ind[it - 1], :, :], ci_model.implicit_ent)
                             n_inp_curr[ent_target_ind[it - 1], :, :] += inp_ent
                             if ci_model.output_budgets:
                                 budget_aer_ent += inp_ent.sum(axis=inp_sum_dim-1) / delta_t
                         else:
-                            inp_ent = (ci_model.ds["w_e_ent"].values[it - 1] / \
-                                ent_delta_z[it - 1] * delta_t * \
-                                (ci_model.aer[key].ds["inp"].values[cth_ind[it - 1], 0, :] -
-                                 n_inp_prev[ent_delta_n_ind[it - 1], :]))
+                            inp_ent = solve_entrainment(
+                                ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                                ci_model.aer[key].ds["inp"].values[cth_ind[it - 1], 0, :],
+                                n_inp_prev[ent_delta_n_ind[it - 1], :], ci_model.implicit_ent)
                             n_inp_curr[ent_target_ind[it - 1], :] += inp_ent
                             if ci_model.output_budgets:
                                 budget_aer_ent[it] += inp_ent.sum(axis=inp_sum_dim-1) / delta_t
@@ -569,6 +577,38 @@ def run_model(ci_model, t_splitting=True):
     print("\n")
 
 
+def solve_entrainment(w_e_ent, delta_t, delta_z, n_ft, n_pblh, implicit_solver=True):
+    """
+    Calculate entrainment source using implicit or explicit method.
+
+    Parameters
+    ----------
+    w_e_ent: float or int
+        PBL top entrainment rate [m/s].
+    delta_t: float
+        time_step [s].
+    delta_z: float
+        vertical spacing at PBL (cloud) top
+    n_ft: float or np.ndarray
+        Free-troposphere aerosol (or INP) concentration.
+    n_pblh: float or np.ndarray
+        PBL top aerosol (or INP) concentration.
+    implicit_solver: bool
+        True - using implicit solver, False - explicit solver.
+
+    Returns
+    -------
+    ent_src: float or np.ndarray
+        entrainment source.
+    """
+    if implicit_solver:
+        ent_src = (n_pblh + w_e_ent / delta_z * delta_t * n_ft) / \
+            (1 + w_e_ent / delta_z * delta_t) - n_pblh  # n(t+1) - n(t)
+    else:
+        ent_src = w_e_ent / delta_z * delta_t * (n_ft - n_pblh)
+    return ent_src
+
+
 def place_resolved_aer(ci_model, key, it, n_aer_curr, n_inp_curr=None, inp_tot_add=False):
     """
     Place resolved aerosol and/or INP in the ci_model object.
@@ -592,7 +632,6 @@ def place_resolved_aer(ci_model, key, it, n_aer_curr, n_inp_curr=None, inp_tot_a
     inp_tot_add: bool
         add current INP state to total (relevant only for INAS).
     """
-    # Place resolved aerosol and/or INP
     if ci_model.use_ABIFM:
         ci_model.aer[key].ds["n_aer"][:, it, :].values = n_aer_curr
     elif ci_model.aer[key].is_INAS:

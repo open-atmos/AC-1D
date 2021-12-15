@@ -21,7 +21,7 @@ class ci_model():
     """
     def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
                  custom_vert_grid=None, w_e_ent=1e-3, deplete_entrained=False, entrain_to_cth=True,
-                 tau_mix=1800., heat_rate=None,
+                 implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act = 5., implicit_act=True,
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
@@ -67,6 +67,8 @@ class ci_model():
             If False, entrain from the free atmosphere to the surface layer (and calculate the delta using the
             surface aerosol concentration value (i.e., an extreme entrainment case), while using that dz is as at
             cloud top (i.e., using dz value at cth and not dz = z_surf).
+        implicit_ent: bool
+            If True, using an implicit solver for entrainment. If False, using explicit solver.
         tau_mix: dict or float
             boundary-layer mixing time scale [s].
             if a float then using its value throughout the simulation time.
@@ -77,6 +79,12 @@ class ci_model():
             if a dict, then treated as in the case of a dict for w_e_ent.
             if an xr DataArray, must contain the "height" [m] and "time" [s] coordinates. Values outside the
             coordinate range are extrapolated using the nearest edge values.
+        tau_act: float, int, or None [--singular--]
+            If float or int, then setting an activation time scale (5 s by default matching the CFDC).
+            If None, then singular activation is instantaneous and depends on delta_t.
+            Relevant for singular parameterizations.
+        implicit_act: bool [--singular--]
+            If True and tau_act is a scalar, using implicit solution to activation.
         mixing_bounds: two-element tuple or list, or None
             Determining the mixing layer (especially relevant when using time-varying LES input).
             The first element provides a fixed lowest range of mixing (float), a time varying range (dict as
@@ -345,6 +353,7 @@ class ci_model():
         self.w_e_ent = w_e_ent
         self.deplete_entrained = deplete_entrained
         self.entrain_to_cth = entrain_to_cth
+        self.implicit_ent = implicit_ent
         self._set_1D_or_2D_var_from_AERut(w_e_ent, "w_e_ent", "$m/s$", "Cloud-top entrainment rate")
         if self.les["time"].size > 1:
             self._set_1D_or_2D_var_from_AERut({"time": self.les["time"].values,
@@ -402,6 +411,15 @@ class ci_model():
                     (self.ds["heat_rate"].values * self.ureg(self.input_heatrate_units)).to("K * s^{-1}").magnitude
             for t in range(1, self.mod_nt):
                 self.ds["T"].values[:, t:] += self.ds["heat_rate"].isel({"time": [t]}).values * delta_t
+
+        # set singular activation parameters.
+        if isinstance(tau_act, (float, int)):
+            self.use_tau_act = True
+            self.tau_act = tau_act
+        else:
+            self.use_tau_act = False
+            self.tau_act = None
+        self.implicit_act = implicit_act
 
         # calculate delta_aw
         self._calc_delta_aw()
@@ -465,12 +483,12 @@ class ci_model():
         self.output_aer_decay = output_aer_decay
         if run_model:
             Run(self)
-            self.ds["height_km"].attrs["units"] = "$km$"
+            self.ds["time_h"].attrs["units"] = "$h$"
             self.ds["time"].attrs["units"] = "$s$"
             self.ds["height_km"].attrs["units"] = "$km$"
             self.ds["height"].attrs["units"] = "$m$"
             for key in self.aer.keys():
-                self.aer[key].ds["height_km"].attrs["units"] = "$km$"
+                self.aer[key].ds["time_h"].attrs["units"] = "$h$"
                 self.aer[key].ds["time"].attrs["units"] = "$s$"
                 self.aer[key].ds["height_km"].attrs["units"] = "$km$"
                 self.aer[key].ds["height"].attrs["units"] = "$m$"

@@ -225,9 +225,15 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
             vmax = np.max(np.abs([vmin, vmax]))
 
     if xlabel is None:
-        xlabel = "%s [%s]" % (x, plot_data[x].attrs["units"])
+        if "units" in plot_data[x].attrs:
+            xlabel = "%s [%s]" % (x, plot_data[x].attrs["units"])
+        else:
+            xlabel = "%s" % x
     if ylabel is None:
-        ylabel = "%s [%s]" % (y, plot_data[y].attrs["units"])
+        if "units" in plot_data[y].attrs:
+            ylabel = "%s [%s]" % (y, plot_data[y].attrs["units"])
+        else:
+            ylabel = "%s" % y
 
     if np.logical_and(xscale is None, x == ci_model.diam_dim):
         xscale = "log"
