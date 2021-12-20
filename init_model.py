@@ -23,7 +23,7 @@ class ci_model():
                  custom_vert_grid=None, w_e_ent=1e-3, deplete_entrained=False, entrain_to_cth=True,
                  implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act = 5., implicit_act=True,
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
-                 time_splitting=True,
+                 time_splitting=True, ent_then_act=True,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
@@ -114,7 +114,10 @@ class ci_model():
             If True, running the model using time splitting (processes are calculated sequentially, each based on
             the state produced by the other).
             If False, using process splitting (process calculations are based on the same state and their
-                tendencies are added to produce the updated state).
+            tendencies are added to produce the updated state).
+        ent_then_act: bool
+            if True, entrain aerosol and then activate. If False, activate and then entrain (in either case,
+            these two processes are followed by mixing).
         aer_info: list of dict
             Used to initialize the aerosol arrays. Each element of the list describes a single population
             type providing its composition, concentration, and PSD, e.g., can use a single log-normal population
@@ -486,6 +489,7 @@ class ci_model():
         self.do_mix_ice = do_mix_ice
         self.do_sedim = do_sedim
         self.time_splitting = time_splitting
+        self.ent_then_act = ent_then_act
         self.output_budgets = output_budgets
         self.output_aer_decay = output_aer_decay
         if run_model:

@@ -12,7 +12,8 @@ def run_model(ci_model):
     Calculations are performed using numpy arrays rather than xarray DataArray indexing, because even though
     far less convenient and intuitive, numpy calculations have shown to be ~5-10 times faster than xarray (after
     optimization), which becomes significant with thousands of time steps.
-    Note: calculations are performed in the following order (mass is conserved):
+    Note: calculations are performed in the following order (when ent_then_act is False; switch 1 and 2 if True;
+        mass is conserved):
         1. aerosol activation since previous time step.
         2. Cloud-top entrainment of aerosol using entrainment rate from the previous time step.
         3. Turbulent mixing of aerosol using mixing depth and time scales from the previous time step (independent
@@ -159,6 +160,7 @@ def run_model(ci_model):
                     n_inp_curr = ci_model.aer[key].ds["inp_snap"].values  # ptr: INP conc. in current step.
                 else:
                     n_inp_curr = None
+                    n_inp_prev = None
             else:  # no aerosol diameter information under singular so n_aer_curr is a 1-D array (nz).
                 n_aer_prev = np.zeros_like(ci_model.aer[key].ds["n_aer"].values[:, it - 1])
                 n_aer_prev +=ci_model.aer[key].ds["n_aer"].values[:, it - 1]
@@ -168,15 +170,14 @@ def run_model(ci_model):
                 n_inp_prev += ci_model.aer[key].ds["inp"].values[:, it - 1, :]
                 n_inp_curr = ci_model.aer[key].ds["inp"].values[:, it, :]  # ptr: INP conc. in current time step.
                 n_inp_curr += n_inp_prev
+                diam_dim_l = None
 
             if ci_model.time_splitting:
                 n_aer_calc = n_aer_curr  # ptr
-                if not ci_model.use_ABIFM:
-                    n_inp_calc = n_inp_curr  # ptr
+                n_inp_calc = n_inp_curr
             else:
                 n_aer_calc = n_aer_prev  # ptr
-                if not ci_model.use_ABIFM:
-                    n_inp_calc = n_inp_prev  # ptr
+                n_inp_calc = n_inp_prev
 
             if ci_model.output_budgets:
                 if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):
@@ -191,50 +192,17 @@ def run_model(ci_model):
                     if ci_model.do_mix_aer:
                         budget_aer_mix = ci_model.aer[key].ds["budget_aer_mix"].values[:, it]
                     inp_sum_dim = 1
+            else:
+                inp_sum_dim = None
+                budget_aer_act = None
 
-            # Activate aerosol
-            if ci_model.do_act:
+            # Activate aerosol (ci_model.ent_then_act is False)
+            if np.logical_and(ci_model.do_act, not ci_model.ent_then_act):
                 t_process = time()
-                if ci_model.use_ABIFM:
-                    AA, JJ = np.meshgrid(ci_model.aer[key].ds["surf_area"].values,
-                                         ci_model.aer[key].ds["Jhet"].values[:, it - 1])
-                    aer_act = np.minimum(n_aer_prev * JJ * AA * delta_t, n_aer_prev)
-                    if ci_model.nuc_RH_thresh is not None:
-                        aer_act = np.where(np.tile(np.expand_dims(in_cld_mask[:, it - 1], axis=1), (1, diam_dim_l)),
-                                           aer_act, 0.)
-                else:
-                    TTi, TTm = np.meshgrid(ci_model.aer[key].ds["T"].values,
-                                           np.where(ci_model.ds["ql"].values[:, it - 1] >= ci_model.in_cld_q_thresh,
-                                                    ci_model.ds["T"].values[:, it - 1], np.nan))  # ignore noncld cells
-                    if ci_model.aer[key].is_INAS:
-                        aer_act = np.minimum(np.where(np.tile(np.expand_dims(TTi >= TTm, axis=1), (1, diam_dim_l, 1)),
-                                                      n_inp_prev, 0), n_inp_prev)
-                    else:
-                        aer_act = np.minimum(np.where(TTi >= TTm, n_inp_prev, 0), n_inp_prev)
-                    if ci_model.use_tau_act:
-                        if ci_model.implicit_act:
-                            aer_act = aer_act - aer_act / (1 + delta_t / ci_model.tau_act)  # n(t) - n(t+1)
-                        else:
-                            aer_act = aer_act * delta_t /  ci_model.tau_act
-                if ci_model.aer[key].is_INAS:
-                    ci_model.ds["nuc_rate"].values[:, it] += aer_act.sum(axis=(1, 2)) / delta_t  # nuc. rate
-                else:
-                    ci_model.ds["nuc_rate"].values[:, it] += aer_act.sum(axis=1) / delta_t  # nucleation rate
-                if ci_model.use_ABIFM:
-                    n_aer_curr -= aer_act  # Subtract from aerosol reservoir.
-                    n_ice_curr += aer_act.sum(axis=1)  # Add from aerosol reservoir (*currently*, w/o aerosol memory)
-                    if ci_model.output_budgets:
-                        budget_aer_act -= aer_act / delta_t
-                else:
-                    n_inp_curr -= aer_act  # Subtract from aerosol reservoir (INP subset).
-                    if ci_model.aer[key].is_INAS:
-                        n_ice_curr += aer_act.sum(axis=(1, 2))  # Add from reservoir (*currently*, w/o aerosol memory)
-                    else:
-                        n_ice_curr += aer_act.sum(axis=1)  # Add from reservoir (*currently*, w/o aerosol memory)
-                    if ci_model.output_budgets:
-                        budget_aer_act -= aer_act.sum(axis=inp_sum_dim) / delta_t
+                n_aer_calc, n_inp_calc, budget_aer_act = \
+                    activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_curr, n_ice_curr, delta_t,
+                                 budget_aer_act, inp_sum_dim, diam_dim_l)
                 run_stats["activation_aer"] += (time() - t_process)
-                t_proc += time() - t_process
 
             # Cloud-top entrainment of aerosol and/or INP (depending on scheme).
             if ci_model.do_entrain:
@@ -319,6 +287,14 @@ def run_model(ci_model):
                                 budget_aer_ent[it] += inp_ent.sum(axis=inp_sum_dim-1) / delta_t
                 run_stats["entrainment_aer"] += (time() - t_process)
                 t_proc += time() - t_process
+
+            # Activate aerosol (ci_model.ent_then_act is True)
+            if np.logical_and(ci_model.do_act, ci_model.ent_then_act):
+                t_process = time()
+                n_aer_calc, n_inp_calc, budget_aer_act = \
+                    activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_curr, n_ice_curr, delta_t,
+                                 budget_aer_act, inp_sum_dim, diam_dim_l)
+                run_stats["activation_aer"] += (time() - t_process)
 
             # Turbulent mixing of aerosol
             if ci_model.do_mix_aer:
@@ -572,6 +548,93 @@ def run_model(ci_model):
         print("Process: %s: %.2f s (%.2f%% of of total time)" %
               (key, run_stats[key], run_stats[key] / runtime_tot * 100.))
     print("\n")
+
+
+def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_curr, n_ice_curr, delta_t,
+                 budget_aer_act=None, inp_sum_dim=None, diam_dim_l=None):
+    """
+    Activate INP based using the appropriate method (note that n_aer_curr and n_inp_curr are not returned
+    as these are either None or pointers, as in the case of the ci_model object as well).
+
+    Parameters
+    ----------
+    ci_model: ci_model class
+        Containing variables such as the requested domain size, LES time averaging option
+        (ci_model.t_averaged_les), custom or LES grid information (ci_model.custom_vert_grid),
+        and LES xr.DataSet object(ci_model.les) after being processed.
+        All these required data are automatically set when a ci_model class object is assigned
+        during model initialization.
+    key: str
+        aerosol population name.
+    it: int
+        time step index.
+    n_aer_calc: np.ndarray
+        array containing aerosol data used for prognostic calculations.
+    n_inp_calc: np.ndarray
+        array containing INP data used for prognostic calculations.
+    n_aer_curr: np.ndarray
+        array containing current aerosol data to be updated.
+    n_inp_curr: np.ndarray
+        array containing current INP data to be updated.
+    n_ice_curr: np.ndarray
+        array containing current ice data to be updated.
+    delta_t: float
+        time_step [s].
+    budget_aer_act: np.ndarray
+        activation budget array.
+    inp_sum_dim: int
+        dimension to sum up when calculating total activated.
+    diam_dim_l: int
+        length of diameter dimension in the aer array [--INAS--or--ABIFM--]. 
+ 
+    Returns
+    -------
+    n_aer_calc: np.ndarray
+        array containing aerosol data used for prognostic calculations.
+    n_inp_calc: np.ndarray
+        array containing INP data used for prognostic calculations.
+    budget_aer_act: np.ndarray
+        activation budget array.
+    """
+    if ci_model.use_ABIFM:
+        AA, JJ = np.meshgrid(ci_model.aer[key].ds["surf_area"].values,
+                             ci_model.aer[key].ds["Jhet"].values[:, it - 1])
+        aer_act = np.minimum(n_aer_calc * JJ * AA * delta_t, n_aer_calc)
+        if ci_model.nuc_RH_thresh is not None:
+            aer_act = np.where(np.tile(np.expand_dims(in_cld_mask[:, it - 1], axis=1), (1, diam_dim_l)),
+                               aer_act, 0.)
+    else:
+        TTi, TTm = np.meshgrid(ci_model.aer[key].ds["T"].values,
+                               np.where(ci_model.ds["ql"].values[:, it - 1] >= ci_model.in_cld_q_thresh,
+                                        ci_model.ds["T"].values[:, it - 1], np.nan))  # ignore noncld cells
+        if ci_model.aer[key].is_INAS:
+            aer_act = np.minimum(np.where(np.tile(np.expand_dims(TTi >= TTm, axis=1), (1, diam_dim_l, 1)),
+                                          n_inp_calc, 0), n_inp_calc)
+        else:
+            aer_act = np.minimum(np.where(TTi >= TTm, n_inp_calc, 0), n_inp_calc)
+        if ci_model.use_tau_act:
+            if ci_model.implicit_act:
+                aer_act = aer_act - aer_act / (1 + delta_t / ci_model.tau_act)  # n(t) - n(t+1)
+            else:
+                aer_act = aer_act * delta_t /  ci_model.tau_act
+    if ci_model.aer[key].is_INAS:
+        ci_model.ds["nuc_rate"].values[:, it] += aer_act.sum(axis=(1, 2)) / delta_t  # nuc. rate
+    else:
+        ci_model.ds["nuc_rate"].values[:, it] += aer_act.sum(axis=1) / delta_t  # nucleation rate
+    if ci_model.use_ABIFM:
+        n_aer_curr -= aer_act  # Subtract from aerosol reservoir.
+        n_ice_curr += aer_act.sum(axis=1)  # Add from aerosol reservoir (*currently*, w/o aerosol memory)
+        if ci_model.output_budgets:
+            budget_aer_act -= aer_act / delta_t
+    else:
+        n_inp_curr -= aer_act  # Subtract from aerosol reservoir (INP subset).
+        if ci_model.aer[key].is_INAS:
+            n_ice_curr += aer_act.sum(axis=(1, 2))  # Add from reservoir (*currently*, w/o aerosol memory)
+        else:
+            n_ice_curr += aer_act.sum(axis=1)  # Add from reservoir (*currently*, w/o aerosol memory)
+        if ci_model.output_budgets:
+            budget_aer_act -= aer_act.sum(axis=inp_sum_dim) / delta_t
+    return n_aer_calc, n_inp_calc, budget_aer_act
 
 
 def solve_entrainment(w_e_ent, delta_t, delta_z, n_ft, n_pblh, implicit_solver=True):
