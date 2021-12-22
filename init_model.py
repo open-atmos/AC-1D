@@ -21,7 +21,7 @@ class ci_model():
     """
     def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
                  custom_vert_grid=None, w_e_ent=1e-3, deplete_entrained=False, entrain_to_cth=True,
-                 implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act = 5., implicit_act=True,
+                 implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act = 10., implicit_act=True,
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
                  time_splitting=True, ent_then_act=True,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
@@ -81,7 +81,7 @@ class ci_model():
             if an xr DataArray, must contain the "height" [m] and "time" [s] coordinates. Values outside the
             coordinate range are extrapolated using the nearest edge values.
         tau_act: float, int, or None [--singular--]
-            If float or int, then setting an activation time scale (5 s by default matching the CFDC).
+            If float or int, then setting an activation time scale (10 s by default matching the CFDC).
             If None, then singular activation is instantaneous and depends on delta_t.
             Relevant for singular parameterizations.
         implicit_act: bool [--singular--]
