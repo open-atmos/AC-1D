@@ -116,6 +116,8 @@ def run_model(ci_model):
         if ci_model.nuc_RH_thresh[0] == "use_RH_and_ql":  # allow nucleation where ql > 0 and/or RH > RH thresh
             in_cld_mask = np.logical_or(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
                                         ci_model.ds["RH"].values >= ci_model.nuc_RH_thresh[1])
+    else:
+        in_cld_mask = None
 
     for it in range(1, ci_model.mod_nt):
 
@@ -200,7 +202,7 @@ def run_model(ci_model):
                 t_process = time()
                 n_aer_calc, n_inp_calc, budget_aer_act = \
                     activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_curr, n_ice_curr, delta_t,
-                                 budget_aer_act, inp_sum_dim, diam_dim_l)
+                                 budget_aer_act, inp_sum_dim, diam_dim_l, in_cld_mask)
                 run_stats["activation_aer"] += (time() - t_process)
 
             # Cloud-top entrainment of aerosol and/or INP (depending on scheme).
@@ -292,7 +294,7 @@ def run_model(ci_model):
                 t_process = time()
                 n_aer_calc, n_inp_calc, budget_aer_act = \
                     activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_curr, n_ice_curr, delta_t,
-                                 budget_aer_act, inp_sum_dim, diam_dim_l)
+                                 budget_aer_act, inp_sum_dim, diam_dim_l, in_cld_mask)
                 run_stats["activation_aer"] += (time() - t_process)
 
             # Turbulent mixing of aerosol
@@ -550,7 +552,7 @@ def run_model(ci_model):
 
 
 def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_curr, n_ice_curr, delta_t,
-                 budget_aer_act=None, inp_sum_dim=None, diam_dim_l=None):
+                 budget_aer_act=None, inp_sum_dim=None, diam_dim_l=None, in_cld_mask=None):
     """
     Activate INP based using the appropriate method (note that n_aer_curr and n_inp_curr are not returned
     as these are either None or pointers, as in the case of the ci_model object as well).
@@ -585,6 +587,8 @@ def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_cu
         dimension to sum up when calculating total activated.
     diam_dim_l: int
         length of diameter dimension in the aer array [--INAS--or--ABIFM--]. 
+    in_cld_mask: np.ndarray of bool
+        array masking cloudy grid cells wherein activation takes place [--ABIFM--]
  
     Returns
     -------
