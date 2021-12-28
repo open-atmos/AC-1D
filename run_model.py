@@ -12,8 +12,7 @@ def run_model(ci_model):
     Calculations are performed using numpy arrays rather than xarray DataArray indexing, because even though
     far less convenient and intuitive, numpy calculations have shown to be ~5-10 times faster than xarray (after
     optimization), which becomes significant with thousands of time steps.
-    Note: calculations are performed in the following order (when ent_then_act is False; switch 1 and 2 if True;
-        mass is conserved):
+    Note: calculations are performed in the following order (when ent_then_act is True item 2 comes prior to 1):
         1. aerosol activation since previous time step.
         2. Cloud-top entrainment of aerosol using entrainment rate from the previous time step.
         3. Turbulent mixing of aerosol using mixing depth and time scales from the previous time step (independent
