@@ -399,7 +399,7 @@ def run_model(ci_model):
                     if ci_model.use_ABIFM:
                         ci_model.ds["net_budget_0_test"].values[it] += aer_ent.sum()
                     else:
-                        ci_model.ds["net_budget_0_test"].values[it] += (aer_ent + inp_ent).sum()
+                        ci_model.ds["net_budget_0_test"].values[it] += (aer_ent + inp_ent.sum(axis=-1)).sum()
 
         # Sedimentation of ice (after aerosol were activated).
         if ci_model.do_sedim:
