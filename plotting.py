@@ -421,7 +421,10 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
         plot_data = process_dim(plot_data, ci_model.height_dim, Height, Height_dim_treat)
 
     if xlabel is None:
-        xlabel = "%s [%s]" % ("time", plot_data[ci_model.time_dim].attrs["units"])
+        if "units" in plot_data[ci_model.time_dim].attrs:
+            xlabel = "%s [%s]" % ("time", plot_data[ci_model.time_dim].attrs["units"])
+        else:
+            xlabel = "time"
     if ylabel is None:
         if "units" in plot_data.attrs:
             ylabel = "%s [%s]" % (label, plot_data.attrs["units"])
@@ -614,7 +617,10 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
         plot_data = process_dim(plot_data, ci_model.time_dim, Time, Time_dim_treat)
 
     if ylabel is None:
-        ylabel = "%s [%s]" % ("height", plot_data[ci_model.height_dim].attrs["units"])
+        if "units" in plot_data[ci_model.height_dim].attrs:
+            ylabel = "%s [%s]" % ("height", plot_data[ci_model.height_dim].attrs["units"])
+        else:
+            ylabel = "height"
     if xlabel is None:
         if "units" in plot_data.attrs:
             xlabel = "%s [%s]" % (label, plot_data.attrs["units"])
