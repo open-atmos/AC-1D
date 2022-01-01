@@ -23,7 +23,7 @@ class ci_model():
                  custom_vert_grid=None, w_e_ent=1e-3, deplete_entrained=False, entrain_to_cth=True,
                  implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act = 10., implicit_act=True,
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
-                 time_splitting=True, ent_then_act=True,
+                 time_splitting=True, ent_then_act=True, diagnostic_inp=False,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
@@ -118,6 +118,10 @@ class ci_model():
         ent_then_act: bool
             if True, entrain aerosol and then activate. If False, activate and then entrain (in either case,
             these two processes are followed by mixing).
+        diagnostic_inp: bool
+            if True, using diagnostic INP, i.e., total activated INP numbers are calcuated while considering
+            tau_act (singular) or Jhet in current time step (ABIFM) (note that INP arrays are currently still
+            allocated to prevent errors, but not prognosed). 
         aer_info: list of dict
             Used to initialize the aerosol arrays. Each element of the list describes a single population
             type providing its composition, concentration, and PSD, e.g., can use a single log-normal population
@@ -254,6 +258,7 @@ class ci_model():
         self.use_ABIFM = use_ABIFM
         self.in_cld_q_thresh = in_cld_q_thresh  # kg/kg
         self.nuc_RH_thresh = nuc_RH_thresh  # fraction value
+        self.diagnostic_inp = diagnostic_inp
 
         # assign a unit registry and define percent units.
         self.ureg = pint.UnitRegistry()
