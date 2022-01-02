@@ -635,14 +635,16 @@ def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_cu
                 aer_act = np.minimum(np.where(TTi >= TTm, n_inp_calc, 0), n_inp_calc)
         else:
             if ci_model.aer[key].is_INAS:
-                aer_act = ci_model.aer[key].singular_fun(ci_model.ds["T"].values[:, it-1],
+                aer_act = ci_model.aer[key].singular_fun(ci_model.ds["T"].values[:, it - 1],
                                                   (np.tile(np.expand_dims(ci_model.aer[key].ds["surf_area"].values,
                                                                          axis=0),
                                                                          (ci_model.ds["height"].size, 1)) *
                                                   n_aer_calc).sum(axis=1))
             else:
-                aer_act = ci_model.aer[key].singular_fun(ci_model.ds["T"].values[:, it-1],
+                aer_act = ci_model.aer[key].singular_fun(ci_model.ds["T"].values[:, it - 1],
                                                          n_aer_calc * ci_model.aer[key].n_aer05_frac)
+            aer_act = np.where(ci_model.ds["ql"].values[:, it - 1] >= ci_model.in_cld_q_thresh,
+                                   aer_act, 0.)
             if ci_model.aer[key].singular_scale != 1.:  # scale INP option
                 aer_act *= self.singular_scale
         if ci_model.use_tau_act:
