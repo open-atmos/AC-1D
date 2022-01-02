@@ -129,11 +129,8 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
     if y is None:
         y = ci_model.height_dim
 
-    aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct"]
-    aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix", "budget_aer_act"]
-    aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
-                           "budget_aer_mix": "mixing budget", "budget_aer_act": "activation budget"}
-    diverging_vars = ["budget_aer_mix", "budget_aer_act"]
+    aer_pop_aux_fields, aer_pop_w_diams, aer_pop_w_diams_str, diverging_vars = \
+        set_out_field_namelists(ci_model, "curtain")
     if which_pop is None:  # plot a field from ci_model.ds
         if field_to_plot in ci_model.ds.keys():
             plot_data = ci_model.ds[field_to_plot].copy()
@@ -349,12 +346,7 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
     -------
     ax: Matplotlib axes handle
     """
-    aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct", "budget_aer_act", "pbl_aer_tot_rel_frac",
-                          "pbl_aer_tot_decay_rate", "pbl_inp_tot_rel_frac", "pbl_inp_mean"]
-    aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix", "budget_aer_ent"]
-    aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
-                           "budget_aer_mix": "mix budget", "budget_aer_ent": "entrainment budget",
-                           "budget_aer_act": "activation budget"}
+    aer_pop_aux_fields, aer_pop_w_diams, aer_pop_w_diams_str = set_out_field_namelists(ci_model, "tseries")
     if which_pop is None:  # plot a field from ci_model.ds
         if field_to_plot in ci_model.ds.keys():
             plot_data = ci_model.ds[field_to_plot].copy()
@@ -546,11 +538,7 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
     -------
     ax: Matplotlib axes handle
     """
-    aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct", "pbl_aer_tot_rel_frac", "pbl_aer_tot_decay_rate",
-                          "pbl_inp_tot_rel_frac", "pbl_inp_mean"]
-    aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix"]
-    aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
-                           "budget_aer_mix": "mix budget", "budget_aer_act": "activation budget"}
+    aer_pop_aux_fields, aer_pop_w_diams, aer_pop_w_diams_str = set_out_field_namelists(ci_model, "profile")
     if which_pop is None:  # plot a field from ci_model.ds
         if field_to_plot in ci_model.ds.keys():
             plot_data = ci_model.ds[field_to_plot].copy()
@@ -779,8 +767,7 @@ def plot_psd(ci_model, which_pop=None, field_to_plot="",
     -------
     ax: Matplotlib axes handle
     """
-    aer_pop_w_diams = ["inp", "inp_tot", "n_aer"]
-    aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc."}
+    aer_pop_w_diams, aer_pop_w_diams_str = set_out_field_namelists(ci_model, "psd")
     if isinstance(which_pop, str):
         which_pop = [which_pop]
     if np.all([x in ci_model.aer.keys() for x in which_pop]):
@@ -1033,3 +1020,86 @@ def process_dim(plot_data, dim_name, dim_vals_inds, dim_treat="sum"):
         plot_data.attrs["units"] = units
 
     return plot_data
+
+
+def set_out_field_namelists(ci_model, plot_type):
+    """
+    set namelists for model output fields in preparation of plotting routines.
+
+    Parameters
+    ----------
+    ci_model: ci_model class
+        Containing model run output.
+    plot_type: str
+        Choose between "curtain", "profile", and "tseries", "psd".
+
+    Returns
+    -------
+    aer_pop_aux_fields: list
+        names of optional fields per aerosol population.
+    aer_pop_w_diams: list
+        names of optional fields per aerosol population with the diameter dimension.
+    aer_pop_w_diams_str: dict
+        per key, long str of field name
+    diverging_vars: list
+        names of optional fields per aerosol population that need to be plotted using
+        diverging colormaps.
+    """
+    if plot_type == "curtain":
+        if ci_model.prognostic_inp:
+            aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct"]
+            aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix", "budget_aer_act"]
+            aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
+                                   "budget_aer_mix": "mixing budget", "budget_aer_act": "activation budget"}
+            diverging_vars = ["budget_aer_mix", "budget_aer_act"]
+        else:
+            aer_pop_aux_fields = ["Jhet"]
+            aer_pop_w_diams = ["n_aer"]
+            if ci_model.use_ABIFM:
+                aer_pop_w_diams += ["budget_aer_mix", "budget_aer_act"]
+                diverging_vars = ["budget_aer_mix", "budget_aer_act"]
+            else:
+                diverging_vars = []
+            aer_pop_w_diams_str = {"n_aer": "conc.",
+                                   "budget_aer_mix": "mixing budget", "budget_aer_act": "activation budget"}
+        return aer_pop_aux_fields, aer_pop_w_diams, aer_pop_w_diams_str, diverging_vars
+    elif plot_type == "tseries":
+        if ci_model.prognostic_inp:
+            aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct", "budget_aer_act", "pbl_aer_tot_rel_frac",
+                                  "pbl_aer_tot_decay_rate", "pbl_inp_tot_rel_frac", "pbl_inp_mean"]
+            aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix", "budget_aer_ent"]
+            aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
+                                   "budget_aer_mix": "mix budget", "budget_aer_ent": "entrainment budget",
+                                   "budget_aer_act": "activation budget"}
+        else:
+            aer_pop_aux_fields = ["Jhet", "budget_aer_act"]
+            aer_pop_w_diams = ["n_aer"]
+            if ci_model.use_ABIFM:
+                aer_pop_w_diams += ["budget_aer_mix", "budget_aer_ent"]
+            aer_pop_w_diams_str = {"n_aer": "conc.",
+                                   "budget_aer_mix": "mix budget", "budget_aer_ent": "entrainment budget",
+                                   "budget_aer_act": "activation budget"}
+        return aer_pop_aux_fields, aer_pop_w_diams, aer_pop_w_diams_str
+    elif plot_type == "profile":
+        if ci_model.prognostic_inp:
+            aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct", "pbl_aer_tot_rel_frac", "pbl_aer_tot_decay_rate",
+                                  "pbl_inp_tot_rel_frac", "pbl_inp_mean"]
+            aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix"]
+            aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
+                                   "budget_aer_mix": "mix budget", "budget_aer_act": "activation budget"}
+        else:
+            aer_pop_aux_fields = ["Jhet"]
+            aer_pop_w_diams = ["n_aer"]
+            if ci_model.use_ABIFM:
+                aer_pop_w_diams += ["budget_aer_mix"]
+            aer_pop_w_diams_str = {"n_aer": "conc.",
+                                   "budget_aer_mix": "mix budget", "budget_aer_act": "activation budget"}
+        return aer_pop_aux_fields, aer_pop_w_diams, aer_pop_w_diams_str
+    elif plot_type == "psd":
+        if ci_model.prognostic_inp:
+            aer_pop_w_diams = ["inp", "inp_tot", "n_aer"]
+            aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc."}
+        else:
+            aer_pop_w_diams = ["n_aer"]
+            aer_pop_w_diams_str = {"n_aer": "conc."}
+        return aer_pop_w_diams, aer_pop_w_diams_str
