@@ -650,7 +650,7 @@ def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_cu
         if ci_model.use_tau_act:
             if ci_model.implicit_act:
                 aer_act = aer_act - aer_act / (1 + delta_t / ci_model.tau_act)  # n(t) - n(t+1)
-            else:
+            elif delta_t < ci_model.tau_act:  # explicit (can't make aer_act larger when dt > tau_act)
                 aer_act = aer_act * delta_t /  ci_model.tau_act
     if ci_model.prognostic_inp:
         if ci_model.aer[key].is_INAS:
