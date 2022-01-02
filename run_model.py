@@ -103,7 +103,8 @@ def run_model(ci_model):
                              attrs={"units": "$m^{-3} s^{-1}$"})
             if ci_model.do_entrain:
                 ci_model.aer[key].ds["budget_aer_ent"] = \
-                    xr.DataArray(np.zeros(SHAPES[1:]), dims=DIMS[1:],
+                    xr.DataArray(np.zeros(ci_model.aer[key].ds["n_aer"].shape[1:]),
+                                 dims=ci_model.aer[key].ds["n_aer"].dims[1:],
                                  attrs={"units": "$m^{-3} s^{-1}$"})
                 if not np.logical_or(ci_model.use_ABIFM,
                                      np.logical_and(ci_model.aer[key].is_INAS, ci_model.prognostic_inp)):
