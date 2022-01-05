@@ -401,11 +401,13 @@ def run_model(ci_model):
                         (ci_model.aer[key].ds["n_aer"].values[:, it - 1, :] - \
                         n_aer_curr).sum()
                 elif ci_model.aer[key].is_INAS:
-                    ci_model.ds["net_budget_0_test"].values[it] += \
-                        (ci_model.aer[key].ds["n_aer"].values[:, it - 1, :] - n_aer_curr).sum()
                     if ci_model.prognostic_inp:
                         ci_model.ds["net_budget_0_test"].values[it] += \
-                            (n_inp_prev_ref - n_inp_curr).sum()
+                            (ci_model.aer[key].ds["n_aer"].values[:, it - 1, :] - n_aer_curr +
+                            (n_inp_prev_ref - n_inp_curr).sum(axis=-1)).sum()
+                    else:
+                        ci_model.ds["net_budget_0_test"].values[it] += \
+                            (ci_model.aer[key].ds["n_aer"].values[:, it - 1, :] - n_aer_curr).sum()
                 else:
                     ci_model.ds["net_budget_0_test"].values[it] += \
                         (ci_model.aer[key].ds["n_aer"].values[:, it - 1] - n_aer_curr).sum()
