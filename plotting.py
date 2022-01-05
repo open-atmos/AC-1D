@@ -849,9 +849,9 @@ def plot_psd(ci_model, which_pop=None, field_to_plot="",
     for ii in range(plot_data["h_t"].size):
         label_p = label
         if heights is not None:
-            label_p = label_p + "; h = %.0f %s" % (heights[ii], ci_model.ds[ci_model.height_dim].attrs["units"])
+            label_p = label_p + "; $h$ = %.0f %s" % (heights[ii], ci_model.ds[ci_model.height_dim].attrs["units"])
         if times is not None:
-            label_p = label_p + "; t = %.0f %s" % (times[ii], ci_model.ds[ci_model.time_dim].attrs["units"])
+            label_p = label_p + "; $t$ = %.0f %s" % (times[ii], ci_model.ds[ci_model.time_dim].attrs["units"])
 
         ax.plot(plot_data[aer_dim], plot_data.isel({"h_t": ii}).values, label=label_p, **kwargs)
     if legend is None:
