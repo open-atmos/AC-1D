@@ -88,6 +88,12 @@ def run_model(ci_model):
             elif np.logical_and(not ci_model.use_ABIFM, not ci_model.aer[key].is_INAS):
                 ci_model.aer[key].ds["n_aer"][:, 0].values -= \
                     ci_model.aer[key].ds["inp"][:, 0, :].copy().sum("T").values
+        elif np.logical_and(ci_model.output_aer_decay, not ci_model.use_ABIFM):
+            ci_model.aer[key].ds["pbl_inp_mean"] = \
+                xr.DataArray(np.zeros(ci_model.ds["time"].shape), dims=(ci_model.time_dim))
+            ci_model.aer[key].ds["pbl_inp_mean"].attrs["long_name"] = \
+                "Mean PBL INP concentration (singular parameterization value)"
+            ci_model.aer[key].ds["pbl_inp_mean"].attrs["units"] = "$m^{-3}$"
 
         # init budgets (if output option is True)
         if ci_model.output_budgets:
@@ -650,6 +656,8 @@ def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_cu
                                    aer_act, 0.)
             if ci_model.aer[key].singular_scale != 1.:  # scale INP option
                 aer_act *= self.singular_scale
+        if np.logical_and(ci_model.output_aer_decay, not ci_model.prognostic_inp):
+            ci_model.aer[key].ds["pbl_inp_mean"][it] += np.mean(aer_act)
         if ci_model.use_tau_act:
             if ci_model.implicit_act:
                 aer_act = aer_act - aer_act / (1 + delta_t / ci_model.tau_act)  # n(t) - n(t+1)
