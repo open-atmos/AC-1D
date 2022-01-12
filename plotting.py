@@ -1072,10 +1072,12 @@ def set_out_field_namelists(ci_model, plot_type):
                                    "budget_aer_mix": "mix budget", "budget_aer_ent": "entrainment budget",
                                    "budget_aer_act": "activation budget"}
         else:
-            aer_pop_aux_fields = ["Jhet", "budget_aer_act"]
             aer_pop_w_diams = ["n_aer"]
             if ci_model.use_ABIFM:
+                aer_pop_aux_fields = ["Jhet", "budget_aer_act"]
                 aer_pop_w_diams += ["budget_aer_mix", "budget_aer_ent"]
+            else:
+                aer_pop_aux_fields = ["Jhet", "budget_aer_act", "pbl_inp_mean"]
             aer_pop_w_diams_str = {"n_aer": "conc.",
                                    "budget_aer_mix": "mix budget", "budget_aer_ent": "entrainment budget",
                                    "budget_aer_act": "activation budget"}

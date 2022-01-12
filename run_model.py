@@ -550,6 +550,8 @@ def run_model(ci_model):
                     "Fraction of total PBL activatable INP relative to initial"
                 ci_model.aer[key].ds["pbl_inp_mean"].attrs["long_name"] = "Mean PBL INP concentration"
                 ci_model.aer[key].ds["pbl_inp_mean"].attrs["units"] = "$m^{-3}$"
+        elif np.logical_and(ci_model.output_aer_decay, not ci_model.use_ABIFM):
+            ci_model.aer[key].ds["pbl_inp_mean"].values[0] += ci_model.aer[key].ds["pbl_inp_mean"].values[1]
     ci_model.ds["pbl_ice_mean"] = \
         xr.DataArray((ci_model.ds["Ni_nuc"] *
                       ci_model.ds["mixing_mask"]).sum("height") /
@@ -657,7 +659,9 @@ def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_cu
             if ci_model.aer[key].singular_scale != 1.:  # scale INP option
                 aer_act *= self.singular_scale
         if np.logical_and(ci_model.output_aer_decay, not ci_model.prognostic_inp):
-            ci_model.aer[key].ds["pbl_inp_mean"][it] += np.mean(aer_act)
+            ci_model.aer[key].ds["pbl_inp_mean"][it] += \
+                (aer_act * ci_model.ds["mixing_mask"].values[:, it]).sum() / \
+                ci_model.ds["mixing_mask"].values[:, it].sum()
         if ci_model.use_tau_act:
             if ci_model.implicit_act:
                 aer_act = aer_act - aer_act / (1 + delta_t / ci_model.tau_act)  # n(t) - n(t+1)
