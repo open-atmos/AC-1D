@@ -662,10 +662,6 @@ def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_cu
             aer_act = np.where(aer_act < n_ice_curr, 0., aer_act - n_ice_curr)  # aer_act is max using Ninp + Nice
             aer_act = np.where(ci_model.ds["ql"].values[:, it - 1] >= ci_model.in_cld_q_thresh,
                                    aer_act, 0.)
-        #if np.logical_and(ci_model.output_aer_decay, not ci_model.prognostic_inp):
-        #    ci_model.aer[key].ds["pbl_inp_mean"][it] += \
-        #        (aer_act * ci_model.ds["mixing_mask"].values[:, it]).sum() / \
-        #        ci_model.ds["mixing_mask"].values[:, it].sum()
         if ci_model.use_tau_act:
             if ci_model.implicit_act:
                 aer_act = aer_act - aer_act / (1 + delta_t / ci_model.tau_act)  # n(t) - n(t+1)
