@@ -510,6 +510,31 @@ class ci_model():
                 self.aer[key].ds["height"].attrs["units"] = "$m$"
 
 
+    @staticmethod
+    def calc_a_ice_w(T):
+        """
+        calculate a_w(ice) using eq. 7 in Koop and Zobrist (2009, https://doi.org/10.1039/B914289D.
+
+        Parameters
+        ----------
+        T: np.ndarray or xr.DataArray
+            Temperature 
+
+        Returns
+        -------
+        a_ice_w: np.ndarray or xr.DataArray
+            water activity for ice nucleation
+        """
+        a_ice_w = \
+            (np.exp(9.550426 - 5723.265 / T + 3.53068 * np.log(T) -
+                    0.00728332 * T) /
+             (np.exp(54.842763 - 6763.22 / T -
+              4.210 * np.log(T) + 0.000367 * T +
+              np.tanh(0.0415 * (T - 218.8)) * (53.878 - 1331.22 / T - 9.44523 *
+                                                          np.log(T) + 0.014025 * T)))
+             )
+        return a_ice_w
+
     def _calc_delta_aw(self):
         """
         calculate the ∆aw field and S_ice for ABIFM using:
@@ -517,14 +542,7 @@ class ci_model():
         2. eq. 7 in Koop and Zobrist (2009, https://doi.org/10.1039/B914289D) for a_w(ice)
         Here we assume that our droplets are in equilibrium with the environment at its given RH, hence, RH = a_w.
         """
-        a_ice_w = \
-            (np.exp(9.550426 - 5723.265 / self.ds['T'] + 3.53068 * np.log(self.ds['T']) -
-                    0.00728332 * self.ds['T']) /
-             (np.exp(54.842763 - 6763.22 / self.ds['T'] -
-              4.210 * np.log(self.ds['T']) + 0.000367 * self.ds['T'] +
-              np.tanh(0.0415 * (self.ds['T'] - 218.8)) * (53.878 - 1331.22 / self.ds['T'] - 9.44523 *
-                                                          np.log(self.ds['T']) + 0.014025 * self.ds['T'])))
-             )
+        a_ice_w = self.calc_a_ice_w(self.ds['T'])
         self.ds["delta_aw"] = self.ds['RH'] - a_ice_w
         self.ds["S_ice"] = self.ds['RH'] / a_ice_w
         self.ds['delta_aw'].attrs['units'] = ""
