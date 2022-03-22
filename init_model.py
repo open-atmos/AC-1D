@@ -176,7 +176,7 @@ class ci_model():
                 Note that "D2010fit" does not consider aerosol PSDs.
                 Use "D2010" (default) if None.
 
-                6. singular_scale: [float; --singular--] Scale factor for 'singular_fun' (1 by default).
+                6. singular_scale: [float] Scale factor for 'singular_fun' or Jhet (1 by default).
 
                 7. n_init_weight_prof: [dict] a dict with keys "height" and "weight". Each key contains
                 a list or np.ndarray of length s (s > 1) determining PSD heights [m] and weighting profiles.

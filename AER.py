@@ -101,7 +101,7 @@ class AER_pop():
             the future.
             "D2010fit" does not consider aerosol PSDs.
         singular_scale: float
-            Scale factor for 'singular_fun' (1 by default) (--singular--).
+            "Artificial" scale factor for 'singular_fun' or for Jhet (1 by default).
         n_init_max: float
             total initial aerosol concentration [m-3].
         diam: list or ndarray or scalar
@@ -153,10 +153,10 @@ class AER_pop():
                     self.diam_cutoff = diam_cutoff
                 if singular_fun is None:
                     singular_fun = "D2010"  # set by default to DeMott et al. (2010)
-                if singular_scale is None:
-                    self.singular_scale = 1.
-                else:
-                    self.singular_scale = singular_scale
+            if singular_scale is None:
+                self.singular_scale = 1.
+            else:
+                self.singular_scale = singular_scale
         else:
             self.scheme = None
         self.n_init_weight_prof = n_init_weight_prof
@@ -435,6 +435,8 @@ class AER_pop():
         """
         if ci_model.use_ABIFM:
             self.ds["Jhet"] = 10.**(self.Jhet.c + self.Jhet.m * ci_model.ds["delta_aw"]) * 1e4  # calc Jhet
+            if self.singular_scale != 1.:
+                self.ds["Jhet"].values *= self.singular_scale
             self.ds["Jhet"].attrs["units"] = "$m^{-2} s^{-1}$"
             self.ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
             if pct_const is None:
