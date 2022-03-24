@@ -189,15 +189,13 @@ class AER_pop():
         if ci_model is not None:
             self.ds = self.ds.assign_coords({"height": ci_model.ds["height"].values,
                                              "time": ci_model.ds["time"].values})
+            if T_array is None:
+                self._set_T_array(ci_model)  # set T bin array with ∆T that follows a geometric progression.
+            else:
+                self.T_array = T_array
             if use_ABIFM is True:
                 self._init_aer_Jhet_ABIFM_arrays(ci_model)
-                if n_init_weight_prof is not None:
-                    self._weight_aer_prof()
             elif use_ABIFM is False:
-                if T_array is None:
-                    self._set_T_array(ci_model)  # set T bin array with ∆T that follows a geometric progression.
-                else:
-                    self.T_array = T_array
                 self._set_aer_conc_fun(singular_fun)
                 self._init_aer_singular_array(ci_model)
             self.ds["height"].attrs["units"] = "$m$"
@@ -356,16 +354,18 @@ class AER_pop():
             tmp_n_inp = np.tile(np.expand_dims(np.flip(self.singular_fun(self.ds["T"].values)), axis=0),
                                 (self.ds["height"].size, 1))  # start at highest temperatures
         if ci_model.prognostic_inp:
+            if self.singular_scale != 1.:
+                tmp_n_inp *= self.singular_scale
             if not self.is_INAS:
+                self.ds["inp_cum_init"] = xr.DataArray(np.flip(tmp_n_inp, axis=-1), dims=("height", "T"))
                 tmp_inp_array[:, 0] = tmp_n_inp[:, 0]
                 for ii in range(1, self.ds["T"].size):
                     tmp_inp_array[:, ii] = tmp_n_inp[:, ii] - tmp_inp_array[:, :ii].sum(axis=1)
             else:
+                self.ds["inp_cum_init"] = xr.DataArray(np.flip(tmp_n_inp, axis=-1), dims=("height", "diam", "T"))
                 tmp_inp_array[:, :, 0] = tmp_n_inp[:, :, 0]
                 for ii in range(1, self.ds["T"].size):
                     tmp_inp_array[:, :, ii] = tmp_n_inp[:, :, ii] - tmp_inp_array[:, :, :ii].sum(axis=2)
-            if self.singular_scale != 1.:
-                tmp_inp_array *= self.singular_scale
 
             self.ds["T_C"] = self.ds["T"].copy() - 273.15  # add coordinates for temperature in Celsius
             self.ds = self.ds.assign_coords(T_C=("T", self.ds["T_C"].values))
@@ -418,6 +418,9 @@ class AER_pop():
             self.ds["inp_pct"].attrs["units"] = "$percent$"
             self.ds["inp_pct"].attrs["long_name"] = "INP parameterization percentage relative to total initial"
             " aerosol concentrations"
+            self.ds["inp_cum_init"].attrs["units"] = "$m^{-3}$"
+            self.ds["inp_cum_init"].attrs["long_name"] = \
+                "Initial cumulative (over T) INP array"
             self.ds["ns_raw"].attrs["units"] = "$m^{-2}$"
 
     def _init_aer_Jhet_ABIFM_arrays(self, ci_model, pct_const=None):
@@ -433,6 +436,13 @@ class AER_pop():
             time constant to use for the diagnostic INP percentage calculation.
             If None (default), using the model's delta_t
         """
+        self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
+                                                  self.ds["diam"].size)),
+                                        dims=("height", "time", "diam"))
+        self.ds["n_aer"].loc[{"time": 0}] = np.tile(np.expand_dims(self.ds["dn_dlogD"].values, axis=0),
+                                                    (self.ds["height"].size, 1))
+        self.ds["n_aer"].attrs["units"] = "$m^{-3}$"
+        self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration per diameter bin"
         if ci_model.use_ABIFM:
             self.ds["Jhet"] = 10.**(self.Jhet.c + self.Jhet.m * ci_model.ds["delta_aw"]) * 1e4  # calc Jhet
             if self.singular_scale != 1.:
@@ -446,14 +456,24 @@ class AER_pop():
             self.ds["inp_pct"].attrs["units"] = "$percent$"
             self.ds["inp_pct"].attrs["long_name"] = \
                 "INP percentage relative to total initial aerosol (using a time"
-            "constant of %.0f s)" % pct_const
-        self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
-                                                  self.ds["diam"].size)),
-                                        dims=("height", "time", "diam"))
-        self.ds["n_aer"].loc[{"time": 0}] = np.tile(np.expand_dims(self.ds["dn_dlogD"].values, axis=0),
-                                                    (self.ds["height"].size, 1))
-        self.ds["n_aer"].attrs["units"] = "$m^{-3}$"
-        self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration per diameter bin"
+            " constant of %.0f s)" % pct_const
+            if self.n_init_weight_prof is not None:
+                self._weight_aer_prof()
+
+            # Generate a diagnostic initial  INP equivalent to the singular approaches (for comparison purposes) 
+            self.ds = self.ds.assign_coords({"T": self.T_array})
+            aw = 1 # liquid water activity at water saturation
+            delta_aw = aw - ci_model.calc_a_ice_w(self.T_array)  # delta_aw equivalent to the singular T array
+            Jhet_tmp = 10.**(self.Jhet.c + self.Jhet.m * delta_aw) * 1e4  # corresponding Jhet in SI units
+            INP_array = np.tile(np.expand_dims(Jhet_tmp, axis=(0,1)),
+                                (*self.ds["n_aer"][{"time": 0}].shape, 1)) * self.singular_scale * \
+                np.tile(np.expand_dims(self.ds["n_aer"][{"time": 0}] * self.ds["surf_area"], axis=2),
+                        (1,1,self.ds["T"].size)) * pct_const
+            self.ds["inp_cum_init"] = xr.DataArray(INP_array, dims=("height", "diam", "T"))
+            self.ds["inp_cum_init"].attrs["units"] = "$m^{-3}$"
+            self.ds["inp_cum_init"].attrs["long_name"] = \
+                "Initial cumulative (over T) INP array "
+            "(equivalent to singular approaches; using a time constant of %.0f s)" % pct_const
 
     def _weight_aer_prof(self, use_ABIFM=True):
         """
