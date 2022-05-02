@@ -93,6 +93,7 @@ class AER_pop():
                 3. "D2010fit" to use the temperature dependence fit from fig. 2 caption in DeMott et al., 2010.
                 4. "ND2012 to use surface area temperature-based fit (eq. 5) in Niemand et al., JAS, 2012.
                 5. "SC2020" to use surface area temperature-based fit (eq. 5) in Schill et al., PNAS, 2020.
+                6. "AT2013" to use surface area temperature_based fit (eq.6) in Atkinson et al., NATURE, 2013.
                 Use a lambda function for INP parametrization typically as a function of T (--singular--).
             Use "D2010" (default) if None.
             Notes:
@@ -296,6 +297,9 @@ class AER_pop():
             elif singular_fun == "SC2020":
                 self.singular_fun = lambda Tk, s_area: \
                     np.exp(1.844 - 0.687 * (Tk - 273.15) - 0.00597 * (Tk - 273.15)**2) * s_area  # INAS soot Schill et al. (2020)        
+            elif singular_fun == "AT2013":
+                self.singular_fun = lambda Tk, s_area: \
+                    np.exp(-1.038* Tk + 275.26) * s_area * 1e4  # K feldspar Atkinson et al.(2013; valid between 248 and 268 K)
             else:
                 raise NameError("The singular treatment %s is not implemented in the model. Check the \
                                 input string." % singular_fun)
