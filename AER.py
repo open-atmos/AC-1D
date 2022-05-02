@@ -299,7 +299,7 @@ class AER_pop():
                     np.exp(1.844 - 0.687 * (Tk - 273.15) - 0.00597 * (Tk - 273.15)**2) * s_area  # INAS soot Schill et al. (2020)        
             elif singular_fun == "AT2013":
                 self.singular_fun = lambda Tk, s_area: \
-                    np.exp(-1.038* Tk + 275.26) * s_area * 1e4  # K feldspar Atkinson et al.(2013; valid between 248 and 268 K)
+                    np.exp(-1.038 * Tk + 275.26) * s_area * 1e4  # K feldspar Atkinson et al.(2013; valid between 248 and 268 K)
             else:
                 raise NameError("The singular treatment %s is not implemented in the model. Check the \
                                 input string." % singular_fun)
