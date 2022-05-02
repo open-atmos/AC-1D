@@ -150,6 +150,12 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
                                    field_to_plot)
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 xf, yf = ci_model.ds[x], ci_model.ds[y]
+            elif field_to_plot in ci_model.ds.keys():
+                print("NOTE: %s was specified: it is in the model object's dataset but not in the %s population; "
+                      "assuming the model object dataset field was requested" % (field_to_plot, which_pop))
+                plot_data = ci_model.ds[field_to_plot].copy()
+                xf, yf = ci_model.ds[x], ci_model.ds[y]
+                which_pop = [None]
             else:
                 which_pop = [which_pop]
         if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]),
@@ -161,6 +167,8 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
                         plot_data = ci_model.aer[which_pop[ii]].ds[field_to_plot].copy()
                         label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str[field_to_plot])
                     else:  # Default - simply plot n_aer
+                        print("NOTE: %s was specified: it is not in the model's dataset nor in the %s population; "
+                              "plotting the default field (n_aer)" % (field_to_plot, which_pop))
                         plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
                         label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str["n_aer"])
                     if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
@@ -194,7 +202,7 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
             if np.logical_or(np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM),
                              np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS)):
                 plot_data = process_dim(plot_data, z, aer_z, dim_treat)
-        elif field_to_plot not in aer_pop_aux_fields:
+        elif np.logical_and(field_to_plot not in aer_pop_aux_fields, not which_pop[0] is None):
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
@@ -366,6 +374,12 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
                                    field_to_plot)
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 label = "%s %s" % (which_pop, field_to_plot)
+            elif field_to_plot in ci_model.ds.keys():
+                print("NOTE: %s was specified: it is in the model object's dataset but not in the %s population; "
+                      "assuming the model object dataset field was requested" % (field_to_plot, which_pop))
+                plot_data = ci_model.ds[field_to_plot].copy()
+                xf, yf = ci_model.ds[x], ci_model.ds[y]
+                which_pop = [None]
             else:
                 which_pop = [which_pop]
         if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]),
@@ -377,6 +391,8 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
                         plot_data = ci_model.aer[which_pop[ii]].ds[field_to_plot].copy()
                         label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str[field_to_plot])
                     else:  # Default - simply plot n_aer
+                        print("NOTE: %s was specified: it is not in the model's dataset nor in the %s population; "
+                              "plotting the default field (n_aer)" % (field_to_plot, which_pop))
                         plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
                         label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str["n_aer"])
                     if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
@@ -400,7 +416,7 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
             if np.logical_or(np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM),
                              np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS)):
                 plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
-        elif field_to_plot not in aer_pop_aux_fields:
+        elif np.logical_and(field_to_plot not in aer_pop_aux_fields, not which_pop[0] is None):
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
@@ -558,6 +574,12 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
                                    field_to_plot)
                 plot_data = ci_model.aer[which_pop].ds[field_to_plot].copy()
                 label = "%s %s" % (which_pop, field_to_plot)
+            elif field_to_plot in ci_model.ds.keys():
+                print("NOTE: %s was specified: it is in the model object's dataset but not in the %s population; "
+                      "assuming the model object dataset field was requested" % (field_to_plot, which_pop))
+                plot_data = ci_model.ds[field_to_plot].copy()
+                xf, yf = ci_model.ds[x], ci_model.ds[y]
+                which_pop = [None]
             else:
                 which_pop = [which_pop]
         if np.logical_and(np.all([x in ci_model.aer.keys() for x in which_pop]),
@@ -569,6 +591,8 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
                         plot_data = ci_model.aer[which_pop[ii]].ds[field_to_plot].copy()
                         label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str[field_to_plot])
                     else:  # Default - simply plot n_aer
+                        print("NOTE: %s was specified: it is not in the model's dataset nor in the %s population; "
+                              "plotting the default field (n_aer)" % (field_to_plot, which_pop))
                         plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
                         label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str["n_aer"])
                     if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
@@ -592,7 +616,7 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
             if np.logical_or(np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM),
                              np.logical_and(field_to_plot == "inp", not ci_model.aer[which_pop[ii]].is_INAS)):
                 plot_data = process_dim(plot_data, aer_dim, aer_z, dim_treat)
-        elif field_to_plot not in aer_pop_aux_fields:
+        elif np.logical_and(field_to_plot not in aer_pop_aux_fields, not which_pop[0] is None):
             raise KeyError("Could not find one or more of the requested aerosl population names: \
                            '%s' in ci_model.aer. Check for typos, etc." % which_pop)
 
@@ -790,6 +814,8 @@ def plot_psd(ci_model, which_pop=None, field_to_plot="",
                     plot_data = ci_model.aer[which_pop[ii]].ds[field_to_plot].copy()
                     label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str[field_to_plot])
                 else:  # Default - simply plot n_aer
+                    print("NOTE: %s was specified: it is in the model's dataset nor in the %s population; "
+                          "assuming the model object dataset field was requested" % (field_to_plot, which_pop))
                     plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
                     label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str["n_aer"])
                 if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
