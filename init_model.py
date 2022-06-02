@@ -419,7 +419,7 @@ class ci_model():
         # init and apply heating rates (prior to calculating delta_aw and/or other activation-related variables)
         self.heat_rate, self.input_heatrate_units = heat_rate, input_heatrate_units
         if self.heat_rate is not None:
-            self._set_1D_or_2D_var_from_AERut(heat_rate, "heat_rate", "$K/hr$", "Atmospheric heating rate")
+            self._set_1D_or_2D_var_from_AERut(heat_rate, "heat_rate", "$K\ s^{-1}$", "Atmospheric heating rate")
             if self.input_heatrate_units is not None:
                 self.ds["heat_rate"].values = \
                     (self.ds["heat_rate"].values * self.ureg(self.input_heatrate_units)).to("K * s^{-1}").magnitude
