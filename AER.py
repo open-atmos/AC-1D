@@ -216,7 +216,7 @@ class AER_pop():
         self.ds["diam"].attrs["long_name"] = "Bin-middle particle diameter"
         self.ds["diam_um"] = self.ds["diam"].copy() * 1e6  # add coordinates for diameter in microns
         self.ds = self.ds.assign_coords(diam_um=("diam", self.ds["diam_um"].values))
-        self.ds["diam_um"].attrs["units"] = "$\mu m$"
+        self.ds["diam_um"].attrs["units"] = r"$\mu m$"
 
     def _random_name(self):
         """
@@ -295,11 +295,13 @@ class AER_pop():
                 self.singular_fun = lambda Tk, s_area: \
                     np.exp(-0.517 * (Tk - 273.15) + 8.934) * s_area  # INAS Niemand et al. (2012)
             elif singular_fun == "SC2020":
+                # INAS soot Schill et al. (2020)
                 self.singular_fun = lambda Tk, s_area: \
-                    np.exp(1.844 - 0.687 * (Tk - 273.15) - 0.00597 * (Tk - 273.15)**2) * s_area  # INAS soot Schill et al. (2020)        
+                    np.exp(1.844 - 0.687 * (Tk - 273.15) - 0.00597 * (Tk - 273.15)**2) * s_area
             elif singular_fun == "AT2013":
+                # K feldspar Atkinson et al.(2013; valid between 248 and 268 K)
                 self.singular_fun = lambda Tk, s_area: \
-                    np.exp(-1.038 * Tk + 275.26) * s_area * 1e4  # K feldspar Atkinson et al.(2013; valid between 248 and 268 K)
+                    np.exp(-1.038 * Tk + 275.26) * s_area * 1e4
             else:
                 raise NameError("The singular treatment %s is not implemented in the model. Check the \
                                 input string." % singular_fun)
@@ -464,15 +466,15 @@ class AER_pop():
             if self.n_init_weight_prof is not None:
                 self._weight_aer_prof()
 
-            # Generate a diagnostic initial  INP equivalent to the singular approaches (for comparison purposes) 
+            # Generate a diagnostic initial  INP equivalent to the singular approaches (for comparison purposes)
             self.ds = self.ds.assign_coords({"T": self.T_array})
-            aw = 1 # liquid water activity at water saturation
+            aw = 1  # liquid water activity at water saturation
             delta_aw = aw - ci_model.calc_a_ice_w(self.T_array)  # delta_aw equivalent to the singular T array
             Jhet_tmp = 10.**(self.Jhet.c + self.Jhet.m * delta_aw) * 1e4  # corresponding Jhet in SI units
-            INP_array = np.tile(np.expand_dims(Jhet_tmp, axis=(0,1)),
+            INP_array = np.tile(np.expand_dims(Jhet_tmp, axis=(0, 1)),
                                 (*self.ds["n_aer"][{"time": 0}].shape, 1)) * self.singular_scale * \
                 np.tile(np.expand_dims(self.ds["n_aer"][{"time": 0}] * self.ds["surf_area"], axis=2),
-                        (1,1,self.ds["T"].size)) * pct_const
+                        (1, 1, self.ds["T"].size)) * pct_const
             self.ds["inp_cum_init"] = xr.DataArray(INP_array, dims=("height", "diam", "T"))
             self.ds["inp_cum_init"].attrs["units"] = "$m^{-3}$"
             self.ds["inp_cum_init"].attrs["long_name"] = \

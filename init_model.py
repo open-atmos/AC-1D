@@ -21,7 +21,7 @@ class ci_model():
     """
     def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
                  custom_vert_grid=None, w_e_ent=1e-3, deplete_entrained=False, entrain_to_cth=True,
-                 implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act = 10., implicit_act=True,
+                 implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act=10., implicit_act=True,
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
                  time_splitting=True, ent_then_act=True, prognostic_inp=True,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
@@ -407,7 +407,7 @@ class ci_model():
             for t in range(self.mod_nt):
                 rel_ind = np.arange(
                     np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_base"].values[t])),
-                    np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_top"].values[t]))+1) # inc. top
+                    np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_top"].values[t]))+1)  # inc. top
                 mixing_mask[rel_ind, t] = True
             self.ds["mixing_mask"] = xr.DataArray(mixing_mask, dims=("height", "time"))
         self.ds["mixing_mask"].attrs["long_name"] = "Mixing-layer mask (True --> mixed)"
@@ -419,7 +419,7 @@ class ci_model():
         # init and apply heating rates (prior to calculating delta_aw and/or other activation-related variables)
         self.heat_rate, self.input_heatrate_units = heat_rate, input_heatrate_units
         if self.heat_rate is not None:
-            self._set_1D_or_2D_var_from_AERut(heat_rate, "heat_rate", "$K\ s^{-1}$", "Atmospheric heating rate")
+            self._set_1D_or_2D_var_from_AERut(heat_rate, "heat_rate", r"$K\ s^{-1}$", "Atmospheric heating rate")
             if self.input_heatrate_units is not None:
                 self.ds["heat_rate"].values = \
                     (self.ds["heat_rate"].values * self.ureg(self.input_heatrate_units)).to("K * s^{-1}").magnitude
@@ -468,7 +468,7 @@ class ci_model():
         self.ds["Ni_nuc"].attrs["long_name"] = "Nucleated ice"
         self.ds["nuc_rate"] = xr.DataArray(np.zeros((self.mod_nz,
                                            self.mod_nt)), dims=("height", "time"))
-        self.ds["nuc_rate"].attrs["units"] = "$m^{-3}\:s^{-1}$"
+        self.ds["nuc_rate"].attrs["units"] = r"$m^{-3}\:s^{-1}$"
         self.ds["nuc_rate"].attrs["long_name"] = "Ice nucleation rate"
 
         print("Model initalization done! Total processing time = %f s" % (time() - Now))
@@ -509,7 +509,6 @@ class ci_model():
                 self.aer[key].ds["height_km"].attrs["units"] = "$km$"
                 self.aer[key].ds["height"].attrs["units"] = "$m$"
 
-
     @staticmethod
     def calc_a_ice_w(T):
         """
@@ -518,7 +517,7 @@ class ci_model():
         Parameters
         ----------
         T: np.ndarray or xr.DataArray
-            Temperature 
+            Temperature
 
         Returns
         -------
@@ -530,8 +529,7 @@ class ci_model():
                     0.00728332 * T) /
              (np.exp(54.842763 - 6763.22 / T -
               4.210 * np.log(T) + 0.000367 * T +
-              np.tanh(0.0415 * (T - 218.8)) * (53.878 - 1331.22 / T - 9.44523 *
-                                                          np.log(T) + 0.014025 * T)))
+              np.tanh(0.0415 * (T - 218.8)) * (53.878 - 1331.22 / T - 9.44523 * np.log(T) + 0.014025 * T)))
              )
         return a_ice_w
 
@@ -701,7 +699,7 @@ class ci_model():
                         self.aer_info[ii][param] = list(param_val)
                     elif type(self.aer_info[ii][param]) == list:
                         self.aer_info[ii][param] = list(param_val)
-                    else:  # scalar or np.ndarray 
+                    else:  # scalar or np.ndarray
                         self.aer_info[ii][param] = param_val
                     print("'%s' (in aer_info) was input in %s units; now converted to %s (SI)" %
                           (param, from_units, to_units))
