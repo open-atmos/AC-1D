@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Aerosol-Cloud Column Model (AC-1D)'
-copyright = '2021, Israel Silber, Ann Fridlind'
+copyright = '2022, Israel Silber, Ann Fridlind'
 author = 'Israel Silber, Ann Fridlind'
 
 
@@ -38,8 +38,7 @@ extensions = ['sphinx_gallery.gen_gallery',
               'sphinx.ext.githubpages',
               'numpydoc',
               'sphinx.ext.autosummary',
-              'nbsphinx'
-              'cloud_sptheme']
+              'nbsphinx']
 
 
 # Add any paths that contain templates here, relative to this directory.

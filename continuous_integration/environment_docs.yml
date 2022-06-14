@@ -15,10 +15,10 @@ dependencies:
   - flake8
   - pint
   - sphinx
-  - doctr
   - nbsphinx
   - numpydoc
   - pip:
     - sphinx_gallery
     - sphinx-copybutton
     - sphinx_rtd_theme
+    - cloud_sptheme
