@@ -14,8 +14,8 @@ def read(filename):
 
 
 setup(
-    name="LIIFE-CM",
-    version="0.0.1",
+    name="AC-1D",
+    version="0.1",
     url="https://github.com/isilber/cld_INP_1D_model",
     license='MIT',
 
