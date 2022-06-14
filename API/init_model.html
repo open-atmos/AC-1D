@@ -3,23 +3,24 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>init_model module &#8212; LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</title>
+    <title>init_model module &#8212; Aerosol-Cloud Column Model (AC-1D)  documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/cloud.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noticia+Text:400,i,b,bi|Open+Sans:400,i,b,bi|Roboto+Mono:400,i,b,bi&amp;display=swap" type="text/css" />
     
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 
@@ -51,10 +52,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-    <li><a href="../index.html">LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</a> &#187;</li>
+    <li><a href="../index.html">Aerosol-Cloud Column Model (AC-1D)  documentation</a> &#187;</li>
 
         <li class="nav-item nav-item-this"><a href="">init_model module</a></li> 
       </ul>
@@ -93,173 +91,8 @@ div.admonition.inline-title p.admonition-title {
     padding-left: .2em;
 }
 </style>
-<section id="module-init_model">
-<span id="init-model-module"></span><h1>init_model module<a class="headerlink" href="#module-init_model" title="Permalink to this headline">¶</a></h1>
-<p>This module is used to initialize the model, and allocate fields and arrays to a ‘ci_model’ class.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="init_model.ci_model">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">init_model.</span></span><span class="sig-name descname"><span class="pre">ci_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">final_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DHARMA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_averaged_les</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_vert_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_e_ent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_from_cth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_mix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1800.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixing_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_f_ice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_cld_q_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inp_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_out_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_out_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_harvest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields_to_retain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_ind_2crop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ql_pbl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbh_det_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ql_cbh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Cloud-INP 1D model class containing:
-1. All initialization model parameters
-2. LES output dataset used to initialize and inform the model (ci_model.les).
-3. Model output  output fields (ci_model.ds).</p>
-<p>Model namelists and unit conversion coefficient required for the 1D model.
-The LES class includes methods to processes model output and prepare the out fields for the 1D model.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>final_t: float</strong></dt><dd><p>Total simulation time [s].</p>
-</dd>
-<dt><strong>delta_t: float</strong></dt><dd><p>time_step [s].</p>
-</dd>
-<dt><strong>use_ABIFM: bool</strong></dt><dd><p>True - use ABIFM, False - use singular.</p>
-</dd>
-<dt><strong>les_name: str</strong></dt><dd><p>Name of LES model to harvest data from.</p>
-</dd>
-<dt><strong>t_averaged_les: bool</strong></dt><dd><p>If True, use time-averaged LES profile of each variable to inform the 1D model.
-If False then the 1D model is informed by the LES output temporal evolution with extrapolation
-outside the LES output DataSet time range.
-Note: in the case of a single LES output time step requested (‘t_harvest’ is a scalar), this boolean
-has no effect.</p>
-</dd>
-<dt><strong>custom_vert_grid: list, np.ndarray, or None.</strong></dt><dd><p>custom vertical grid for the 1D model. If None, then using the processed (and cropped) LES output
-grid.</p>
-</dd>
-<dt><strong>w_e_ent: dict or float</strong></dt><dd><p>cloud-top entrainment rate [m/s].
-if a float then using its value throughout the simulation time.
-if a dict, must have the keys “time” [s] and “value”. Each key contains a list or np.ndarray of
-length s (s &gt; 1) determining time and entrainment rate time series.
-Time values are interpolated between the specified times, and the edge values are used for
-extrapolation.</p>
-</dd>
-<dt><strong>entrain_from_cth: bool</strong></dt><dd><p>If True, then entrain from cloud top definition consistent with the ‘cbh_det_method’ input parameter.
-If False, then entraining from domain top.</p>
-</dd>
-<dt><strong>tau_mix: dict or float</strong></dt><dd><p>boundary-layer mixing time scale [s].
-if a float then using its value throughout the simulation time.
-if a dict, then treated as in the case of a dict for w_e_ent.</p>
-</dd>
-<dt><strong>mixing_bounds: two-element tuple or list, or None</strong></dt><dd><p>Determining the mixing layer (especially relevant when using time-varying LES input).
-The first element provides a fixed lowest range of mixing (float), a time varying range (dict as
-in w_e_ent), or the method with which to determine mixing base (str). The second element is
-similar, but for the determination of the mixing layer top.
-If None, using the full domain.
-NOTE: currently, the only accepted pre-specified mixing determination method is “ql_cbh”
-(q_liq-based cloud base or top height detection method, allowing limit mixing to the cloud).</p>
-</dd>
-<dt><strong>v_f_ice: xr DataArray, dict, or float</strong></dt><dd><p>number-weighted ice crystal fall velocity [m/s].
-if a float then using its value throughout the simulation time.
-if a dict, then treated as in the case of a dict for w_e_ent.
-if an xr DataArray, must contain the “height” [m] and “time” [s] coordinates. Values outside the
-coordinate range are extrapolated using the nearest edge values.</p>
-</dd>
-<dt><strong>in_cld_q_thresh: float</strong></dt><dd><p>Mixing ratio threshold [g/kg] for determination of in-cloud environment; also assigned to the
-‘q_liq_pbl_cut’ attribute value.</p>
-</dd>
-<dt><strong>inp_info: list of dict</strong></dt><dd><p>Used to initialize the INP arrays. Each element of the list describes a single population of an INP
-type providing its composition, concentration, and PSD, e.g., can use a single log-normal population
-of Illite, or two Illite PSDs with different mode diameter and geometric SD combined with a Kaolinite
-population.
-Each dictionary (i.e., an ‘inp_attrs’ list element) must contain the keys:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>n_init_max: [float] total concentration [L-1].</p></li>
-</ol>
-<p>2. psd: [dict] choose a ‘type’ key between several options (parentheses denote required dict key
-names):</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>“mono”: fixed-size population, i.e., a single particle diameter should be provided
-(diam [um]).</p></li>
-<li><p>“logn”: log–normal: provide geometric mean diameter (diam_mean [um]), geometric SD
-(geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [um]) and
-bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio
-equals m_ratio**(1/3).</p></li>
-<li><p>“custom”: custom size distribution with maunally specified bin values and PSD shape.
-Provide the PSD diameter array (diam) and the number concentration per bin
-(dn_dlogD). Optional input key includes normalization to n_init (norm_to_n_init_max)
-that normalizes dn_dlogD such that such sum(dn_dlogD) = n_init_max.</p></li>
-<li><p>“default”: (parameters not required) using a log-normal PSD with mean diameter
-of 1 um, geometric SD of 2.5, 35 PSD bins with minimum diameter of 0.01 um and mass
-ratio of 2, resulting in max diameter of ~26 um.</p></li>
-</ul>
-</div></blockquote>
-</div></blockquote>
-<dl class="simple">
-<dt>optional keys:</dt><dd><p>1. name: [str] population name (or tag). A default string using nucleus type is used if not
-provided.
-2. nucleus_type: [str; –ABIFM–]  name of substance (e.g., Al2O3) - to initialize Jhet (must be
-specified for ABIFM).
-3. diam_cutoff: [float or tuple; –singular–] minimum particle diameter to consider.
-Using a value of 0.5 as in D2010 if not specified. Use a 2-element tuple to specify a range of
-diameters to consider.
-4. T_array: [list or np.ndarray; –singular–] discrete temperature array. If not specified, using
-temperatures between -40 and 0 with delta_T = 0.1 C.
-5. singular_fun: [lambda function; –singular–] INP parametrization (typically as a function of
-T).
-Uses DeMott et al., 2010 if None.
-6. singular_scale: [float; –singular–] Scale factor for ‘singular_fun’ (1 by default).
-7. n_init_weight_prof: [dict] a dict with keys “height” and “weight”. Each key contains
-a list or np.ndarray of length s (s &gt; 1) determining PSD heights [m] and weighting profiles.
-Weights are applied on n_init such that n_init(z) = n_init_max * weighting_factor(z), i.e., a
-weighted_inp_prof filled with ones means that n_init(z) = n_init_max.
-if weights &gt; 1 are specified, the profile is normalized to max value == 1. heights are interpolated
-between the specified heights, and the edge values are used for extrapolation (can be used to set
-different INP source layers at model initialization, and combined with turbulence weighting,
-allows the emulation of cloud-driven mixing.</p>
-</dd>
-</dl>
-</dd>
-<dt><strong>run_model: bool</strong></dt><dd><p>True - run model once initialization is done.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Other Parameters</dt>
-<dd class="field-even"><dl>
-<dt><strong>les_out_path: str or None</strong></dt><dd><p>LES output path (can be relative to running directory). Use default if None.</p>
-</dd>
-<dt><strong>les_out_filename: str or None</strong></dt><dd><p>LES output filename. Use default file if None.</p>
-</dd>
-<dt><strong>t_harvest: scalar, 2-element tuple, list (or ndarray), or None</strong></dt><dd><p>If scalar then using the nearest time (assuming units of seconds) to initialize the model
-(single profile).
-If a tuple, cropping the range defined by the first two elements (increasing values) using a
-slice object.
-If a list, cropping the times specified in the list (can be used take LES output profiles every
-delta_t seconds.
-NOTE: default in the ci_model class (10800 s) is different than in the DHARMA init method (None).</p>
-</dd>
-<dt><strong>fields_to_retain: list or None</strong></dt><dd><p>Fieldnames to crop from the LES output (required to properly run the model).
-If None, then cropping the minimum number of required fields using DHARMA’s namelist convention
-(Temperature [K], q_liq [kg/kg], RH [fraction], precipitation flux [mm/h], and ice number
-concentration [cm^-3]).</p>
-</dd>
-<dt><strong>height_ind_2crop: list, str, or None</strong></dt><dd><p>Indices of heights to crop from the model output (e.g., up to the PBL top).
-if str then different defitions for PBL:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>if == “ql_pbl” then cropping all values within the PBL defined here based on the</p></li>
-</ul>
-<p>‘q_liq_pbl_cut’ attribute. If more than a single time step exist in the dataset, then cropping
-the highest index corresponding to the cutoff.
-- OTHER OPTIONS TO BE ADDED.</p>
-</div></blockquote>
-<p>If None then not cropping.
-NOTE: default in the ci_model class (“ql_pbl”) is different than in the DHARMA init method (None).</p>
-</dd>
-<dt><strong>cbh_det_method: str</strong></dt><dd><dl class="simple">
-<dt>Method to determine cloud base with:</dt><dd><ul class="simple">
-<li><p>if == “ql_cbh” then cbh is determined by a q_liq threshold set with the ‘q_liq_cbh’ attribute.</p></li>
-<li><p>OTHER OPTIONS TO BE ADDED.</p></li>
-</ul>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="init-model-module">
+<h1>init_model module<a class="headerlink" href="#init-model-module" title="Permalink to this heading">¶</a></h1>
 </section>
 
 
@@ -280,12 +113,12 @@ NOTE: default in the ci_model class (“ql_pbl”) is different than in the DHAR
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
     
@@ -315,10 +148,7 @@ NOTE: default in the ci_model class (“ql_pbl”) is different than in the DHAR
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-    <li><a href="../index.html">LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</a> &#187;</li>
+    <li><a href="../index.html">Aerosol-Cloud Column Model (AC-1D)  documentation</a> &#187;</li>
 
         <li class="nav-item nav-item-this"><a href="">init_model module</a></li> 
       </ul>
@@ -326,8 +156,8 @@ NOTE: default in the ci_model class (“ql_pbl”) is different than in the DHAR
     </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Israel Silber, Ann Fridlind.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+        &#169; Copyright 2022, Israel Silber, Ann Fridlind.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.1.
     </div>
     <!-- cloud_sptheme 1.4 -->
   </body>

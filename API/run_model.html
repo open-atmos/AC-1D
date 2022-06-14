@@ -3,23 +3,24 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>run_model module &#8212; LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</title>
+    <title>run_model module &#8212; Aerosol-Cloud Column Model (AC-1D)  documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/cloud.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noticia+Text:400,i,b,bi|Open+Sans:400,i,b,bi|Roboto+Mono:400,i,b,bi&amp;display=swap" type="text/css" />
     
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 
@@ -51,10 +52,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-    <li><a href="../index.html">LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</a> &#187;</li>
+    <li><a href="../index.html">Aerosol-Cloud Column Model (AC-1D)  documentation</a> &#187;</li>
 
         <li class="nav-item nav-item-this"><a href="">run_model module</a></li> 
       </ul>
@@ -93,41 +91,8 @@ div.admonition.inline-title p.admonition-title {
     padding-left: .2em;
 }
 </style>
-<section id="module-run_model">
-<span id="run-model-module"></span><h1>run_model module<a class="headerlink" href="#module-run_model" title="Permalink to this headline">¶</a></h1>
-<p>This module is used to run the model using a ci_model object.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="run_model.run_model">
-<span class="sig-prename descclassname"><span class="pre">run_model.</span></span><span class="sig-name descname"><span class="pre">run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run_model.html#run_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run_model.run_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run the 1D model (output is stored in the ci_model object input to this method).
-Calculations are performed using numpy arrays rather than xarray DataArray indexing, because even though
-far less convenient and intuitive, numpy calculations have shown to be ~5-10 times faster than xarray (after
-optimization), which becomes significant with thousands of time steps.
-Note: calculations are performed in the following order (mass is conserved):</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>INP activation since previous time step.</p></li>
-<li><p>Cloud-top entrainment of INP using entrainment rate from the previous time step.</p></li>
-<li><p>Turbulent mixing of INP using mixing depth and time scales from the previous time step (independent from
-the next steps).</p></li>
-<li><p>Ice sedimentation using ice fall velocity from the previous time step.</p></li>
-<li><p>Turbulent mixing of ice using mixing depth and time scales from the previous time step.</p></li>
-</ol>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>ci_model: ci_model class</strong></dt><dd><p>Containing variables such as the requested domain size, LES time averaging option
-(ci_model.t_averaged_les), custom or LES grid information (ci_model.custom_vert_grid),
-and LES xr.DataSet object(ci_model.les) after being processed.
-All these required data are automatically set when a ci_model class object is assigned
-during model initialization.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="run-model-module">
+<h1>run_model module<a class="headerlink" href="#run-model-module" title="Permalink to this heading">¶</a></h1>
 </section>
 
 
@@ -148,12 +113,12 @@ during model initialization.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
     
@@ -183,10 +148,7 @@ during model initialization.</p>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> &nbsp; &nbsp;</li>
-    <li><a href="../index.html">LES-Informed Ice Formation Evaluation Column Model (LIIFE-CM)  documentation</a> &#187;</li>
+    <li><a href="../index.html">Aerosol-Cloud Column Model (AC-1D)  documentation</a> &#187;</li>
 
         <li class="nav-item nav-item-this"><a href="">run_model module</a></li> 
       </ul>
@@ -194,8 +156,8 @@ during model initialization.</p>
     </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Israel Silber, Ann Fridlind.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+        &#169; Copyright 2022, Israel Silber, Ann Fridlind.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.1.
     </div>
     <!-- cloud_sptheme 1.4 -->
   </body>
