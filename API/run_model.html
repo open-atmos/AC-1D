@@ -52,6 +52,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
     <li><a href="../index.html">Aerosol-Cloud Column Model (AC-1D)  documentation</a> &#187;</li>
 
         <li class="nav-item nav-item-this"><a href="">run_model module</a></li> 
@@ -91,8 +94,150 @@ div.admonition.inline-title p.admonition-title {
     padding-left: .2em;
 }
 </style>
-<section id="run-model-module">
-<h1>run_model module<a class="headerlink" href="#run-model-module" title="Permalink to this heading">¶</a></h1>
+<section id="module-run_model">
+<span id="run-model-module"></span><h1>run_model module<a class="headerlink" href="#module-run_model" title="Permalink to this heading">¶</a></h1>
+<p>This module is used to run the model using a ci_model object.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="run_model.activate_inp">
+<span class="sig-prename descclassname"><span class="pre">run_model.</span></span><span class="sig-name descname"><span class="pre">activate_inp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">it</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_aer_calc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_inp_calc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_aer_curr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_inp_curr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ice_curr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget_aer_act</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inp_sum_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_dim_l</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_cld_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run_model.html#activate_inp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run_model.activate_inp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activate INP based using the appropriate method (note that n_aer_curr and n_inp_curr are not returned
+as these are either None or pointers, as in the case of the ci_model object as well).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ci_model: ci_model class</strong></dt><dd><p>Containing variables such as the requested domain size, LES time averaging option
+(ci_model.t_averaged_les), custom or LES grid information (ci_model.custom_vert_grid),
+and LES xr.DataSet object(ci_model.les) after being processed.
+All these required data are automatically set when a ci_model class object is assigned
+during model initialization.</p>
+</dd>
+<dt><strong>key: str</strong></dt><dd><p>aerosol population name.</p>
+</dd>
+<dt><strong>it: int</strong></dt><dd><p>time step index.</p>
+</dd>
+<dt><strong>n_aer_calc: np.ndarray</strong></dt><dd><p>array containing aerosol data used for prognostic calculations.</p>
+</dd>
+<dt><strong>n_inp_calc: np.ndarray</strong></dt><dd><p>array containing INP data used for prognostic calculations.</p>
+</dd>
+<dt><strong>n_aer_curr: np.ndarray</strong></dt><dd><p>array containing current aerosol data to be updated.</p>
+</dd>
+<dt><strong>n_inp_curr: np.ndarray</strong></dt><dd><p>array containing current INP data to be updated.</p>
+</dd>
+<dt><strong>n_ice_curr: np.ndarray</strong></dt><dd><p>array containing current ice data to be updated.</p>
+</dd>
+<dt><strong>delta_t: float</strong></dt><dd><p>time_step [s].</p>
+</dd>
+<dt><strong>budget_aer_act: np.ndarray</strong></dt><dd><p>activation budget array.</p>
+</dd>
+<dt><strong>inp_sum_dim: int</strong></dt><dd><p>dimension to sum up when calculating total activated.</p>
+</dd>
+<dt><strong>diam_dim_l: int</strong></dt><dd><p>length of diameter dimension in the aer array [–INAS–or–ABIFM–].</p>
+</dd>
+<dt><strong>in_cld_mask: np.ndarray of bool</strong></dt><dd><p>array masking cloudy grid cells wherein activation takes place [–ABIFM–]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>n_aer_calc: np.ndarray</dt><dd><p>array containing aerosol data used for prognostic calculations.</p>
+</dd>
+<dt>n_inp_calc: np.ndarray</dt><dd><p>array containing INP data used for prognostic calculations.</p>
+</dd>
+<dt>budget_aer_act: np.ndarray</dt><dd><p>activation budget array.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="run_model.place_resolved_aer">
+<span class="sig-prename descclassname"><span class="pre">run_model.</span></span><span class="sig-name descname"><span class="pre">place_resolved_aer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">it</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_aer_curr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_inp_curr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run_model.html#place_resolved_aer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run_model.place_resolved_aer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place resolved aerosol and/or INP in the ci_model object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ci_model: ci_model class</strong></dt><dd><p>Containing variables such as the requested domain size, LES time averaging option
+(ci_model.t_averaged_les), custom or LES grid information (ci_model.custom_vert_grid),
+and LES xr.DataSet object(ci_model.les) after being processed.
+All these required data are automatically set when a ci_model class object is assigned
+during model initialization.</p>
+</dd>
+<dt><strong>key: str</strong></dt><dd><p>aerosol population name</p>
+</dd>
+<dt><strong>it: int</strong></dt><dd><p>time step index</p>
+</dd>
+<dt><strong>n_aer_curr: np.ndarray</strong></dt><dd><p>array of current aerosol state</p>
+</dd>
+<dt><strong>n_inp_curr: np.ndarray (singular) or None (ABIFM)</strong></dt><dd><p>array of current INP state</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="run_model.run_model">
+<span class="sig-prename descclassname"><span class="pre">run_model.</span></span><span class="sig-name descname"><span class="pre">run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ci_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run_model.html#run_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run_model.run_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the 1D model (output is stored in the ci_model object input to this method).
+Calculations are performed using numpy arrays rather than xarray DataArray indexing, because even though
+far less convenient and intuitive, numpy calculations have shown to be ~5-10 times faster than xarray (after
+optimization), which becomes significant with thousands of time steps.
+Note: calculations are performed in the following order (when ent_then_act is True item 2 comes prior to 1):</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>aerosol activation since previous time step.</p></li>
+<li><p>Cloud-top entrainment of aerosol using entrainment rate from the previous time step.</p></li>
+<li><p>Turbulent mixing of aerosol using mixing depth and time scales from the previous time step (independent
+from the next steps).</p></li>
+<li><p>Ice sedimentation using ice fall velocity from the previous time step.</p></li>
+<li><p>Turbulent mixing of ice using mixing depth and time scales from the previous time step.</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ci_model: ci_model class</strong></dt><dd><p>Containing variables such as the requested domain size, LES time averaging option
+(ci_model.t_averaged_les), custom or LES grid information (ci_model.custom_vert_grid),
+and LES xr.DataSet object(ci_model.les) after being processed.
+All these required data are automatically set when a ci_model class object is assigned
+during model initialization.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="run_model.solve_entrainment">
+<span class="sig-prename descclassname"><span class="pre">run_model.</span></span><span class="sig-name descname"><span class="pre">solve_entrainment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w_e_ent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ft</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pblh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">implicit_solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/run_model.html#solve_entrainment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#run_model.solve_entrainment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate entrainment source using implicit or explicit method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>w_e_ent: float or int</strong></dt><dd><p>PBL top entrainment rate [m/s].</p>
+</dd>
+<dt><strong>delta_t: float</strong></dt><dd><p>time_step [s].</p>
+</dd>
+<dt><strong>delta_z: float</strong></dt><dd><p>vertical spacing at PBL (cloud) top</p>
+</dd>
+<dt><strong>n_ft: float or np.ndarray</strong></dt><dd><p>Free-troposphere aerosol (or INP) concentration.</p>
+</dd>
+<dt><strong>n_pblh: float or np.ndarray</strong></dt><dd><p>PBL top aerosol (or INP) concentration.</p>
+</dd>
+<dt><strong>implicit_solver: bool</strong></dt><dd><p>True - using implicit solver, False - explicit solver.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>ent_src: float or np.ndarray</dt><dd><p>entrainment source.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -148,6 +293,9 @@ div.admonition.inline-title p.admonition-title {
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
     <li><a href="../index.html">Aerosol-Cloud Column Model (AC-1D)  documentation</a> &#187;</li>
 
         <li class="nav-item nav-item-this"><a href="">run_model module</a></li> 
