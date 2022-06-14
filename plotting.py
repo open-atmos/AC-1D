@@ -165,12 +165,12 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
                     if np.logical_and(field_to_plot in aer_pop_w_diams,
                                       field_to_plot in ci_model.aer[which_pop[ii]].ds.keys()):
                         plot_data = ci_model.aer[which_pop[ii]].ds[field_to_plot].copy()
-                        label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str[field_to_plot])
+                        #label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str[field_to_plot])
                     else:  # Default - simply plot n_aer
                         print("NOTE: %s was specified: it is not in the model's dataset nor in the %s population; "
                               "plotting the default field (n_aer)" % (field_to_plot, which_pop))
                         plot_data = ci_model.aer[which_pop[ii]].ds["n_aer"].copy()  # plot aerosol field
-                        label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str["n_aer"])
+                        #label = "%s %s" % (which_pop[ii], aer_pop_w_diams_str["n_aer"])
                     if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
                         aer_dim = ci_model.diam_dim
                     else:

@@ -407,7 +407,7 @@ class ci_model():
             for t in range(self.mod_nt):
                 rel_ind = np.arange(
                     np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_base"].values[t])),
-                    np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_top"].values[t]))+1)  # inc. top
+                    np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_top"].values[t])) + 1)  # inc. top
                 mixing_mask[rel_ind, t] = True
             self.ds["mixing_mask"] = xr.DataArray(mixing_mask, dims=("height", "time"))
         self.ds["mixing_mask"].attrs["long_name"] = "Mixing-layer mask (True --> mixed)"
