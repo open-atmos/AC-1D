@@ -354,6 +354,11 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
     -------
     ax: Matplotlib axes handle
     """
+    if x is None:
+        x = ci_model.time_dim
+    if y is None:
+        y = ci_model.height_dim
+
     aer_pop_aux_fields, aer_pop_w_diams, aer_pop_w_diams_str = set_out_field_namelists(ci_model, "tseries")
     if which_pop is None:  # plot a field from ci_model.ds
         if field_to_plot in ci_model.ds.keys():
@@ -554,6 +559,11 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
     -------
     ax: Matplotlib axes handle
     """
+    if x is None:
+        x = ci_model.time_dim
+    if y is None:
+        y = ci_model.height_dim
+
     aer_pop_aux_fields, aer_pop_w_diams, aer_pop_w_diams_str = set_out_field_namelists(ci_model, "profile")
     if which_pop is None:  # plot a field from ci_model.ds
         if field_to_plot in ci_model.ds.keys():

@@ -655,7 +655,7 @@ def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_cu
                 aer_act = ci_model.aer[key].singular_fun(ci_model.ds["T"].values[:, it - 1],
                                                          n_aer_calc * ci_model.aer[key].n_aer05_frac)
             if ci_model.aer[key].singular_scale != 1.:  # scale INP option
-                aer_act *= self.singular_scale
+                aer_act *= ci_model.singular_scale
             if ci_model.output_aer_decay:
                 ci_model.aer[key].ds["pbl_inp_mean"][it] += \
                     (aer_act * ci_model.ds["mixing_mask"].values[:, it]).max()  # simply the PBL maximum
