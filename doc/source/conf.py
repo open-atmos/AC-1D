@@ -39,7 +39,7 @@ extensions = ['sphinx_gallery.gen_gallery',
               'numpydoc',
               'sphinx.ext.autosummary',
               'nbsphinx'
-              'cloud']
+              'cloud_sptheme']
 
 
 # Add any paths that contain templates here, relative to this directory.
