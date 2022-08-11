@@ -632,7 +632,8 @@ def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_cu
                              ci_model.aer[key].ds["Jhet"].values[:, it - 1])
         aer_act = np.minimum(n_aer_calc * JJ * AA * delta_t, n_aer_calc)
         if not ci_model.prognostic_inp:
-            aer_act = np.where(aer_act < n_ice_curr, 0., aer_act - n_ice_curr)  # aer_act is max using Ninp + Nice
+            tmp_ice_curr = np.tile(np.expand_dims(n_ice_curr, axis=1), (1, diam_dim_l))
+            aer_act = np.where(aer_act < tmp_ice_curr, 0., aer_act - tmp_ice_curr)  # aer_act is max using Ninp + Nice
         if ci_model.nuc_RH_thresh is not None:
             aer_act = np.where(np.tile(np.expand_dims(in_cld_mask[:, it - 1], axis=1), (1, diam_dim_l)),
                                aer_act, 0.)
