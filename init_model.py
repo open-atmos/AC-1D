@@ -63,11 +63,10 @@ class ci_model():
             If True, then entrain from cloud top definition consistent with the 'cbh_det_method' input parameter
             and correspondingly deplete aerosol from the grid cell right above CTH.
             If False, then entrain using the initial CTH aerosol concentrations (infinite reservoir, no depletion).
-        entrain_to_cth: bool
-            If True, entrain from the free atmosphere to cloud top after calculating the corresponding delta.
-            If False, entrain from the free atmosphere to the surface layer (and calculate the delta using the
-            surface aerosol concentration value (i.e., an extreme entrainment case), while using that dz is as at
-            cloud top (i.e., using dz value at cth and not dz = z_surf).
+        entrain_to_cth: bool or int
+            If True, entrain to cloud top (mixing layer top) after calculating the corresponding delta.
+            If False, entrain to the mixing layer base (surface layer in coupled cases).
+            If int, then using this input as index such that 0 means consistent entrainment to the surface layer.
         implicit_ent: bool
             If True, using an implicit solver for entrainment. If False, using explicit solver.
         tau_mix: dict or float

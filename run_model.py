@@ -59,14 +59,18 @@ def run_model(ci_model):
                                                         (1, ci_model.mod_nt))), axis=0)
     cth_ind = np.where(cth_ind == 0, -9999, cth_ind)
     ent_delta_z = [ci_model.ds["delta_z"].values[cth_ind[it]] for it in range(ci_model.mod_nt)]
-    if ci_model.entrain_to_cth:  # entrain to cth
-        ent_target_ind = cth_ind
-    else:  # entrain to PBL base (surface by default)
-        ent_target_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["mixing_base"].values, axis=0),
-                                   (ci_model.mod_nz, 1)) - np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
-                                                                   (1, ci_model.mod_nt))), axis=0)
-        if not use_cth_delta_z:
-            ent_delta_z = ci_model.ds["mixing_top"] - ci_model.ds["mixing_base"]
+    if isinstance(ci_model.entrain_to_cth, bool):
+        if ci_model.entrain_to_cth:  # entrain to cth
+            ent_target_ind = cth_ind
+        else:  # entrain to PBL base (surface by default)
+            ent_target_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["mixing_base"].values, axis=0),
+                                       (ci_model.mod_nz, 1)) -
+                                              np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
+                                                      (1, ci_model.mod_nt))), axis=0)
+            if not use_cth_delta_z:
+                ent_delta_z = ci_model.ds["mixing_top"] - ci_model.ds["mixing_base"]
+    elif isinstance(ci_model.entrain_to_cth, int):
+        ent_target_ind = ci_model.entrain_to_cth
     if use_cth_4_delta_n_calc:
         ent_delta_n_ind = cth_ind
     else:
