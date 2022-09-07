@@ -188,6 +188,13 @@ class ci_model():
                 between the specified heights, and the edge values are used for extrapolation (can be used to set
                 different aerosol source layers at model initialization, and combined with turbulence weighting,
                 allows the emulation of cloud-driven mixing.
+
+                8. entrain_psd: [dict] PSD for entrained aerosol - similar to the aer_info dict for specifying the
+                PSD parameters of the entrained aerosol (can be surface aerosol fluxes if entrain_from_cth=0, for
+                example). The 'type' key value must be the same as the aer_info dict.
+                optional keys:
+                    1. src_weight_time: [dict] a dict with keys "time" and "weight" for entrainment source
+                If not specified, using the default option (domain top at time 0 s).
         input_conc_units: str or None
             An str specifies the input aerosol concentration units that will be converted to SI in pre-processing.
             Relevant input parameters are: n_init_max and dn_dlogD (custom).
@@ -446,7 +453,7 @@ class ci_model():
         self.input_conc_units, self.input_diam_units = input_conc_units, input_diam_units
         self._convert_input_to_SI()  # Convert input concentration and/or diameter parameters to SI (if requested).
         optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # optional aerosol class input params.
-                         "n_init_weight_prof", "singular_fun", "singular_scale"]
+                         "n_init_weight_prof", "singular_fun", "singular_scale", "entrain_psd"]
         for ii in range(len(self.aer_info)):
             param_dict = {"use_ABIFM": use_ABIFM}  # tmp dict for aerosol attributes to send to class call.
             if np.all([x in self.aer_info[ii].keys() for x in ["n_init_max", "psd"]]):
@@ -622,6 +629,7 @@ class ci_model():
                                        psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
+                                       entrain_psd=param_dict["entrain_psd"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "logn":
@@ -629,6 +637,7 @@ class ci_model():
                                        psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
+                                       entrain_psd=param_dict["entrain_psd"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "multi_logn":
@@ -638,6 +647,7 @@ class ci_model():
                                              name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                              T_array=param_dict["T_array"],
                                              singular_fun=param_dict["singular_fun"],
+                                             entrain_psd=param_dict["entrain_psd"],
                                              singular_scale=param_dict["singular_scale"],
                                              n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "custom":
@@ -645,6 +655,7 @@ class ci_model():
                                          psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                          name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                          T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
+                                         entrain_psd=param_dict["entrain_psd"],
                                          singular_scale=param_dict["singular_scale"],
                                          n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "default":
@@ -654,6 +665,7 @@ class ci_model():
                                        psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
+                                       entrain_psd=param_dict["entrain_psd"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
 
