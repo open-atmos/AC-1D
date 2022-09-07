@@ -54,29 +54,36 @@ def run_model(ci_model):
     # find indices of cloud-top height (based on ci_model.entrain_to_cth) for entrainment calculations
     use_cth_4_delta_n_calc = False  # if True, always use cth to calculate delta_N for entrainment.
     use_cth_delta_z = True  # if True, delta_z at cth for ent calc. Otherwise, delta_z = source - target
+    ent_delta_n_ind = {}  # dict for target_indices per aerosol population
+    ent_delta_z = {}  # dict for target_dz per aerosol population
+    ent_target_ind = {}  # dict for where to place entrained per aerosol population
     cth_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["lowest_cth"].values, axis=0),
-                        (ci_model.mod_nz, 1)) - np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
+                        (ci_model.mod_nz, 1)) - np.tile(np.expand_dims(ci_model.ds["height"].values, axis=1),
                                                         (1, ci_model.mod_nt))), axis=0)
-    cth_ind = np.where(cth_ind == 0, -9999, cth_ind)
+    cth_ind = np.where(cth_ind == 0, -9999, cth_ind)  # Mixing base top
     mix_base_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["mixing_base"].values, axis=0),
                                             (ci_model.mod_nz, 1)) -
-                                    np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
+                                    np.tile(np.expand_dims(ci_model.ds["height"].values, axis=1),
                                             (1, ci_model.mod_nt))), axis=0)
-
-    ent_delta_z = [ci_model.ds["delta_z"].values[cth_ind[it]] for it in range(ci_model.mod_nt)]
-    if isinstance(ci_model.entrain_to_cth, bool):
-        if ci_model.entrain_to_cth:  # entrain to cth
-            ent_target_ind = cth_ind
-        else:  # entrain to PBL base (surface by default)
-            ent_target_ind = mix_base_ind
-            if not use_cth_delta_z:
-                ent_delta_z = ci_model.ds["mixing_top"] - ci_model.ds["mixing_base"]
-    elif isinstance(ci_model.entrain_to_cth, int):
-        ent_target_ind = ci_model.entrain_to_cth
-    if use_cth_4_delta_n_calc:
-        ent_delta_n_ind = cth_ind
-    else:
-        ent_delta_n_ind = ent_target_ind  # index to use for delta_n calculation
+    for key in ci_model.aer.keys():
+        if isinstance(ci_model.aer[key].entrain_to_cth, bool):
+            if ci_model.aer[key].entrain_to_cth:  # entrain to cth
+                ent_delta_z[key] = [ci_model.ds["delta_z"].values[cth_ind[it]] for it in range(ci_model.mod_nt)]
+                ent_target_ind[key] = cth_ind.copy()
+            else:  # entrain to PBL base (surface by default)
+                ent_delta_z[key] = [ci_model.ds["delta_z"].values[mix_base_ind[it]]
+                                    for it in range(ci_model.mod_nt)]
+                ent_target_ind[key] = mix_base_ind.copy()
+                if not use_cth_delta_z:
+                    ent_delta_z[key] = ci_model.ds["mixing_top"].values - ci_model.ds["mixing_base"].values
+        elif isinstance(ci_model.aer[key].entrain_to_cth, int):
+            ent_target_ind[key] = np.full((ci_model.mod_nt), ci_model.aer[key].entrain_to_cth)
+            ent_delta_z[key] = [ci_model.ds["delta_z"].values[ent_target_ind[key][it]]
+                                for it in range(ci_model.mod_nt)]
+        if use_cth_4_delta_n_calc:
+            ent_delta_n_ind[key] = cth_ind.copy()
+        else:
+            ent_delta_n_ind[key] = ent_target_ind[key].copy()  # index to use for delta_n calculation
 
     # init total INP arrays for INAS and subtract from n_aer (effective independent prognosed fields)
     for key in ci_model.aer.keys():
@@ -235,35 +242,35 @@ def run_model(ci_model):
                 t_process = time()
                 if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):  # aerosol entrainment
                     aer_ent = solve_entrainment(
-                        ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                        ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0, :],
-                        n_aer_calc[ent_delta_n_ind[it - 1], :], ci_model.implicit_ent)
-                    n_aer_curr[ent_target_ind[it - 1], :] += aer_ent
+                        ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[key][it - 1],
+                        ci_model.aer[key].ds["n_aer_src"].values[it - 1, :],
+                        n_aer_calc[ent_delta_n_ind[key][it - 1], :], ci_model.implicit_ent)
+                    n_aer_curr[ent_target_ind[key][it - 1], :] += aer_ent
                     if ci_model.output_budgets:
                         budget_aer_ent += aer_ent / delta_t
                 else:  # 1-D processing of n_aer_curr for singular.
                     aer_ent = solve_entrainment(
-                        ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                        ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0],
-                        n_aer_calc[ent_delta_n_ind[it - 1]], ci_model.implicit_ent)
-                    n_aer_curr[ent_target_ind[it - 1]] += aer_ent
+                        ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[key][it - 1],
+                        ci_model.aer[key].ds["n_aer_src"].values[it - 1],
+                        n_aer_calc[ent_delta_n_ind[key][it - 1]], ci_model.implicit_ent)
+                    n_aer_curr[ent_target_ind[key][it - 1]] += aer_ent
                     if ci_model.output_budgets:
                         budget_aer_ent[it] += aer_ent / delta_t
                 if np.logical_and(not ci_model.use_ABIFM, ci_model.prognostic_inp):  # INP entrainment
                     if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
                         inp_ent = solve_entrainment(
-                            ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                            ci_model.aer[key].ds["inp_init"].values[cth_ind[it - 1], :, :],
-                            n_inp_calc[ent_delta_n_ind[it - 1], :, :], ci_model.implicit_ent)
-                        n_inp_curr[ent_target_ind[it - 1], :, :] += inp_ent
+                            ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[key][it - 1],
+                            ci_model.aer[key].ds["inp_src"].values[it - 1, :, :],
+                            n_inp_calc[ent_delta_n_ind[key][it - 1], :, :], ci_model.implicit_ent)
+                        n_inp_curr[ent_target_ind[key][it - 1], :, :] += inp_ent
                         if ci_model.output_budgets:
                             budget_aer_ent += inp_ent.sum(axis=inp_sum_dim - 1) / delta_t
                     else:
                         inp_ent = solve_entrainment(
-                            ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                            ci_model.aer[key].ds["inp"].values[cth_ind[it - 1], 0, :],
-                            n_inp_calc[ent_delta_n_ind[it - 1], :], ci_model.implicit_ent)
-                        n_inp_curr[ent_target_ind[it - 1], :] += inp_ent
+                            ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[key][it - 1],
+                            ci_model.aer[key].ds["inp_src"].values[it - 1, :],
+                            n_inp_calc[ent_delta_n_ind[key][it - 1], :], ci_model.implicit_ent)
+                        n_inp_curr[ent_target_ind[key][it - 1], :] += inp_ent
                         if ci_model.output_budgets:
                             budget_aer_ent[it] += inp_ent.sum(axis=inp_sum_dim - 1) / delta_t
                 run_stats["entrainment_aer"] += (time() - t_process)

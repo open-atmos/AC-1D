@@ -65,7 +65,7 @@ class AER_pop():
     """
     def __init__(self, use_ABIFM=None, n_init_max=None, nucleus_type=None, diam=None, dn_dlogD=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None, psd={},
-                 n_init_weight_prof=None, entrain_psd=None entrain_to_cth=None, ci_model=None):
+                 n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None):
         """
         aerosol population namelist
 
@@ -220,6 +220,7 @@ class AER_pop():
             elif use_ABIFM is False:
                 self._set_aer_conc_fun(singular_fun)
                 self._init_aer_singular_array(ci_model)
+            #self.ds["inp"].values[ent_delta_n_ind[key][it - 1], 0, :]   #PLACE HOLDER ---------------------------
             self.ds["height"].attrs["units"] = "$m$"
             self.ds["time"].attrs["units"] = "$s$"
             self.ds["height_km"] = self.ds["height"].copy() / 1e3  # add coordinates for height in km.
