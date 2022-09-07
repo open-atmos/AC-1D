@@ -62,7 +62,9 @@ class ci_model():
         entrain_to_cth: bool or int
             If True, entrain to cloud top (mixing layer top) after calculating the corresponding delta.
             If False, entrain to the mixing layer base (surface layer in coupled cases).
-            If int, then using this input as index such that 0 means consistent entrainment to the surface layer.
+            If int, then using this input as index such that 0 or -1 mean consistent entrainment to the surface
+            layer or domain top, respectively.
+            NOTE: the value of entrain_to_cth will be overwritten if provided as key in aer_info.
         implicit_ent: bool
             If True, using an implicit solver for entrainment. If False, using explicit solver.
         tau_mix: dict or float
@@ -189,7 +191,10 @@ class ci_model():
                 PSD parameters of the entrained aerosol (can be surface aerosol fluxes if entrain_from_cth=0, for
                 example). The 'type' key value must be the same as the aer_info dict.
                 optional keys:
-                    1. src_weight_time: [dict] a dict with keys "time" and "weight" for entrainment source
+                    1. src_weight_time: [dict] a dict with keys "time" and "weight" for entrainment source.
+                9. entrain_to_cth: [bool or int] as in the 'entrain_to_cth' in the ci_model class attributes, the
+                case of which will result in determining this attribute value only for this specific aerosol
+                population.
                 If not specified, using the default option (domain top at time 0 s).
         input_conc_units: str or None
             An str specifies the input aerosol concentration units that will be converted to SI in pre-processing.
@@ -448,7 +453,8 @@ class ci_model():
         self.input_conc_units, self.input_diam_units = input_conc_units, input_diam_units
         self._convert_input_to_SI()  # Convert input concentration and/or diameter parameters to SI (if requested).
         optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # optional aerosol class input params.
-                         "n_init_weight_prof", "singular_fun", "singular_scale", "entrain_psd"]
+                         "n_init_weight_prof", "singular_fun", "singular_scale",
+                         "entrain_psd", "entrain_to_cth"]
         for ii in range(len(self.aer_info)):
             param_dict = {"use_ABIFM": use_ABIFM}  # tmp dict for aerosol attributes to send to class call.
             if np.all([x in self.aer_info[ii].keys() for x in ["n_init_max", "psd"]]):
@@ -625,6 +631,7 @@ class ci_model():
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
                                        entrain_psd=param_dict["entrain_psd"],
+                                       entrain_to_cth=param_dict["entrain_to_cth"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "logn":
@@ -633,6 +640,7 @@ class ci_model():
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
                                        entrain_psd=param_dict["entrain_psd"],
+                                       entrain_to_cth=param_dict["entrain_to_cth"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "multi_logn":
@@ -643,6 +651,7 @@ class ci_model():
                                              T_array=param_dict["T_array"],
                                              singular_fun=param_dict["singular_fun"],
                                              entrain_psd=param_dict["entrain_psd"],
+                                             entrain_to_cth=param_dict["entrain_to_cth"],
                                              singular_scale=param_dict["singular_scale"],
                                              n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "custom":
@@ -651,6 +660,7 @@ class ci_model():
                                          name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                          T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
                                          entrain_psd=param_dict["entrain_psd"],
+                                         entrain_to_cth=param_dict["entrain_to_cth"],
                                          singular_scale=param_dict["singular_scale"],
                                          n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "default":
@@ -661,6 +671,7 @@ class ci_model():
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
                                        entrain_psd=param_dict["entrain_psd"],
+                                       entrain_to_cth=param_dict["entrain_to_cth"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
 

@@ -65,7 +65,7 @@ class AER_pop():
     """
     def __init__(self, use_ABIFM=None, n_init_max=None, nucleus_type=None, diam=None, dn_dlogD=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None, psd={},
-                 n_init_weight_prof=None, ci_model=None, entrain_psd=None):
+                 n_init_weight_prof=None, entrain_psd=None entrain_to_cth=None, ci_model=None):
         """
         aerosol population namelist
 
@@ -115,6 +115,10 @@ class AER_pop():
             dictionary providing psd parameter information enabling full psd reproduction.
         entrain_psd: dict
             dictionary providing psd parameter for entrained aerosol.
+        entrain_to_cth: bool or int or None
+            determines where to entrain aerosol (cloud top / mixing layer base / specific height index).
+            If specified, then overrides the ci_model input value.
+            If None, using the ci_model object value. 
         name: str
             population name (or tag).
         n_init_weight_prof: dict or None
@@ -184,6 +188,10 @@ class AER_pop():
             self.src_weight_time = entrain_psd['src_weight_time']
         else:
             self.src_weight_time = None
+        if entrain_to_cth is None:
+            self.entrain_to_cth = True
+        else:
+            self.entrain_to_cth = entrain_to_cth
 
         # Assign aerosol dataset
         self.ds = xr.Dataset()
@@ -197,7 +205,10 @@ class AER_pop():
         self._calc_surf_area()
 
         # Use the ci_model class object if provided to init the aerosol array (start with height-time coords).
+        # Also determine entrainment height based on ci_model if entrain_to_cth is None.
         if ci_model is not None:
+            if entrain_to_cth is None:
+                self.entrain_to_cth = ci_model.entrain_to_cth
             self.ds = self.ds.assign_coords({"height": ci_model.ds["height"].values,
                                              "time": ci_model.ds["time"].values})
             if T_array is None:
@@ -219,6 +230,7 @@ class AER_pop():
             self.ds["time_h"].attrs["units"] = "$h$"
 
         else:
+
             print("'ci_model' object not provided - not assigning aerosol concentration array")
 
         # Set coordinate attributes
@@ -591,7 +603,7 @@ class mono_AER(AER_pop):
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, ci_model=None, entrain_psd=None):
+                 psd={}, n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None):
         """
         Parameters as in the 'AER_pop' class (fixed diameter can be specified in the 'psd' dict under the 'diam'
         key or in the diam).
@@ -608,7 +620,8 @@ class mono_AER(AER_pop):
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
-                         n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd, ci_model=ci_model)
+                         n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)
 
 
 class logn_AER(AER_pop):
@@ -617,8 +630,8 @@ class logn_AER(AER_pop):
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, ci_model=None, correct_discrete=True, 
-                 entrain_psd=None):
+                 psd={}, n_init_weight_prof=None, correct_discrete=True, 
+                 entrain_psd=None, entrain_to_cth=None, ci_model=None):
         """
         Parameters as in the 'AER_pop' class
 
@@ -660,7 +673,8 @@ class logn_AER(AER_pop):
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
-                         n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd, ci_model=ci_model)
+                         n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)
 
     def _calc_logn_diam_dn_dlogd(self, psd, n_init_max, integrate_dn_dlogD=True, diam_in=None):
         """
@@ -741,7 +755,8 @@ class multi_logn_AER(logn_AER):
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, ci_model=None, correct_discrete=True, entrain_psd=None):
+                 psd={}, n_init_weight_prof=None, correct_discrete=True, entrain_psd=None,
+                 entrain_to_cth=None, ci_model=None):
         """
         Parameters as in the 'AER_pop' class. Note that n_init_max should be a list or np.ndarray
         of values for each mode with the same length as diam_mean and geom_sd. Array bins are specified
@@ -808,7 +823,7 @@ class multi_logn_AER(logn_AER):
                                        diam_cutoff=diam_cutoff, T_array=T_array, singular_fun=singular_fun,
                                        singular_scale=singular_scale, psd=psd,
                                        n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
-                                       ci_model=ci_model)
+                                       entrain_to_cth=entrain_to_cth, ci_model=ci_model)
 
 
 class custom_AER(AER_pop):
@@ -817,7 +832,8 @@ class custom_AER(AER_pop):
     """
     def __init__(self, use_ABIFM, n_init_max=None, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, ci_model=None, entrain_psd=None):
+                 psd={}, n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None,
+                 ci_model=None):
         """
         Parameters as in the 'AER_pop' class
 
@@ -857,4 +873,5 @@ class custom_AER(AER_pop):
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
-                         n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd, ci_model=ci_model)
+                         n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)

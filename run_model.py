@@ -58,15 +58,17 @@ def run_model(ci_model):
                         (ci_model.mod_nz, 1)) - np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
                                                         (1, ci_model.mod_nt))), axis=0)
     cth_ind = np.where(cth_ind == 0, -9999, cth_ind)
+    mix_base_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["mixing_base"].values, axis=0),
+                                            (ci_model.mod_nz, 1)) -
+                                    np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
+                                            (1, ci_model.mod_nt))), axis=0)
+
     ent_delta_z = [ci_model.ds["delta_z"].values[cth_ind[it]] for it in range(ci_model.mod_nt)]
     if isinstance(ci_model.entrain_to_cth, bool):
         if ci_model.entrain_to_cth:  # entrain to cth
             ent_target_ind = cth_ind
         else:  # entrain to PBL base (surface by default)
-            ent_target_ind = np.argmin(np.abs(np.tile(np.expand_dims(ci_model.ds["mixing_base"].values, axis=0),
-                                       (ci_model.mod_nz, 1)) -
-                                              np.tile(np.expand_dims(ci_model.ds["height"], axis=1),
-                                                      (1, ci_model.mod_nt))), axis=0)
+            ent_target_ind = mix_base_ind
             if not use_cth_delta_z:
                 ent_delta_z = ci_model.ds["mixing_top"] - ci_model.ds["mixing_base"]
     elif isinstance(ci_model.entrain_to_cth, int):
@@ -673,9 +675,9 @@ def solve_entrainment(w_e_ent, delta_t, delta_z, n_ft, n_pblh, implicit_solver=T
     delta_z: float
         vertical spacing at PBL (cloud) top
     n_ft: float or np.ndarray
-        Free-troposphere aerosol (or INP) concentration.
+        Free-troposphere (or source) aerosol (or INP) concentration.
     n_pblh: float or np.ndarray
-        PBL top aerosol (or INP) concentration.
+        PBL top (or target level) aerosol (or INP) concentration.
     implicit_solver: bool
         True - using implicit solver, False - explicit solver.
 
