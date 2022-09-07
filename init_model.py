@@ -195,7 +195,9 @@ class ci_model():
                 9. entrain_to_cth: [bool or int] as in the 'entrain_to_cth' in the ci_model class attributes, the
                 case of which will result in determining this attribute value only for this specific aerosol
                 population.
-                If not specified, using the default option (domain top at time 0 s).
+                If not specified, using the default option, i.e., the initial PSD ('dn_dlogD) with a weight of 1.,
+                which in likely most scenarios represent the free-tropospheric (or PBL top) as was the case until
+                the Sep 6, 2020 commits.
         input_conc_units: str or None
             An str specifies the input aerosol concentration units that will be converted to SI in pre-processing.
             Relevant input parameters are: n_init_max and dn_dlogD (custom).
