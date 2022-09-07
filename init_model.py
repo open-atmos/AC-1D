@@ -20,7 +20,7 @@ class ci_model():
     3. Model output  output fields (ci_model.ds).
     """
     def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
-                 custom_vert_grid=None, w_e_ent=1e-3, deplete_entrained=False, entrain_to_cth=True,
+                 custom_vert_grid=None, w_e_ent=1e-3, entrain_to_cth=True,
                  implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act=10., implicit_act=True,
                  mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
                  time_splitting=True, ent_then_act=True, prognostic_inp=True,
@@ -59,10 +59,6 @@ class ci_model():
             length s (s > 1) determining time and entrainment rate time series.
             Time values are interpolated between the specified times, and the edge values are used for
             extrapolation.
-        deplete_entrained: bool
-            If True, then entrain from cloud top definition consistent with the 'cbh_det_method' input parameter
-            and correspondingly deplete aerosol from the grid cell right above CTH.
-            If False, then entrain using the initial CTH aerosol concentrations (infinite reservoir, no depletion).
         entrain_to_cth: bool or int
             If True, entrain to cloud top (mixing layer top) after calculating the corresponding delta.
             If False, entrain to the mixing layer base (surface layer in coupled cases).
@@ -374,7 +370,6 @@ class ci_model():
 
         # init entrainment
         self.w_e_ent = w_e_ent
-        self.deplete_entrained = deplete_entrained
         self.entrain_to_cth = entrain_to_cth
         self.implicit_ent = implicit_ent
         self._set_1D_or_2D_var_from_AERut(w_e_ent, "w_e_ent", "$m/s$", "Cloud-top entrainment rate")

@@ -232,83 +232,38 @@ def run_model(ci_model):
             if ci_model.do_entrain:
                 t_process = time()
                 if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):  # aerosol entrainment
-                    if np.logical_and(
-                            ci_model.deplete_entrained,
-                            cth_ind[it - 1] < ci_model.mod_nz):  # reservoir depletion (if not at domain top)
-                        if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
-                            aer_ent = solve_entrainment(
-                                ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                                n_aer_calc[cth_ind[it - 1] + 1, :], n_aer_calc[ent_delta_n_ind[it - 1], :],
-                                ci_model.implicit_ent)
-                            n_aer_curr[cth_ind[it - 1] + 1, :] -= aer_ent  # update aerosol conc. just above cth.
-                            n_aer_curr[ent_target_ind[it - 1], :] += aer_ent
-                    else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
-                        aer_ent = solve_entrainment(
-                            ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                            ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0, :],
-                            n_aer_calc[ent_delta_n_ind[it - 1], :], ci_model.implicit_ent)
-                        n_aer_curr[ent_target_ind[it - 1], :] += aer_ent
+                    aer_ent = solve_entrainment(
+                        ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                        ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0, :],
+                        n_aer_calc[ent_delta_n_ind[it - 1], :], ci_model.implicit_ent)
+                    n_aer_curr[ent_target_ind[it - 1], :] += aer_ent
                     if ci_model.output_budgets:
                         budget_aer_ent += aer_ent / delta_t
                 else:  # 1-D processing of n_aer_curr for singular.
-                    if np.logical_and(
-                            ci_model.deplete_entrained,
-                            cth_ind[it - 1] < ci_model.mod_nz):  # reservoir depletion (if not at domain top)
-                        if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
-                            aer_ent = solve_entrainment(
-                                ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                                n_aer_calc[cth_ind[it - 1] + 1], n_aer_calc[ent_delta_n_ind[it - 1]],
-                                ci_model.implicit_ent)
-                            n_aer_curr[cth_ind[it - 1] + 1] -= aer_ent  # update aerosol conc. just above cth.
-                            n_aer_curr[ent_target_ind[it - 1]] += aer_ent
-                    else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
-                        aer_ent = solve_entrainment(
-                            ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                            ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0],
-                            n_aer_calc[ent_delta_n_ind[it - 1]], ci_model.implicit_ent)
-                        n_aer_curr[ent_target_ind[it - 1]] += aer_ent
+                    aer_ent = solve_entrainment(
+                        ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                        ci_model.aer[key].ds["n_aer"].values[cth_ind[it - 1], 0],
+                        n_aer_calc[ent_delta_n_ind[it - 1]], ci_model.implicit_ent)
+                    n_aer_curr[ent_target_ind[it - 1]] += aer_ent
                     if ci_model.output_budgets:
                         budget_aer_ent[it] += aer_ent / delta_t
                 if np.logical_and(not ci_model.use_ABIFM, ci_model.prognostic_inp):  # INP entrainment
-                    if np.logical_and(
-                            ci_model.deplete_entrained,
-                            cth_ind[it - 1] < ci_model.mod_nz):  # reservoir depletion (if not at domain top)
-                        if np.logical_and(cth_ind[it - 1] != -9999, cth_ind[it - 1] + 1 < ci_model.mod_nz):
-                            if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
-                                inp_ent = solve_entrainment(
-                                    ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                                    n_inp_calc[cth_ind[it - 1] + 1, :, :],
-                                    n_inp_calc[ent_delta_n_ind[it - 1], :, :], ci_model.implicit_ent)
-                                n_inp_curr[ent_target_ind[it - 1], :, :] += inp_ent
-                                n_inp_curr[cth_ind[it - 1] + 1, :, :] -= inp_ent  # update INP conc. just above cth
-                                if ci_model.output_budgets:
-                                    budget_aer_ent += inp_ent.sum(axis=inp_sum_dim - 1) / delta_t
-                            else:
-                                inp_ent = solve_entrainment(
-                                    ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                                    n_inp_calc[cth_ind[it - 1] + 1, :],
-                                    n_inp_calc[ent_delta_n_ind[it - 1], :], ci_model.implicit_ent)
-                                n_inp_curr[ent_target_ind[it - 1], :] += inp_ent
-                                n_inp_curr[cth_ind[it - 1] + 1, :] -= inp_ent  # update INP conc. just above cth.
-                                if ci_model.output_budgets:
-                                    budget_aer_ent[it] += inp_ent.sum(axis=inp_sum_dim - 1) / delta_t
-                    else:  # assuming inf. domain top reservoir (t=0 s) and that cld top is at domain top.
-                        if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
-                            inp_ent = solve_entrainment(
-                                ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                                ci_model.aer[key].ds["inp_init"].values[cth_ind[it - 1], :, :],
-                                n_inp_calc[ent_delta_n_ind[it - 1], :, :], ci_model.implicit_ent)
-                            n_inp_curr[ent_target_ind[it - 1], :, :] += inp_ent
-                            if ci_model.output_budgets:
-                                budget_aer_ent += inp_ent.sum(axis=inp_sum_dim - 1) / delta_t
-                        else:
-                            inp_ent = solve_entrainment(
-                                ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
-                                ci_model.aer[key].ds["inp"].values[cth_ind[it - 1], 0, :],
-                                n_inp_calc[ent_delta_n_ind[it - 1], :], ci_model.implicit_ent)
-                            n_inp_curr[ent_target_ind[it - 1], :] += inp_ent
-                            if ci_model.output_budgets:
-                                budget_aer_ent[it] += inp_ent.sum(axis=inp_sum_dim - 1) / delta_t
+                    if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
+                        inp_ent = solve_entrainment(
+                            ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                            ci_model.aer[key].ds["inp_init"].values[cth_ind[it - 1], :, :],
+                            n_inp_calc[ent_delta_n_ind[it - 1], :, :], ci_model.implicit_ent)
+                        n_inp_curr[ent_target_ind[it - 1], :, :] += inp_ent
+                        if ci_model.output_budgets:
+                            budget_aer_ent += inp_ent.sum(axis=inp_sum_dim - 1) / delta_t
+                    else:
+                        inp_ent = solve_entrainment(
+                            ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[it - 1],
+                            ci_model.aer[key].ds["inp"].values[cth_ind[it - 1], 0, :],
+                            n_inp_calc[ent_delta_n_ind[it - 1], :], ci_model.implicit_ent)
+                        n_inp_curr[ent_target_ind[it - 1], :] += inp_ent
+                        if ci_model.output_budgets:
+                            budget_aer_ent[it] += inp_ent.sum(axis=inp_sum_dim - 1) / delta_t
                 run_stats["entrainment_aer"] += (time() - t_process)
                 t_proc += time() - t_process
 
