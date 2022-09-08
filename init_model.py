@@ -123,7 +123,7 @@ class ci_model():
             tau_act (singular) or Jhet in current time step (ABIFM).
         prognostic_ice: bool
             If True, using prognostic ice, i.e., ice particles have INP memory, thereby enabling sublimation
-            such that particle INPs are restored.
+            such that particle INPs are restored (requires setting prognostic_inp to True).
             If False, ice particles have no memory, and therefore, no sublimation, for example.
             Note that prognostic_ice requires more computation time. Memory is only allocated for ice snapshot
             as in INAS.
@@ -281,6 +281,10 @@ class ci_model():
         self.in_cld_q_thresh = in_cld_q_thresh  # kg/kg
         self.nuc_RH_thresh = nuc_RH_thresh  # fraction value
         self.prognostic_inp = prognostic_inp
+        if np.logical_and(not self.prognostic_inp, prognostic_ice):
+            print("prognostic_inp is False while prognostic_ice, which requires True prognostic_inp, is False - "
+                  "setting prognostic_ice = False")
+            prognostic_ice = False
         self.prognostic_ice = prognostic_ice
 
         # assign a unit registry and define percent units.
@@ -514,6 +518,10 @@ class ci_model():
         self.diam_dim = "diam"  # setting the diam dim even though it is only set when allocating an AER object.
 
         # Run the model and reassign coordinate unit attributes (typically lost in xr.DataArray manipulations)
+        if np.logical_and(not self.prognostic_ice, do_sublim):
+            print("prognostic_ice is False while do_sublim is True, but do_sublim requires prognostic ice - "
+                  "setting do_sublim = False")
+            do_sublim = False
         self.do_act = do_act
         self.do_entrain = do_entrain
         self.do_mix_aer = do_mix_aer
