@@ -220,7 +220,6 @@ class AER_pop():
             elif use_ABIFM is False:
                 self._set_aer_conc_fun(singular_fun)
                 self._init_aer_singular_array(ci_model)
-            #self.ds["inp"].values[ent_delta_n_ind[key][it - 1], 0, :]   #PLACE HOLDER ---------------------------
             self.ds["height"].attrs["units"] = "$m$"
             self.ds["time"].attrs["units"] = "$s$"
             self.ds["height_km"] = self.ds["height"].copy() / 1e3  # add coordinates for height in km.

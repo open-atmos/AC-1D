@@ -47,6 +47,10 @@ def run_model(ci_model):
             ci_model.ds["budget_ice_sedim"] = \
                 xr.DataArray(np.zeros_like(ci_model.ds["T"]), dims=("height", "time"),
                              attrs={"units": "$m^{-3} s^{-1}$"})
+        if ci_model.do_sublim:
+            ci_model.ds["budget_ice_sublim"] = \
+                xr.DataArray(np.zeros_like(ci_model.ds["T"]), dims=("height", "time"),
+                             attrs={"units": "$m^{-3} s^{-1}$"})
         ci_model.ds["net_budget_0_test"] = \
             xr.DataArray(np.zeros_like(ci_model.ds["time"], dtype=float), dims=("time"),
                          attrs={"units": "$m^{-3}$"})
@@ -164,6 +168,8 @@ def run_model(ci_model):
                 budget_ice_mix = ci_model.ds["budget_ice_mix"].values[:, it]
             if ci_model.do_sedim:
                 budget_ice_sedim = ci_model.ds["budget_ice_sedim"].values[:, it]
+            if ci_model.do_sublim:
+                budget_ice_sublim = ci_model.ds["budget_ice_sublim"].values[:, it]
 
         t_step_mix_mask = ci_model.ds["mixing_mask"].values[:, it - 1]  # mixed parts of profile = True
 
@@ -411,6 +417,35 @@ def run_model(ci_model):
                 budget_ice_sedim += (ice_sedim_in - ice_sedim_out) / delta_t
             t_proc += time() - t_process
             run_stats["sedimentation_ice"] += (time() - t_process)
+
+        if False:  # Still need to implement prognostic ice or otherwise this wouldn't be consistent.
+            # sublimation of ice (dNi/dt = dNi/dz * dz/dt = dNi_dz * v_f_ice; more ice sedim --> more sublimation)
+            if ci_model.do_sublim:
+                t_process = time()
+                if ci_model.ds["v_f_ice"].ndim == 2:
+                    vf_use = ci_model.ds["v_f_ice"].values[:, it - 1]  # falling so negative
+                else:
+                    vf_use = ci_model.ds["v_f_ice"].values[it - 1]  # falling so negative
+                if ci_model.implicit_sublim:
+                    ice_rem = (ci_model.ds["delta_z"].values * n_ice_prev +
+                               np.append(n_ice_prev[1:], n_ice_prev[-1]) * vf_use * delta_t) / \
+                        (ci_model.ds["delta_z"].values + vf_use * delta_t) - \
+                        n_ice_prev  # negative (sink) by definition -dNi/dZ * v_f_ice * delta_t
+                else:
+                    ice_rem = np.diff(n_ice_prev, append=0) / ci_model.ds["delta_z"].values * vf_use * delta_t
+                    ice_rem = np.where(sublim_rate > n_ice_prev, 0., sublim_rate)
+                n_ice_curr -= ice_rem
+                if ci_model.use_ABIFM:
+                    n_aer_curr += ice_rem
+                elif ci_model.aer[key].is_INAS:
+                        n_inp_curr += ice_rem
+                else:
+                    n_ice_curr -= ice_rem.sum(axis=1)
+                    n_inp_curr += ice_rem
+                if ci_model.output_budgets:
+                    budget_ice_sublim += (ice_sedim_in - ice_sedim_out) / delta_t
+                t_proc += time() - t_process
+                run_stats["sublimation_ice"] += (time() - t_process)
 
         # Turbulent mixing of ice
         if ci_model.do_mix_ice:
