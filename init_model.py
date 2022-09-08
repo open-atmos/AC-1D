@@ -23,7 +23,7 @@ class ci_model():
                  custom_vert_grid=None, w_e_ent=1e-3, entrain_to_cth=True,
                  implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act=10., implicit_act=True,
                  implicit_sublim=True, mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
-                 time_splitting=True, ent_then_act=True, prognostic_inp=True,
+                 time_splitting=True, ent_then_act=True, prognostic_inp=True, prognostic_ice=False,
                  aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
@@ -121,6 +121,12 @@ class ci_model():
             if True, using prognostic aerosol (default - essentially, the purpose of this model).
             if False, using diagnostic INP, i.e., total activated INP numbers are calcuated while considering
             tau_act (singular) or Jhet in current time step (ABIFM).
+        prognostic_ice: bool
+            If True, using prognostic ice, i.e., ice particles have INP memory, thereby enabling sublimation
+            such that particle INPs are restored.
+            If False, ice particles have no memory, and therefore, no sublimation, for example.
+            Note that prognostic_ice requires more computation time. Memory is only allocated for ice snapshot
+            as in INAS.
         aer_info: list of dict
             Used to initialize the aerosol arrays. Each element of the list describes a single population
             type providing its composition, concentration, and PSD, e.g., can use a single log-normal population
@@ -275,6 +281,7 @@ class ci_model():
         self.in_cld_q_thresh = in_cld_q_thresh  # kg/kg
         self.nuc_RH_thresh = nuc_RH_thresh  # fraction value
         self.prognostic_inp = prognostic_inp
+        self.prognostic_ice = prognostic_ice
 
         # assign a unit registry and define percent units.
         self.ureg = pint.UnitRegistry()
