@@ -228,6 +228,10 @@ class AER_pop():
             self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
             self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"].values))
             self.ds["time_h"].attrs["units"] = "$h$"
+            
+            if ci_model.prognostic_ice:
+                self.ds["ice_snap"].attrs["units"] = "$m^{-3}$"
+                self.ds["ice_snap"].attrs["long_name"] = "prognosed ice number concentration (snapshot)"
 
         else:
 
@@ -459,6 +463,9 @@ class AER_pop():
                                                                                            axis=1),
                                                                             (1, ci_model.ds["time"].size))) /
                                                   self.ds["dn_dlogD"].sum() * 100., dims=("height", "time"))
+                if ci_model.prognostic_ice:
+                    self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["inp"][:,0,:].shape),
+                                                       dims=("height", "T"))
         elif ci_model.prognostic_inp:  # INAS
             self.ds["ns_raw"] = xr.DataArray(self.singular_fun(ci_model.ds["T"], 1), dims=("height", "time"))
             self.ds["ns_raw"].attrs["long_name"] = "INAS ns"
@@ -476,6 +483,9 @@ class AER_pop():
             self.ds["inp_init"].attrs["long_name"] = "prognosed INP number concentration (initial)"
             self.ds["inp_pct"] = self.ds["ns_raw"] * (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum() / \
                 self.ds["dn_dlogD"].sum() * 100.
+            if ci_model.prognostic_ice:
+                self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["inp_snap"].shape),
+                                                   dims=("height", "diam", "T"))
         self.ds["inp_src"].attrs["units"] = "$m^{-3}$"
         self.ds["inp_src"].attrs["long_name"] = "INP source number concentration"
         if ci_model.prognostic_inp:
@@ -536,6 +546,10 @@ class AER_pop():
             " constant of %.0f s)" % pct_const
             if self.n_init_weight_prof is not None:
                 self._weight_aer_h_or_t()
+
+            if ci_model.prognostic_ice:
+                self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["n_aer"][:,0,:].shape),
+                                                   dims=("height", "diam"))
 
             # Generate a diagnostic initial  INP equivalent to the singular approaches (for comparison purposes)
             self.ds = self.ds.assign_coords({"T": self.T_array})
