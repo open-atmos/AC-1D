@@ -138,7 +138,7 @@ def run_model(ci_model):
                                  dims=ci_model.aer[key].ds["n_aer"].dims,
                                  attrs={"units": "$m^{-3} s^{-1}$"})
 
-    if ci_model.prognostic_ice:
+    if ci_model.do_sublim:  # do_sublim automatically sets to False if prognostic_ice is False.
         dNi = np.diff(ci_model.ds["Ni"].values, axis=0)  # First calc dNi from top-down
         dNi = np.concatenate((dNi, np.expand_dims(dNi[-1, :], axis=0)), axis=0)
         dNi_dz = dNi / np.tile(np.expand_dims(ci_model.ds["delta_z"].values, axis=1), (1, dNi.shape[1]))
@@ -170,10 +170,23 @@ def run_model(ci_model):
             Complete_counter += print_delta_percent
             print("%.0f%% of model run completed. Elapsed time: %.2f s." % (Complete_counter, time() - Now))
 
-        n_ice_prev = np.zeros_like(ci_model.ds["Ni_nuc"].values[:, it - 1])
-        n_ice_prev += ci_model.ds["Ni_nuc"].values[:, it - 1]
-        n_ice_curr = ci_model.ds["Ni_nuc"].values[:, it]  # pointer for nucleated ice in current time step.
-        n_ice_curr += n_ice_prev
+        if ci_model.prognostic_ice:
+            if ci_model.use_ABIFM:  # ABIFM
+                ice_dims = (1,)
+            elif ci_model.is_INAS:  # surface area based
+                ice_dims = (1,2)
+            else:  # number based
+                ice_dims = (1,)
+        else:
+            n_ice_prev = np.zeros_like(ci_model.ds["Ni_nuc"].values[:, it - 1])
+            n_ice_prev += ci_model.ds["Ni_nuc"].values[:, it - 1]
+            n_ice_curr = ci_model.ds["Ni_nuc"].values[:, it]  # pointer for nucleated ice in current time step.
+            n_ice_curr += n_ice_prev
+            if ci_model.time_splitting:
+                n_ice_calc = n_ice_curr  # ptr
+            else:
+                n_ice_calc = n_ice_prev  # ptr
+
         if ci_model.output_budgets:
             if ci_model.do_mix_ice:
                 budget_ice_mix = ci_model.ds["budget_ice_mix"].values[:, it]
@@ -183,11 +196,6 @@ def run_model(ci_model):
                 budget_ice_sublim = ci_model.ds["budget_ice_sublim"].values[:, it]
 
         t_step_mix_mask = ci_model.ds["mixing_mask"].values[:, it - 1]  # mixed parts of profile = True
-
-        if ci_model.time_splitting:
-            n_ice_calc = n_ice_curr  # ptr
-        else:
-            n_ice_calc = n_ice_prev  # ptr
 
         for key in ci_model.aer.keys():
             if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):
@@ -221,6 +229,15 @@ def run_model(ci_model):
                     n_inp_prev = None
                 diam_dim_l = None
 
+            if ci_model.prognostic_ice:
+                n_ice_prev = np.zeros_like(ci_model.aer[key].ds["ice_snap"].values)
+                n_ice_prev += ci_model.aer[key].ds["ice_snap"].values
+                n_ice_curr = ci_model.aer[key].ds["ice_snap"].values  # ptr: ice conc. in current step.
+                if ci_model.time_splitting:
+                    n_ice_calc = n_ice_curr  # ptr
+                else:
+                    n_ice_calc = n_ice_prev  # ptr
+
             if ci_model.time_splitting:
                 n_aer_calc = n_aer_curr  # ptr
                 n_inp_calc = n_inp_curr
@@ -246,7 +263,9 @@ def run_model(ci_model):
                 inp_sum_dim = None
                 budget_aer_act = None
 
-            # Activate aerosol (ci_model.ent_then_act is False)
+            # ----------------------------------------------------------------------------------------------
+            # ---------------------  Activate aerosol (ci_model.ent_then_act is False)  --------------------
+            # ----------------------------------------------------------------------------------------------
             if np.logical_and(ci_model.do_act, not ci_model.ent_then_act):
                 t_process = time()
                 n_aer_calc, n_inp_calc, budget_aer_act = \
@@ -254,7 +273,9 @@ def run_model(ci_model):
                                  delta_t, budget_aer_act, inp_sum_dim, diam_dim_l, in_cld_mask)
                 run_stats["activation_aer"] += (time() - t_process)
 
-            # Cloud-top entrainment of aerosol and/or INP (depending on scheme).
+            # ----------------------------------------------------------------------------------------------
+            # --------------  Entrainment (or source) of aerosol and/or INP (depending on scheme)  ---------
+            # ----------------------------------------------------------------------------------------------
             if ci_model.do_entrain:
                 t_process = time()
                 if np.logical_or(ci_model.aer[key].is_INAS, ci_model.use_ABIFM):  # aerosol entrainment
@@ -301,7 +322,9 @@ def run_model(ci_model):
                                  delta_t, budget_aer_act, inp_sum_dim, diam_dim_l, in_cld_mask)
                 run_stats["activation_aer"] += (time() - t_process)
 
-            # Turbulent mixing of aerosol
+            # ----------------------------------------------------------------------------------------------
+            # ----------------------------  Turbulent mixing of aerosol  -----------------------------------
+            # ----------------------------------------------------------------------------------------------
             if ci_model.do_mix_aer:
                 t_process = time()
                 if np.any(t_step_mix_mask):  # checking that some mixing takes place
@@ -384,6 +407,102 @@ def run_model(ci_model):
                 run_stats["mixing_aer"] += (time() - t_process)
                 t_proc += time() - t_process
 
+            # ----------------------------------------------------------------------------------------------
+            # ----------------------------  Prognostic ice treatment  --------------------------------------
+            # ----------------------------------------------------------------------------------------------
+            if ci_model.prognostic_ice:
+
+                # Sedimentation of ice (after aerosol were activated).
+                if ci_model.do_sedim:
+                    inds_out = [slice(None)]*(len(ice_dim) + 1)
+                    inds_in = inds_out[:]
+                    inds_out[0] = np.arange(1, ci_model.mod_nz)
+                    inds_in[0] = np.arange(0, ci_model.mod_nz - 1)
+                    inds_out = tuple(inds_out)  # now 'inds' serves as flexible multi-dim indices
+                    inds_in = tuple(inds_in)  # now 'inds' serves as flexible multi-dim indices
+                    t_process = time()
+                    if ci_model.ds["v_f_ice"].ndim == 2:
+                        vf_use = ci_model.ds["v_f_ice"].values[:, it - 1]  # falling so negative
+                    else:
+                        vf_use = ci_model.ds["v_f_ice"].values[it - 1]  # falling so negative
+                    dim_sizes = tuple([n_ice_cure.shape[ii] for ii in ice_dim])
+                    ice_sedim_out = n_ice_prev * vf_use * delta_t / \
+                        np.tile(np.expand_dims(ci_model.ds["delta_z"].values, axis=ice_dim), (1, *dim_sizes))
+                    ice_sedim_in = np.zeros((ci_model.mod_nz, *dim_sizes))
+                    ice_sedim_in[inds_in] += ice_sedim_out[inds_out]
+                    n_ice_curr += ice_sedim_in
+                    n_ice_curr -= ice_sedim_out
+                    if ci_model.output_budgets:
+                        budget_ice_sedim += (ice_sedim_in - ice_sedim_out).sum(axis=ice_dim) / delta_t
+                    t_proc += time() - t_process
+                    run_stats["sedimentation_ice"] += (time() - t_process)
+
+                # sublimation of ice (dNi/dt = dNi/dz * dz/dt = dNi_dz * v_f_ice; more ice sedim --> more sublimation)
+                if ci_model.do_sublim:
+                    t_process = time()
+                    if ci_model.ds["v_f_ice"].ndim == 2:
+                        vf_use = ci_model.ds["v_f_ice"].values[:, it - 1]  # falling so negative
+                    else:
+                        vf_use = ci_model.ds["v_f_ice"].values[it - 1]  # falling so negative
+                    dNi_dz_tiled = np.tile(np.expand_dims(dNi_dz, axis=ice_dim), (1, *dim_sizes))
+                    if self.relative_sublim:
+                        if ci_model.implicit_sublim:
+                            ice_rem = n_ice_prev * ((1 / (1 + dNi_dz_tiled + vf_use * delta_t)) - 1)
+                        else:
+                            ice_rem = dNi_dz_tiled * vf_use * delta_t * n_ice_prev
+                            ice_rem = np.where(ice_rem > n_ice_prev, n_ice_prev, ice_rem)
+                    else:
+                        ice_rem = dNi_dz_tiled * vf_use * delta_t
+                        ice_rem = np.where(ice_rem > n_ice_prev, n_ice_prev, ice_rem)
+                    n_ice_curr -= ice_rem
+                    if ci_model.use_ABIFM:  # restore INP as aer
+                        n_aer_curr += ice_rem
+                    else:  # restore INP
+                        n_inp_curr += ice_rem
+                    if ci_model.output_budgets:
+                        budget_ice_sublim -= ice_rem.sum(axis=ice_dim) / delta_t
+                    t_proc += time() - t_process
+                    run_stats["sublimation_ice"] += (time() - t_process)
+
+                # Turbulent mixing of ice
+                if ci_model.do_mix_ice:
+                    t_process = time()
+                    if np.any(t_step_mix_mask):  # checking that some mixing takes place.
+                        if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
+                            ice_fully_mixed = np.nanmean(n_ice_calc, axis=0)
+                            ice_fully_mixed = np.tile(np.expand_dims(ice_fully_mixed, axis=0),
+                                                      (ci_model.mod_nz, *(1) * len(ice_dim)))
+                            ice_mixing = delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                                (ice_fully_mixed - n_ice_calc)
+                            n_ice_curr += ice_mixing
+                            if ci_model.output_budgets:
+                                budget_ice_mix += np.sum(ice_mixing, axis=ice_dim) / delta_t
+                        else:
+                            ice_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_ice_calc, np.nan), axis=0)
+                            inds = [slice(None)]*(len(ice_dim) + 1)
+                            inds[0] = t_step_mix_mask
+                            inds = tuple(inds)  # now 'inds' serves as flexible multi-dim indices
+                            ice_mixing = delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                                (np.tile(np.expand_dims(ice_fully_mixed, axis=ice_dim),
+                                         (1, *tuple([n_ice_calc.shape[ii] for ii in ice_dim]))) -
+                                 n_ice_calc[inds])
+                            n_ice_curr[inds] += ice_mixing
+                            if ci_model.output_budgets:
+                                budget_ice_mix[t_step_mix_mask] += np.sum(ice_mixing[inds], axis=ice_dim) / delta_t
+                    t_proc += time() - t_process
+                    run_stats["mixing_ice"] += (time() - t_process)
+
+                # Place resolved ice (if prognostic)
+                ci_model.ds["Ni_nuc"][:, it].values = n_ice_curr.sum(axis=ice_dim)
+                if ci_model.output_budgets:
+                    ci_model.ds["net_budget_0_test"].values[it] += (n_ice_prev - n_ice_curr).sum()
+                    if ci_model.do_sedim:
+                        inds = [slice(None)]*(len(ice_dim) + 1)
+                        inds[0] = 0
+                        ci_model.ds["net_budget_0_test"].values[it] -= ice_sedim_out[inds].sum()
+
+                run_stats["data_allocation"] += (time() - t_loop - t_proc)
+
             # Place resolved aerosol and/or INP
             place_resolved_aer(ci_model, key, it, n_aer_curr, n_inp_curr)
             if ci_model.output_budgets:
@@ -411,25 +530,29 @@ def run_model(ci_model):
                     elif ci_model.prognostic_inp:
                         ci_model.ds["net_budget_0_test"].values[it] += (aer_ent + inp_ent.sum(axis=-1)).sum()
 
-        # Sedimentation of ice (after aerosol were activated).
-        if ci_model.do_sedim:
-            t_process = time()
-            if ci_model.ds["v_f_ice"].ndim == 2:
-                ice_sedim_out = n_ice_prev * ci_model.ds["v_f_ice"].values[:, it - 1] * delta_t / \
-                    ci_model.ds["delta_z"].values
-            else:
-                ice_sedim_out = n_ice_prev * ci_model.ds["v_f_ice"].values[it - 1] * delta_t / \
-                    ci_model.ds["delta_z"].values
-            ice_sedim_in = np.zeros(ci_model.mod_nz)
-            ice_sedim_in[:-1] += ice_sedim_out[1:]
-            n_ice_curr += ice_sedim_in
-            n_ice_curr -= ice_sedim_out
-            if ci_model.output_budgets:
-                budget_ice_sedim += (ice_sedim_in - ice_sedim_out) / delta_t
-            t_proc += time() - t_process
-            run_stats["sedimentation_ice"] += (time() - t_process)
+        # ----------------------------------------------------------------------------------------------
+        # ---------------------------- Diagnostic ice treatment ----------------------------------------
+        # ----------------------------------------------------------------------------------------------
+        if not ci_model.prognostic_ice:
 
-        if False:  # Still need to implement prognostic ice or otherwise this wouldn't be consistent.
+            # Sedimentation of ice (after aerosol were activated).
+            if ci_model.do_sedim:
+                t_process = time()
+                if ci_model.ds["v_f_ice"].ndim == 2:
+                    ice_sedim_out = n_ice_prev * ci_model.ds["v_f_ice"].values[:, it - 1] * delta_t / \
+                        ci_model.ds["delta_z"].values
+                else:
+                    ice_sedim_out = n_ice_prev * ci_model.ds["v_f_ice"].values[it - 1] * delta_t / \
+                        ci_model.ds["delta_z"].values
+                ice_sedim_in = np.zeros(ci_model.mod_nz)
+                ice_sedim_in[:-1] += ice_sedim_out[1:]
+                n_ice_curr += ice_sedim_in
+                n_ice_curr -= ice_sedim_out
+                if ci_model.output_budgets:
+                    budget_ice_sedim += (ice_sedim_in - ice_sedim_out) / delta_t
+                t_proc += time() - t_process
+                run_stats["sedimentation_ice"] += (time() - t_process)
+
             # sublimation of ice (dNi/dt = dNi/dz * dz/dt = dNi_dz * v_f_ice; more ice sedim --> more sublimation)
             if ci_model.do_sublim:
                 t_process = time()
@@ -455,38 +578,38 @@ def run_model(ci_model):
                     n_ice_curr -= ice_rem.sum(axis=1)
                     n_inp_curr += ice_rem
                 if ci_model.output_budgets:
-                    budget_ice_sublim += (ice_sedim_in - ice_sedim_out) / delta_t
+                    budget_ice_sublim -= ice_rem / delta_t
                 t_proc += time() - t_process
                 run_stats["sublimation_ice"] += (time() - t_process)
 
-        # Turbulent mixing of ice
-        if ci_model.do_mix_ice:
-            t_process = time()
-            if np.any(t_step_mix_mask):  # checking that some mixing takes place.
-                if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
-                    ice_fully_mixed = np.nanmean(n_ice_calc, axis=0)
-                    ice_mixing = delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                        (ice_fully_mixed - n_ice_calc)
-                    n_ice_curr += ice_mixing
-                    if ci_model.output_budgets:
-                        budget_ice_mix += ice_mixing / delta_t
-                else:
-                    ice_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_ice_calc, np.nan), axis=0)
-                    ice_mixing = delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                        (ice_fully_mixed - n_ice_calc[t_step_mix_mask])
-                    n_ice_curr[t_step_mix_mask] += ice_mixing
-                    if ci_model.output_budgets:
-                        budget_ice_mix[t_step_mix_mask] += ice_mixing / delta_t
-            t_proc += time() - t_process
-            run_stats["mixing_ice"] += (time() - t_process)
+            # Turbulent mixing of ice
+            if ci_model.do_mix_ice:
+                t_process = time()
+                if np.any(t_step_mix_mask):  # checking that some mixing takes place.
+                    if np.all(t_step_mix_mask):  # Faster processing for fully mixed domain
+                        ice_fully_mixed = np.nanmean(n_ice_calc, axis=0)
+                        ice_mixing = delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                            (ice_fully_mixed - n_ice_calc)
+                        n_ice_curr += ice_mixing
+                        if ci_model.output_budgets:
+                            budget_ice_mix += ice_mixing / delta_t
+                    else:
+                        ice_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_ice_calc, np.nan), axis=0)
+                        ice_mixing = delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
+                            (ice_fully_mixed - n_ice_calc[t_step_mix_mask])
+                        n_ice_curr[t_step_mix_mask] += ice_mixing
+                        if ci_model.output_budgets:
+                            budget_ice_mix[t_step_mix_mask] += ice_mixing / delta_t
+                t_proc += time() - t_process
+                run_stats["mixing_ice"] += (time() - t_process)
 
-        # Place resolved ice
-        ci_model.ds["Ni_nuc"][:, it].values = n_ice_curr
-        if ci_model.output_budgets:
-            ci_model.ds["net_budget_0_test"].values[it] += \
-                (n_ice_prev - n_ice_curr).sum() - ice_sedim_out[0].sum()
+            # Place resolved ice
+            ci_model.ds["Ni_nuc"][:, it].values = n_ice_curr
+            if ci_model.output_budgets:
+                ci_model.ds["net_budget_0_test"].values[it] += \
+                    (n_ice_prev - n_ice_curr).sum() - ice_sedim_out[0].sum()
 
-        run_stats["data_allocation"] += (time() - t_loop - t_proc)
+            run_stats["data_allocation"] += (time() - t_loop - t_proc)
 
     # Reassign units (often occurring in xarray in data allocation) & and add total INP to n_aero in INAS
     for key in ci_model.aer.keys():
