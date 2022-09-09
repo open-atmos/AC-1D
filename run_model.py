@@ -138,6 +138,17 @@ def run_model(ci_model):
                                  dims=ci_model.aer[key].ds["n_aer"].dims,
                                  attrs={"units": "$m^{-3} s^{-1}$"})
 
+    if ci_model.prognostic_ice:
+        dNi = np.diff(ci_model.ds["Ni"].values, axis=0)  # First calc dNi from top-down
+        dNi = np.concatenate((dNi, np.expand_dims(dNi[-1, :], axis=0)), axis=0)
+        dNi_dz = dNi / np.tile(np.expand_dims(ci_model.ds["delta_z"].values, axis=1), (1, dNi.shape[1]))
+        if self.relative_sublim:  # Make dNi_dz represent change relative to top of layer (given that ice falls).
+            dNi_dz = dNi_dz / ci_model.ds["Ni"].values[1:,:]
+        # set dNi/dz to a very large number to essentialy remove ice where Ni = 0 or if profile indicates
+        # ice-regrowth (the latter is not a simplified case - we won't account for in the forseeable future).
+        dNi_dz = np.where(dNi_dz >= 0, dNi_dz, 1e15)  # Very large number to essentialy remove ice where Ni = 0 
+        del dNi
+ 
     if np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, float)):  # Define nucleation w/ RH
         in_cld_mask = ci_model.ds["RH"].values >= ci_model.nuc_RH_thresh
     elif np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, str)):
@@ -426,14 +437,15 @@ def run_model(ci_model):
                     vf_use = ci_model.ds["v_f_ice"].values[:, it - 1]  # falling so negative
                 else:
                     vf_use = ci_model.ds["v_f_ice"].values[it - 1]  # falling so negative
-                if ci_model.implicit_sublim:
-                    ice_rem = (ci_model.ds["delta_z"].values * n_ice_prev +
-                               np.append(n_ice_prev[1:], n_ice_prev[-1]) * vf_use * delta_t) / \
-                        (ci_model.ds["delta_z"].values + vf_use * delta_t) - \
-                        n_ice_prev  # negative (sink) by definition -dNi/dZ * v_f_ice * delta_t
+                if self.relative_sublim:
+                    if ci_model.implicit_sublim:
+                        ice_rem = n_ice_prev * ((1 / (1 + dNi_dz + vf_use * delta_t)) - 1)
+                    else:
+                        ice_rem = dNi_dz * vf_use * delta_t * n_ice_prev
+                        ice_rem = np.where(ice_rem > n_ice_prev, n_ice_prev, ice_rem)
                 else:
-                    ice_rem = np.diff(n_ice_prev, append=0) / ci_model.ds["delta_z"].values * vf_use * delta_t
-                    ice_rem = np.where(sublim_rate > n_ice_prev, 0., sublim_rate)
+                    ice_rem = dNi_dz * vf_use * delta_t
+                    ice_rem = np.where(ice_rem > n_ice_prev, n_ice_prev, ice_rem)
                 n_ice_curr -= ice_rem
                 if ci_model.use_ABIFM:
                     n_aer_curr += ice_rem

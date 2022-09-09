@@ -24,7 +24,7 @@ class ci_model():
                  implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act=10., implicit_act=True,
                  implicit_sublim=True, mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
                  time_splitting=True, ent_then_act=True, prognostic_inp=True, prognostic_ice=False,
-                 aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
+                 relative_sublim=True, aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
                  do_act=True, do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True,
@@ -84,7 +84,7 @@ class ci_model():
         implicit_act: bool [--singular--]
             If True and tau_act is a scalar, using implicit solution to activation.
         implicit_sublim: bool
-            If True, using implicit solution to sublimation (Ni reduction).
+            If True, using implicit solution to sublimation (Ni reduction - relevant for relative_sublim == True).
         mixing_bounds: two-element tuple or list, or None
             Determining the mixing layer (especially relevant when using time-varying LES input).
             The first element provides a fixed lowest range of mixing (float), a time varying range (dict as
@@ -127,6 +127,11 @@ class ci_model():
             If False, ice particles have no memory, and therefore, no sublimation, for example.
             Note that prognostic_ice requires more computation time. Memory is only allocated for ice snapshot
             as in INAS.
+            Requires: prognostic_inp == True.
+        relative_sublim: bool
+            If True, using the relative reduction of Ni with height (based on LES).
+            If False, using abosulte reduction.
+            Requires prognostic_ice == True.
         aer_info: list of dict
             Used to initialize the aerosol arrays. Each element of the list describes a single population
             type providing its composition, concentration, and PSD, e.g., can use a single log-normal population
@@ -462,6 +467,7 @@ class ci_model():
         self.implicit_act = implicit_act
 
         # init sublimation
+        self.relative_sublim = relative_sublim
         self.implicit_sublim = implicit_sublim
 
         # calculate delta_aw
