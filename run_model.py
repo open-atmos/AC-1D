@@ -166,6 +166,9 @@ def run_model(ci_model):
     else:
         in_cld_mask = None
 
+    if ci_model.prognostic_ice:
+        ice_snap_out_ind = 0
+
     for it in range(1, ci_model.mod_nt):
 
         t_loop = time()  # counter for a single loop
@@ -497,6 +500,14 @@ def run_model(ci_model):
                                 budget_ice_mix[t_step_mix_mask] += np.sum(ice_mixing[inds], axis=ice_dim) / delta_t
                     t_proc += time() - t_process
                     run_stats["mixing_ice"] += (time() - t_process)
+
+                if not ci_model.ice_snaps_t is None:
+                    if ci_model.ds["time"].values[it] in ci_model.aer[key].ds["t_ice_snaps"].values:
+                        inds = [slice(None)]*(len(ice_dim) + 1)
+                        inds[0] = ice_snap_out_ind
+                        ci_model.aer[key].ds["ice_snaps"].values[tuple(inds)] = \
+                            np.copy(n_ice_curr)
+                        ice_snap_out_ind += 1
 
                 # Place resolved ice (if prognostic)
                 ci_model.ds["Ni_nuc"][:, it].values += n_ice_curr.sum(axis=ice_dim)
