@@ -854,6 +854,102 @@ class ci_model():
                     print("Converting diameter dimension units for %s from Celsius to Kelvin" % key)
                     self.aer[key].ds = self.aer[key].ds.swap_dims({"T_C": "T"})
                     self.T_dim = "T"
+    
+    def ci_model_ds_to_netcdf(self, out_prefix='AC_1D_out'):
+        """
+        export datasets from a model simulation. Each dataset is stored in a different file.
+        Files are generated for the main ci_model object and each aerosol population.
+
+        Parameters
+        ----------
+        out_prefix: str
+            filename prefix and path from which to load ci_model's datasets.
+            A "_main.nc" suffix is added to the filename of the NetCDF file containing the main
+            ci_model dataset, while for each dataset of an aerosol population xxxx, an
+            'aer_pop_xxxx.nc' suffix is added.
+        """
+        out_filenames = []
+        ds_4_out = self.ds.copy(deep=True)
+        ds_4_out = self.strip_units(ds_4_out)
+        out_filenames.append(out_prefix + "_main.nc")
+        ds_4_out.to_netcdf(out_filenames[-1])
+        for aer_key in self.aer.keys():
+            ds_4_out = self.aer[aer_key].ds.copy(deep=True)
+            ds_4_out = self.strip_units(ds_4_out)
+            out_filenames.append(out_prefix + f"_aer_pop_{aer_key}.nc")
+            ds_4_out.to_netcdf(out_filenames[-1])
+        print("Exporting ci_model xr.Dataset to the following files\n")
+        print(out_filenames + "\n")
+        
+    def ci_model_ds_from_netcdf(self, out_prefix='AC_1D_out'):
+        """
+        Load datasets from a model simulation. Each dataset is stored in a different file.
+        Assumes files were generated for the main ci_model object and each aerosol population.
+
+        Parameters
+        ----------
+        out_prefix: str
+            filename prefix and path from which to load ci_model's datasets.
+            A "_main.nc" suffix is added to the filename of the NetCDF file containing the main
+            ci_model dataset, while for each dataset of an aerosol population xxxx, an
+            'aer_pop_xxxx.nc' suffix is added.
+        """
+        ds_4_out = xr.open_dataset(out_prefix + "_main.nc")
+        ds_4_out = self.reassign_units(ds_4_out)
+        self.ds = ds_4_out
+        for aer_key in self.aer.keys():
+            ds_4_out = xr.open_dataset(out_prefix + f"_aer_pop_{aer_key}.nc")
+            ds_4_out = self.reassign_units(ds_4_out)
+            self.aer[aer_key].ds = ds_4_out
+        print(f"Loading ci_model xr.Datasets from the {out_prefix} files done!\n")
+
+    @staticmethod
+    def strip_units(ds_4_out):
+        """
+        Strip units from fields in an xr.Dataset enabling export to NetCDF files
+        (convert pint.Quantity data fields to np.ndarray while saving stripping info).
+
+        Parameters
+        ----------
+        ds_4_out: xr.Dataset
+            Dataset from which to strip units
+
+        Returns
+        -------
+        ds_4_out: xr.Dataset
+            Dataset with to stripped units.
+        """
+        for key in ds_4_out.keys():
+            if isinstance(ds_4_out[key].data, pint.quantity.Quantity):
+                print(f"Stripping units from '{key}'")
+                ds_4_out[key].data = ds_4_out[key].data.magnitude
+                ds_4_out[key].attrs["stripped_units"] = 1
+            else:
+                ds_4_out[key].attrs["stripped_units"] = 0
+        return ds_4_out
+
+    def reassign_units(self, ds_4_out):
+        """
+        Reassign units to fields in an xr.Dataset loaded from a NetCDF file assuming that
+        a 'stripped_units' attribute exists.
+        (convert np.ndarray data fields to pint.Quantity and delete stripping info).
+
+        Parameters
+        ----------
+        ds_4_out: xr.Dataset
+            Dataset with to stripped units.
+
+        Returns
+        -------
+        ds_4_out: xr.Dataset
+            Dataset with with units added to fields.
+        """
+        for key in ds_4_out.keys():
+            if ds_4_out[key].attrs["stripped_units"]:
+                print(f"Restoring units to '{key}'")
+                ds_4_out[key].data *= self.ureg(ds_4_out[key].attrs["units"])
+                del ds_4_out[key].attrs["stripped_units"]
+        return ds_4_out
 
     @staticmethod
     def generate_figure(**kwargs):
