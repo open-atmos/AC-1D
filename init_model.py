@@ -25,7 +25,7 @@ class ci_model():
                  implicit_sublim=True, mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6,
                  nuc_RH_thresh=None, time_splitting=True, ent_then_act=True,
                  prognostic_inp=True, prognostic_ice=False, ice_snaps_t=None, relative_sublim=True,
-                 aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
+                 aer_info=None, les_out_path=None, les_out_filename=None, les_bin_phys=True, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
                  do_act=True, do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True,
@@ -251,6 +251,9 @@ class ci_model():
             LES output path (can be relative to running directory). Use default if None.
         les_out_filename: str or None
             LES output filename. Use default file if None.
+        les_bin_phys: bool
+            IF True, using bin microphysics output namelist for harvesting LES data.
+            If False, using bulk microphysics output namelist for harvesting LES data.
         t_harvest: scalar, 2-element tuple, list (or ndarray), or None
             If scalar then using the nearest time (assuming units of seconds) to initialize the model
             (single profile).
@@ -306,12 +309,14 @@ class ci_model():
         if les_name == "DHARMA":
             les = LES.DHARMA(les_out_path=les_out_path, les_out_filename=les_out_filename, t_harvest=t_harvest,
                              fields_to_retain=fields_to_retain, height_ind_2crop=height_ind_2crop,
-                             cbh_det_method=cbh_det_method, q_liq_pbl_cut=in_cld_q_thresh)
+                             cbh_det_method=cbh_det_method, q_liq_pbl_cut=in_cld_q_thresh,
+                             les_bin_phys=les_bin_phys)
         else:
             raise NameError("Can't process LES model output from '%s'" % les_name)
         self.LES_attributes = {"LES_name": les_name,
                                "les_out_path": les.les_out_path,
                                "les_out_filename": les.les_out_filename,
+                               "les_bin_phys": les.les_bin_phys,
                                "t_averaged_les": t_averaged_les,
                                "t_harvest": t_harvest,
                                "fields_to_retain": fields_to_retain,
