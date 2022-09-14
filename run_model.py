@@ -491,11 +491,13 @@ def run_model(ci_model):
                                 np.expand_dims(t_step_mix_mask, axis=ice_dim),
                                 (1, *tuple([n_ice_calc.shape[ii] for ii in ice_dim]))),
                                 n_ice_calc, np.nan), axis=0)
+                            ice_fully_mixed = np.tile(np.expand_dims(ice_fully_mixed, axis=0),
+                                                      (np.sum(t_step_mix_mask), *(1,) * len(ice_dim)))
                             inds = [slice(None)]*(len(ice_dim) + 1)
                             inds[0] = t_step_mix_mask
                             inds = tuple(inds)  # now 'inds' serves as flexible multi-dim indices
                             ice_mixing = delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                                (ice_fully_mixed[inds] - n_ice_calc[inds])
+                                (ice_fully_mixed - n_ice_calc[inds])
                             n_ice_curr[inds] += ice_mixing
                             if ci_model.output_budgets:
                                 budget_ice_mix[t_step_mix_mask] += np.sum(ice_mixing, axis=ice_dim) / delta_t
