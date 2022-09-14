@@ -254,11 +254,12 @@ class ci_model():
         les_bin_phys: bool
             IF True, using bin microphysics output namelist for harvesting LES data.
             If False, using bulk microphysics output namelist for harvesting LES data.
-        t_harvest: scalar, 2-element tuple, list (or ndarray), or None
+        t_harvest: scalar, 2- or 3-element tuple, list (or ndarray), or None
             If scalar then using the nearest time (assuming units of seconds) to initialize the model
             (single profile).
             If a tuple, cropping the range defined by the first two elements (increasing values) using a
-            slice object.
+            slice object. If len(t_harvest) == 3 then using the 3rd element as a time offset to subtract from
+            the tiem array values.
             If a list, cropping the times specified in the list (can be used take LES output profiles every
             delta_t seconds.
             NOTE: default in the ci_model class (10800 s) is different than in the DHARMA init method (None).

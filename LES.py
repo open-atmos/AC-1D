@@ -60,20 +60,25 @@ class LES():
 
         Parameters
         ----------
-        t_harvest: scalar, 2-element tuple, list (or ndarray), or None
+        t_harvest: scalar, 2- or 3-element tuple, list (or ndarray), or None
             If scalar then using the nearest time (assuming units of seconds) to initialize the model
             (single profile).
             If a tuple, cropping the range defined by the first two elements (increasing values) using a
-            slice object.
+            slice object. If len(t_harvest) == 3 then using the 3rd element as a time offset to subtract from
+            the tiem array values.
             If a list, cropping the times specified in the list (can be used take LES output profiles every
             delta_t seconds.
         """
         if isinstance(t_harvest, (float, int)):
             self.ds = self.ds.sel({self.time_dim: [t_harvest]}, method='nearest')
         elif isinstance(t_harvest, tuple):  # assuming a 2-element tuple.
-            if len(t_harvest) != 2:
-                raise ValueError("t_harvest (time range) tuple length should be 2")
-            self.ds = self.ds.sel({self.time_dim: slice(*t_harvest)})
+            if np.logical_or(len(t_harvest) < 2, len(t_harvest) > 3):
+                raise ValueError("t_harvest (time range) tuple length should be 2 or 3")
+            elif len(t_harvest) == 2:
+                self.ds = self.ds.sel({self.time_dim: slice(*t_harvest)})
+            elif len(t_harvest) == 3:
+                self.ds = self.ds.sel({self.time_dim: slice(*t_harvest[:2])})
+                self.ds = self.ds.assign_coords({"self.time_dim": self.ds[self.time_dim].values - t_harvest[2]})
         elif isinstance(t_harvest, (list, np.ndarray)):
             self.ds = self.ds.sel({self.time_dim: t_harvest}, method='nearest')
 
