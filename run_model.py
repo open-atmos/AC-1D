@@ -487,17 +487,18 @@ def run_model(ci_model):
                             if ci_model.output_budgets:
                                 budget_ice_mix += np.sum(ice_mixing, axis=ice_dim) / delta_t
                         else:
-                            ice_fully_mixed = np.nanmean(np.where(t_step_mix_mask, n_ice_calc, np.nan), axis=0)
+                            ice_fully_mixed = np.nanmean(np.where(np.tile(
+                                np.expand_dims(t_step_mix_mask, axis=ice_dim),
+                                (1, *tuple([n_ice_calc.shape[ii] for ii in ice_dim]))),
+                                n_ice_calc, np.nan), axis=0)
                             inds = [slice(None)]*(len(ice_dim) + 1)
                             inds[0] = t_step_mix_mask
                             inds = tuple(inds)  # now 'inds' serves as flexible multi-dim indices
                             ice_mixing = delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
-                                (np.tile(np.expand_dims(ice_fully_mixed, axis=ice_dim),
-                                         (1, *tuple([n_ice_calc.shape[ii] for ii in ice_dim]))) -
-                                 n_ice_calc[inds])
+                                (ice_fully_mixed[inds] - n_ice_calc[inds])
                             n_ice_curr[inds] += ice_mixing
                             if ci_model.output_budgets:
-                                budget_ice_mix[t_step_mix_mask] += np.sum(ice_mixing[inds], axis=ice_dim) / delta_t
+                                budget_ice_mix[t_step_mix_mask] += np.sum(ice_mixing, axis=ice_dim) / delta_t
                     t_proc += time() - t_process
                     run_stats["mixing_ice"] += (time() - t_process)
 
