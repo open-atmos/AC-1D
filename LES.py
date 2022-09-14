@@ -78,7 +78,7 @@ class LES():
                 self.ds = self.ds.sel({self.time_dim: slice(*t_harvest)})
             elif len(t_harvest) == 3:
                 self.ds = self.ds.sel({self.time_dim: slice(*t_harvest[:2])})
-                self.ds = self.ds.assign_coords({"self.time_dim": self.ds[self.time_dim].values - t_harvest[2]})
+                self.ds = self.ds.assign_coords({self.time_dim: self.ds[self.time_dim].values - t_harvest[2]})
         elif isinstance(t_harvest, (list, np.ndarray)):
             self.ds = self.ds.sel({self.time_dim: t_harvest}, method='nearest')
 
