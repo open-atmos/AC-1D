@@ -288,7 +288,7 @@ class ci_model():
         # Convert all input parameters to SI (if requested).
 
         # Set some simulation attributes.
-        self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec"]  # processed variables used by the model.
+        self.vars_harvested_from_les = ["RH", "qc", "T", "Ni", "prec"]  # processed variables used by the model.
         self.final_t = final_t
         self.use_ABIFM = use_ABIFM
         self.in_cld_q_thresh = in_cld_q_thresh  # kg/kg
