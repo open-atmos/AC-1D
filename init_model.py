@@ -20,15 +20,16 @@ class ci_model():
     3. Model output  output fields (ci_model.ds).
     """
     def __init__(self, final_t=21600, delta_t=10, use_ABIFM=True, les_name="DHARMA", t_averaged_les=True,
-                 custom_vert_grid=None, w_e_ent=1e-3, deplete_entrained=False, entrain_to_cth=True,
+                 custom_vert_grid=None, w_e_ent=1e-3, entrain_to_cth=True,
                  implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act=10., implicit_act=True,
-                 mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6, nuc_RH_thresh=None,
-                 time_splitting=True, ent_then_act=True, prognostic_inp=True,
-                 aer_info=None, les_out_path=None, les_out_filename=None, t_harvest=10800,
+                 implicit_sublim=True, mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6,
+                 nuc_RH_thresh=None, time_splitting=True, ent_then_act=True,
+                 prognostic_inp=True, prognostic_ice=False, ice_snaps_t=None, relative_sublim=True,
+                 aer_info=None, les_out_path=None, les_out_filename=None, les_bin_phys=True, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
                  do_act=True, do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True,
-                 output_budgets=False, output_aer_decay=True, run_model=True):
+                 do_sublim=False, output_budgets=False, output_aer_decay=True, run_model=True):
         """
         Model namelists and unit conversion coefficient required for the 1D model.
         The LES class includes methods to processes model output and prepare the out fields for the 1D model.
@@ -59,15 +60,12 @@ class ci_model():
             length s (s > 1) determining time and entrainment rate time series.
             Time values are interpolated between the specified times, and the edge values are used for
             extrapolation.
-        deplete_entrained: bool
-            If True, then entrain from cloud top definition consistent with the 'cbh_det_method' input parameter
-            and correspondingly deplete aerosol from the grid cell right above CTH.
-            If False, then entrain using the initial CTH aerosol concentrations (infinite reservoir, no depletion).
-        entrain_to_cth: bool
-            If True, entrain from the free atmosphere to cloud top after calculating the corresponding delta.
-            If False, entrain from the free atmosphere to the surface layer (and calculate the delta using the
-            surface aerosol concentration value (i.e., an extreme entrainment case), while using that dz is as at
-            cloud top (i.e., using dz value at cth and not dz = z_surf).
+        entrain_to_cth: bool or int
+            If True, entrain to cloud top (mixing layer top) after calculating the corresponding delta.
+            If False, entrain to the mixing layer base (surface layer in coupled cases).
+            If int, then using this input as index such that 0 or -1 mean consistent entrainment to the surface
+            layer or domain top, respectively.
+            NOTE: the value of entrain_to_cth will be overwritten if provided as key in aer_info.
         implicit_ent: bool
             If True, using an implicit solver for entrainment. If False, using explicit solver.
         tau_mix: dict or float
@@ -86,6 +84,8 @@ class ci_model():
             Relevant for singular parameterizations.
         implicit_act: bool [--singular--]
             If True and tau_act is a scalar, using implicit solution to activation.
+        implicit_sublim: bool
+            If True, using implicit solution to sublimation (Ni reduction - relevant for relative_sublim == True).
         mixing_bounds: two-element tuple or list, or None
             Determining the mixing layer (especially relevant when using time-varying LES input).
             The first element provides a fixed lowest range of mixing (float), a time varying range (dict as
@@ -122,6 +122,20 @@ class ci_model():
             if True, using prognostic aerosol (default - essentially, the purpose of this model).
             if False, using diagnostic INP, i.e., total activated INP numbers are calcuated while considering
             tau_act (singular) or Jhet in current time step (ABIFM).
+        prognostic_ice: bool
+            If True, using prognostic ice, i.e., ice particles have INP memory, thereby enabling sublimation
+            such that particle INPs are restored (requires setting prognostic_inp to True).
+            If False, ice particles have no memory, and therefore, no sublimation, for example.
+            Note that prognostic_ice requires more computation time. Memory is only allocated for ice snapshot
+            as in INAS.
+            Requires: prognostic_inp == True.
+        ice_snaps_t: np.ndarray or None
+            array specifying times at which prognostic ice snapshots will be saved. Saving none if None.
+            Requires prognostic_ice == True.
+        relative_sublim: bool
+            If True, using the relative reduction of Ni with height (based on LES).
+            If False, using abosulte reduction.
+            Requires prognostic_ice == True.
         aer_info: list of dict
             Used to initialize the aerosol arrays. Each element of the list describes a single population
             type providing its composition, concentration, and PSD, e.g., can use a single log-normal population
@@ -189,6 +203,18 @@ class ci_model():
                 between the specified heights, and the edge values are used for extrapolation (can be used to set
                 different aerosol source layers at model initialization, and combined with turbulence weighting,
                 allows the emulation of cloud-driven mixing.
+
+                8. entrain_psd: [dict] PSD for entrained aerosol - similar to the aer_info dict for specifying the
+                PSD parameters of the entrained aerosol (can be surface aerosol fluxes if entrain_from_cth=0, for
+                example). The 'type' key value must be the same as the aer_info dict.
+                optional keys:
+                    1. src_weight_time: [dict] a dict with keys "time" and "weight" for entrainment source.
+                9. entrain_to_cth: [bool or int] as in the 'entrain_to_cth' in the ci_model class attributes, the
+                case of which will result in determining this attribute value only for this specific aerosol
+                population.
+                If not specified, using the default option, i.e., the initial PSD ('dn_dlogD) with a weight of 1.,
+                which in likely most scenarios represent the free-tropospheric (or PBL top) as was the case until
+                the Sep 6, 2020 commits.
         input_conc_units: str or None
             An str specifies the input aerosol concentration units that will be converted to SI in pre-processing.
             Relevant input parameters are: n_init_max and dn_dlogD (custom).
@@ -209,6 +235,8 @@ class ci_model():
             determines whether mixing of ice will be performed.
         do_sedim: bool
             determines whether ice sedimentation will be performed.
+        do_sublim: bool
+            determines whether ice sublimation will be performed (based on dNi/dz from LES).
         output_budgets: bool
             If True, then activation, entrainment, and mixing budgest are provided in the model output.
         output_aer_decay: bool
@@ -223,11 +251,15 @@ class ci_model():
             LES output path (can be relative to running directory). Use default if None.
         les_out_filename: str or None
             LES output filename. Use default file if None.
-        t_harvest: scalar, 2-element tuple, list (or ndarray), or None
+        les_bin_phys: bool
+            IF True, using bin microphysics output namelist for harvesting LES data.
+            If False, using bulk microphysics output namelist for harvesting LES data.
+        t_harvest: scalar, 2- or 3-element tuple, list (or ndarray), or None
             If scalar then using the nearest time (assuming units of seconds) to initialize the model
             (single profile).
             If a tuple, cropping the range defined by the first two elements (increasing values) using a
-            slice object.
+            slice object. If len(t_harvest) == 3 then using the 3rd element as a time offset to subtract from
+            the tiem array values.
             If a list, cropping the times specified in the list (can be used take LES output profiles every
             delta_t seconds.
             NOTE: default in the ci_model class (10800 s) is different than in the DHARMA init method (None).
@@ -262,6 +294,12 @@ class ci_model():
         self.in_cld_q_thresh = in_cld_q_thresh  # kg/kg
         self.nuc_RH_thresh = nuc_RH_thresh  # fraction value
         self.prognostic_inp = prognostic_inp
+        if np.logical_and(not self.prognostic_inp, prognostic_ice):
+            print("prognostic_inp is False while prognostic_ice, which requires True prognostic_inp, is False - "
+                  "setting prognostic_ice = False")
+            prognostic_ice = False
+        self.prognostic_ice = prognostic_ice
+        self.ice_snaps_t = ice_snaps_t
 
         # assign a unit registry and define percent units.
         self.ureg = pint.UnitRegistry()
@@ -272,12 +310,14 @@ class ci_model():
         if les_name == "DHARMA":
             les = LES.DHARMA(les_out_path=les_out_path, les_out_filename=les_out_filename, t_harvest=t_harvest,
                              fields_to_retain=fields_to_retain, height_ind_2crop=height_ind_2crop,
-                             cbh_det_method=cbh_det_method, q_liq_pbl_cut=in_cld_q_thresh)
+                             cbh_det_method=cbh_det_method, q_liq_pbl_cut=in_cld_q_thresh,
+                             les_bin_phys=les_bin_phys)
         else:
             raise NameError("Can't process LES model output from '%s'" % les_name)
         self.LES_attributes = {"LES_name": les_name,
                                "les_out_path": les.les_out_path,
                                "les_out_filename": les.les_out_filename,
+                               "les_bin_phys": les.les_bin_phys,
                                "t_averaged_les": t_averaged_les,
                                "t_harvest": t_harvest,
                                "fields_to_retain": fields_to_retain,
@@ -368,7 +408,6 @@ class ci_model():
 
         # init entrainment
         self.w_e_ent = w_e_ent
-        self.deplete_entrained = deplete_entrained
         self.entrain_to_cth = entrain_to_cth
         self.implicit_ent = implicit_ent
         self._set_1D_or_2D_var_from_AERut(w_e_ent, "w_e_ent", "$m/s$", "Cloud-top entrainment rate")
@@ -438,6 +477,10 @@ class ci_model():
             self.tau_act = None
         self.implicit_act = implicit_act
 
+        # init sublimation
+        self.relative_sublim = relative_sublim
+        self.implicit_sublim = implicit_sublim
+
         # calculate delta_aw
         self._calc_delta_aw()
 
@@ -447,7 +490,8 @@ class ci_model():
         self.input_conc_units, self.input_diam_units = input_conc_units, input_diam_units
         self._convert_input_to_SI()  # Convert input concentration and/or diameter parameters to SI (if requested).
         optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # optional aerosol class input params.
-                         "n_init_weight_prof", "singular_fun", "singular_scale"]
+                         "n_init_weight_prof", "singular_fun", "singular_scale",
+                         "entrain_psd", "entrain_to_cth"]
         for ii in range(len(self.aer_info)):
             param_dict = {"use_ABIFM": use_ABIFM}  # tmp dict for aerosol attributes to send to class call.
             if np.all([x in self.aer_info[ii].keys() for x in ["n_init_max", "psd"]]):
@@ -491,11 +535,16 @@ class ci_model():
         self.diam_dim = "diam"  # setting the diam dim even though it is only set when allocating an AER object.
 
         # Run the model and reassign coordinate unit attributes (typically lost in xr.DataArray manipulations)
+        if np.logical_and(not self.prognostic_ice, do_sublim):
+            print("prognostic_ice is False while do_sublim is True, but do_sublim requires prognostic ice - "
+                  "setting do_sublim = False")
+            do_sublim = False
         self.do_act = do_act
         self.do_entrain = do_entrain
         self.do_mix_aer = do_mix_aer
         self.do_mix_ice = do_mix_ice
         self.do_sedim = do_sedim
+        self.do_sublim = do_sublim
         self.time_splitting = time_splitting
         self.ent_then_act = ent_then_act
         self.output_budgets = output_budgets
@@ -623,6 +672,8 @@ class ci_model():
                                        psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
+                                       entrain_psd=param_dict["entrain_psd"],
+                                       entrain_to_cth=param_dict["entrain_to_cth"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "logn":
@@ -630,6 +681,8 @@ class ci_model():
                                        psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
+                                       entrain_psd=param_dict["entrain_psd"],
+                                       entrain_to_cth=param_dict["entrain_to_cth"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "multi_logn":
@@ -639,6 +692,8 @@ class ci_model():
                                              name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                              T_array=param_dict["T_array"],
                                              singular_fun=param_dict["singular_fun"],
+                                             entrain_psd=param_dict["entrain_psd"],
+                                             entrain_to_cth=param_dict["entrain_to_cth"],
                                              singular_scale=param_dict["singular_scale"],
                                              n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "custom":
@@ -646,6 +701,8 @@ class ci_model():
                                          psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                          name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                          T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
+                                         entrain_psd=param_dict["entrain_psd"],
+                                         entrain_to_cth=param_dict["entrain_to_cth"],
                                          singular_scale=param_dict["singular_scale"],
                                          n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
         elif param_dict["psd"]["type"] == "default":
@@ -655,6 +712,8 @@ class ci_model():
                                        psd=param_dict["psd"], nucleus_type=param_dict["nucleus_type"],
                                        name=param_dict["name"], diam_cutoff=param_dict["diam_cutoff"],
                                        T_array=param_dict["T_array"], singular_fun=param_dict["singular_fun"],
+                                       entrain_psd=param_dict["entrain_psd"],
+                                       entrain_to_cth=param_dict["entrain_to_cth"],
                                        singular_scale=param_dict["singular_scale"],
                                        n_init_weight_prof=param_dict["n_init_weight_prof"], ci_model=self)
 
@@ -801,6 +860,102 @@ class ci_model():
                     print("Converting diameter dimension units for %s from Celsius to Kelvin" % key)
                     self.aer[key].ds = self.aer[key].ds.swap_dims({"T_C": "T"})
                     self.T_dim = "T"
+    
+    def ci_model_ds_to_netcdf(self, out_prefix='AC_1D_out'):
+        """
+        export datasets from a model simulation. Each dataset is stored in a different file.
+        Files are generated for the main ci_model object and each aerosol population.
+
+        Parameters
+        ----------
+        out_prefix: str
+            filename prefix and path from which to load ci_model's datasets.
+            A "_main.nc" suffix is added to the filename of the NetCDF file containing the main
+            ci_model dataset, while for each dataset of an aerosol population xxxx, an
+            'aer_pop_xxxx.nc' suffix is added.
+        """
+        out_filenames = []
+        ds_4_out = self.ds.copy(deep=True)
+        ds_4_out = self.strip_units(ds_4_out)
+        out_filenames.append(out_prefix + "_main.nc")
+        ds_4_out.to_netcdf(out_filenames[-1])
+        for aer_key in self.aer.keys():
+            ds_4_out = self.aer[aer_key].ds.copy(deep=True)
+            ds_4_out = self.strip_units(ds_4_out)
+            out_filenames.append(out_prefix + f"_aer_pop_{aer_key}.nc")
+            ds_4_out.to_netcdf(out_filenames[-1])
+        print("Exporting ci_model xr.Dataset to the following files\n")
+        print(out_filenames + "\n")
+        
+    def ci_model_ds_from_netcdf(self, out_prefix='AC_1D_out'):
+        """
+        Load datasets from a model simulation. Each dataset is stored in a different file.
+        Assumes files were generated for the main ci_model object and each aerosol population.
+
+        Parameters
+        ----------
+        out_prefix: str
+            filename prefix and path from which to load ci_model's datasets.
+            A "_main.nc" suffix is added to the filename of the NetCDF file containing the main
+            ci_model dataset, while for each dataset of an aerosol population xxxx, an
+            'aer_pop_xxxx.nc' suffix is added.
+        """
+        ds_4_out = xr.open_dataset(out_prefix + "_main.nc")
+        ds_4_out = self.reassign_units(ds_4_out)
+        self.ds = ds_4_out
+        for aer_key in self.aer.keys():
+            ds_4_out = xr.open_dataset(out_prefix + f"_aer_pop_{aer_key}.nc")
+            ds_4_out = self.reassign_units(ds_4_out)
+            self.aer[aer_key].ds = ds_4_out
+        print(f"Loading ci_model xr.Datasets from the {out_prefix} files done!\n")
+
+    @staticmethod
+    def strip_units(ds_4_out):
+        """
+        Strip units from fields in an xr.Dataset enabling export to NetCDF files
+        (convert pint.Quantity data fields to np.ndarray while saving stripping info).
+
+        Parameters
+        ----------
+        ds_4_out: xr.Dataset
+            Dataset from which to strip units
+
+        Returns
+        -------
+        ds_4_out: xr.Dataset
+            Dataset with to stripped units.
+        """
+        for key in ds_4_out.keys():
+            if isinstance(ds_4_out[key].data, pint.quantity.Quantity):
+                print(f"Stripping units from '{key}'")
+                ds_4_out[key].data = ds_4_out[key].data.magnitude
+                ds_4_out[key].attrs["stripped_units"] = 1
+            else:
+                ds_4_out[key].attrs["stripped_units"] = 0
+        return ds_4_out
+
+    def reassign_units(self, ds_4_out):
+        """
+        Reassign units to fields in an xr.Dataset loaded from a NetCDF file assuming that
+        a 'stripped_units' attribute exists.
+        (convert np.ndarray data fields to pint.Quantity and delete stripping info).
+
+        Parameters
+        ----------
+        ds_4_out: xr.Dataset
+            Dataset with to stripped units.
+
+        Returns
+        -------
+        ds_4_out: xr.Dataset
+            Dataset with with units added to fields.
+        """
+        for key in ds_4_out.keys():
+            if ds_4_out[key].attrs["stripped_units"]:
+                print(f"Restoring units to '{key}'")
+                ds_4_out[key].data *= self.ureg(ds_4_out[key].attrs["units"])
+                del ds_4_out[key].attrs["stripped_units"]
+        return ds_4_out
 
     @staticmethod
     def generate_figure(**kwargs):

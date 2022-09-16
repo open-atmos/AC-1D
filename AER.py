@@ -65,7 +65,7 @@ class AER_pop():
     """
     def __init__(self, use_ABIFM=None, n_init_max=None, nucleus_type=None, diam=None, dn_dlogD=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None, psd={},
-                 n_init_weight_prof=None, ci_model=None):
+                 n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None):
         """
         aerosol population namelist
 
@@ -113,6 +113,12 @@ class AER_pop():
             population type e.g., "mono", "logn", "multi_logn", "custom".
         psd: dict
             dictionary providing psd parameter information enabling full psd reproduction.
+        entrain_psd: dict
+            dictionary providing psd parameter for entrained aerosol.
+        entrain_to_cth: bool or int or None
+            determines where to entrain aerosol (cloud top / mixing layer base / specific height index).
+            If specified, then overrides the ci_model input value.
+            If None, using the ci_model object value. 
         name: str
             population name (or tag).
         n_init_weight_prof: dict or None
@@ -171,12 +177,21 @@ class AER_pop():
         else:
             self.dn_dlogD = dn_dlogD
         self.psd = psd
+        self.entrain_psd = entrain_psd
         if "type" in psd.keys():  # assuming that the __init__ method is invoked from an inhertied classes.
             self.psd_type = psd["type"]
         if name is None:
             self._random_name()
         else:
             self.name = name
+        if 'src_weight_time' in entrain_psd.keys():
+            self.src_weight_time = entrain_psd['src_weight_time']
+        else:
+            self.src_weight_time = None
+        if entrain_to_cth is None:
+            self.entrain_to_cth = True
+        else:
+            self.entrain_to_cth = entrain_to_cth
 
         # Assign aerosol dataset
         self.ds = xr.Dataset()
@@ -184,10 +199,16 @@ class AER_pop():
         self.ds["dn_dlogD"] = xr.DataArray(np.ones(1) * dn_dlogD, dims=self.ds["diam"].dims)
         self.ds["dn_dlogD"].attrs["units"] = "$m^{-3}$"
         self.ds["dn_dlogD"].attrs["long_name"] = "Particle number concentration per diameter bin"
+        self.ds["dn_dlogD_src"] = xr.DataArray(np.ones(1) * entrain_psd['dn_dlogD'], dims=self.ds["diam"].dims)
+        self.ds["dn_dlogD_src"].attrs["units"] = "$m^{-3}$"
+        self.ds["dn_dlogD_src"].attrs["long_name"] = "Source (entrained) number concentration per diameter bin"
         self._calc_surf_area()
 
         # Use the ci_model class object if provided to init the aerosol array (start with height-time coords).
+        # Also determine entrainment height based on ci_model if entrain_to_cth is None.
         if ci_model is not None:
+            if entrain_to_cth is None:
+                self.entrain_to_cth = ci_model.entrain_to_cth
             self.ds = self.ds.assign_coords({"height": ci_model.ds["height"].values,
                                              "time": ci_model.ds["time"].values})
             if T_array is None:
@@ -207,8 +228,19 @@ class AER_pop():
             self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
             self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"].values))
             self.ds["time_h"].attrs["units"] = "$h$"
+            
+            if ci_model.prognostic_ice:
+                self.ds["ice_snap"].attrs["units"] = "$m^{-3}$"
+                self.ds["ice_snap"].attrs["long_name"] = "prognosed ice number concentration (snapshot)"
+                if not ci_model.ice_snaps_t is None:
+                    self.ds = self.ds.assign_coords({"t_ice_snaps": ci_model.ice_snaps_t})
+                    self.ds["t_ice_snaps"].attrs["units"] = "$s$"
+                    self.ds["ice_snaps"] = xr.DataArray(
+                        np.full((*ci_model.ice_snaps_t.shape, *self.ds["ice_snap"].shape), np.nan),
+                        dims=("t_ice_snaps", *self.ds["ice_snap"].dims))
 
         else:
+
             print("'ci_model' object not provided - not assigning aerosol concentration array")
 
         # Set coordinate attributes
@@ -321,23 +353,30 @@ class AER_pop():
         """
         if ci_model.prognostic_inp:
             self.ds = self.ds.assign_coords({"T": self.T_array})
-            tmp_inp_array = np.zeros((self.ds["height"].size, self.ds["T"].size))
+            tmp_inp_array, tmp_inp_array_src = \
+                np.zeros((self.ds["height"].size, self.ds["T"].size)), np.zeros((self.ds["T"].size))
         if self.singular_fun.__code__.co_argcount > 1:
             if 'n_aer05' in self.singular_fun.__code__.co_varnames:  # 2nd argument is aerosol conc. above cutoff
                 if isinstance(self.diam_cutoff, float):
                     input_2 = np.sum(self.ds["dn_dlogD"].sel({"diam": slice(self.diam_cutoff, None)}).values)
+                    input_2_src = \
+                        np.sum(self.ds["dn_dlogD_src"].sel({"diam": slice(self.diam_cutoff, None)}).values)
                 else:  # assuming 2-element tuple
                     input_2 = np.sum(self.ds["dn_dlogD"].sel({"diam": slice(self.diam_cutoff[0],
                                                                             self.diam_cutoff[1])}).values)
+                    input_2_src = np.sum(self.ds["dn_dlogD_src"].sel({"diam": slice(self.diam_cutoff[0],
+                                                                                    self.diam_cutoff[1])}).values)
                 self.n_aer05_frac = input_2 / np.sum(self.ds["dn_dlogD"].values)
                 if ci_model.prognostic_inp:
                     input_2 = np.ones((self.ds["height"].size, self.ds["T"].size)) * input_2
                     tmp_n_inp = np.flip(self.singular_fun(np.tile(np.expand_dims(self.ds["T"].values, axis=0),
                                         (self.ds["height"].size, 1)), input_2), axis=1)  # start at max temperature
+                    input_2_src = np.ones((self.ds["T"].size)) * input_2_src
+                    tmp_n_inp_src = np.flip(self.singular_fun(self.ds["T"].values, input_2_src), axis=0)
 
                     # weight array vertically.
                     if self.n_init_weight_prof is not None:
-                        tmp_n_inp = np.tile(np.expand_dims(self._weight_aer_prof(False), axis=1),
+                        tmp_n_inp = np.tile(np.expand_dims(self._weight_aer_h_or_t(False), axis=1),
                                             (1, self.ds["T"].size)) * tmp_n_inp
 
             elif 's_area' in self.singular_fun.__code__.co_varnames:  # 2nd argument is surface area
@@ -345,16 +384,22 @@ class AER_pop():
                 self._init_aer_Jhet_ABIFM_arrays(ci_model)  # Also alocate aerosol concentration array
                 if ci_model.prognostic_inp:
                     tmp_inp_array = np.zeros((self.ds["height"].size, self.ds["diam"].size, self.ds["T"].size))
+                    tmp_inp_array_src = np.zeros((self.ds["diam"].size, self.ds["T"].size))
                     tmp_n_inp = self.singular_fun(np.tile(np.expand_dims(np.flip(self.ds["T"].values), axis=0),
                                                           (self.ds["diam"].size, 1)),
                                                   np.tile(np.expand_dims((self.ds["surf_area"] *
                                                                           self.ds["dn_dlogD"]).values, axis=1),
                                                           (1, self.ds["T"].size)))
                     tmp_n_inp = np.tile(np.expand_dims(tmp_n_inp, axis=0), (self.ds["height"].size, 1, 1))
+                    tmp_n_inp_src = self.singular_fun(np.tile(np.expand_dims(np.flip(self.ds["T"].values), axis=0),
+                                                          (self.ds["diam"].size, 1)),
+                                                  np.tile(np.expand_dims((self.ds["surf_area"] *
+                                                                          self.ds["dn_dlogD_src"]).values, axis=1),
+                                                          (1, self.ds["T"].size)))
 
                     # weight array vertically.
                     if self.n_init_weight_prof is not None:
-                        tmp_n_inp = np.tile(np.expand_dims(self._weight_aer_prof(False), axis=(1, 2)),
+                        tmp_n_inp = np.tile(np.expand_dims(self._weight_aer_h_or_t(False), axis=(1, 2)),
                                             (1, self.ds["diam"].size, self.ds["T"].size)) * tmp_n_inp
 
         elif ci_model.prognostic_inp:  # single input (temperature)
@@ -363,31 +408,44 @@ class AER_pop():
         if ci_model.prognostic_inp:
             if self.singular_scale != 1.:
                 tmp_n_inp *= self.singular_scale
+                tmp_n_inp_src *= self.singular_scale
             if not self.is_INAS:
                 self.ds["inp_cum_init"] = xr.DataArray(np.flip(tmp_n_inp, axis=-1), dims=("height", "T"))
                 tmp_inp_array[:, 0] = tmp_n_inp[:, 0]
+                tmp_inp_array_src[0] = tmp_n_inp_src[0]
                 for ii in range(1, self.ds["T"].size):
                     tmp_inp_array[:, ii] = tmp_n_inp[:, ii] - tmp_inp_array[:, :ii].sum(axis=1)
+                    tmp_inp_array_src[ii] = tmp_n_inp_src[ii] - tmp_inp_array_src[:ii].sum()
             else:
                 self.ds["inp_cum_init"] = xr.DataArray(np.flip(tmp_n_inp, axis=-1), dims=("height", "diam", "T"))
-                tmp_inp_array[:, :, 0] = tmp_n_inp[:, :, 0]
+                tmp_inp_array[:, :, 0], tmp_inp_array_src[:, 0] = tmp_n_inp[:, :, 0], tmp_n_inp_src[:, 0]
                 for ii in range(1, self.ds["T"].size):
                     tmp_inp_array[:, :, ii] = tmp_n_inp[:, :, ii] - tmp_inp_array[:, :, :ii].sum(axis=2)
+                    tmp_inp_array_src[:, ii] = tmp_n_inp_src[:, ii] - tmp_inp_array_src[:, :ii].sum(axis=1)
 
             self.ds["T_C"] = self.ds["T"].copy() - 273.15  # add coordinates for temperature in Celsius
             self.ds = self.ds.assign_coords(T_C=("T", self.ds["T_C"].values))
             self.ds["T_C"].attrs["units"] = "$° C$"
             self.ds["T"].attrs["units"] = "$K$"  # set coordinate attributes.
 
+        if not self.src_weight_time is None:
+            src_weight_tseries = \
+                self._weight_aer_h_or_t(False, use_height=False, alternative_dict=self.src_weight_time)
         if not self.is_INAS:  # singular
             self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size)),
                                             dims=("height", "time"))
             self.ds["n_aer"].loc[{"time": 0}] = np.sum(self.ds["dn_dlogD"].values)
             if self.n_init_weight_prof is not None:
                 self.ds["n_aer"].loc[{"time": 0}] = \
-                    self._weight_aer_prof(False) * self.ds["n_aer"].loc[{"time": 0}]
+                    self._weight_aer_h_or_t(False) * self.ds["n_aer"].loc[{"time": 0}]
             self.ds["n_aer"].attrs["units"] = "$m^{-3}$"
             self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration"
+            self.ds["n_aer_src"] = xr.DataArray(np.tile(np.sum(self.ds["dn_dlogD_src"].values),
+                                                        (self.ds["time"].size)), dims=("time"))
+            if not self.src_weight_time is None:
+                self.ds["n_aer_src"].values *= src_weight_tseries
+            self.ds["n_aer_src"].attrs["units"] = "$m^{-3}$"
+            self.ds["n_aer_src"].attrs["long_name"] = "aerosol source number concentration per diameter bin"
             if ci_model.prognostic_inp:
                 self.ds["ns_raw"] = xr.DataArray(self.singular_fun(ci_model.ds["T"],
                                                                    np.tile(np.expand_dims(input_2[:, 0],
@@ -400,23 +458,42 @@ class AER_pop():
                                                         self.ds["T"].size)), dims=("height", "time", "T"))
                 self.ds["inp"].loc[{"time": 0}] = np.flip(tmp_inp_array, axis=-1)
                 self.ds["inp"].attrs["units"] = "$m^{-3}$"
-                self.ds["inp"].attrs["long_name"] = "INP number concentration per temperature bin"
+                self.ds["inp"].attrs["long_name"] = "INP source (entrained) number concentration per temperature bin"
+                self.ds["inp_src"] = xr.DataArray(np.flip(np.tile(np.expand_dims(
+                    tmp_inp_array_src, axis=0), (self.ds["time"].size, 1)), axis=-1), dims=("time", "T"))
+                if not self.src_weight_time is None:
+                    self.ds["inp_src"].values *= np.tile(
+                        np.expand_dims(src_weight_tseries, axis=-1), (1, self.ds["T"].size))
                 self.ds["inp_pct"] = xr.DataArray(self.singular_fun(ci_model.ds["T"],
                                                                     np.tile(np.expand_dims(input_2[:, 0],
                                                                                            axis=1),
                                                                             (1, ci_model.ds["time"].size))) /
                                                   self.ds["dn_dlogD"].sum() * 100., dims=("height", "time"))
+                if ci_model.prognostic_ice:
+                    self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["inp"][:,0,:].shape),
+                                                       dims=("height", "T"))
         elif ci_model.prognostic_inp:  # INAS
             self.ds["ns_raw"] = xr.DataArray(self.singular_fun(ci_model.ds["T"], 1), dims=("height", "time"))
             self.ds["ns_raw"].attrs["long_name"] = "INAS ns"
             self.ds["inp_snap"] = xr.DataArray(tmp_inp_array, dims=("height", "diam", "T"))
             self.ds["inp_snap"].values = np.flip(self.ds["inp_snap"].values, axis=-1)
             self.ds["inp_snap"].attrs["units"] = "$m^{-3}$"
+            self.ds["inp_src"] = xr.DataArray(np.flip(np.tile(np.expand_dims(tmp_inp_array_src, axis=0),
+                                                              (ci_model.ds["time"].size, 1, 1)),
+                                                      axis=-1), dims=("time", "diam", "T"))
+            if not self.src_weight_time is None:
+                self.ds["inp_src"].values *= np.tile(
+                    np.expand_dims(src_weight_tseries, axis=(1,2)), (1, self.ds["diam"].size, self.ds["T"].size))
             self.ds["inp_snap"].attrs["long_name"] = "prognosed INP number concentration (snapshot)"
             self.ds["inp_init"] = self.ds["inp_snap"].copy()  # copy of initial INP (might be used for entrainment)
             self.ds["inp_init"].attrs["long_name"] = "prognosed INP number concentration (initial)"
             self.ds["inp_pct"] = self.ds["ns_raw"] * (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum() / \
                 self.ds["dn_dlogD"].sum() * 100.
+            if ci_model.prognostic_ice:
+                self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["inp_snap"].shape),
+                                                   dims=("height", "diam", "T"))
+        self.ds["inp_src"].attrs["units"] = "$m^{-3}$"
+        self.ds["inp_src"].attrs["long_name"] = "INP source number concentration"
         if ci_model.prognostic_inp:
             self.ds["ns_raw"].values = np.where(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
                                                 self.ds["ns_raw"].values, 0)  # crop in-cloud pixels
@@ -450,6 +527,15 @@ class AER_pop():
                                                     (self.ds["height"].size, 1))
         self.ds["n_aer"].attrs["units"] = "$m^{-3}$"
         self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration per diameter bin"
+        self.ds["n_aer_src"] = xr.DataArray(np.tile(np.expand_dims(self.ds["dn_dlogD_src"].values, axis=0),
+                                                    (self.ds["time"].size, 1)), dims=("time", "diam"))
+        if not self.src_weight_time is None:
+            src_weight_tseries = \
+                self._weight_aer_h_or_t(False, use_height=False, alternative_dict=self.src_weight_time)
+            self.ds["n_aer_src"].values *= np.tile(
+                np.expand_dims(src_weight_tseries, axis=(-1)), (1, self.ds["diam"].size))
+        self.ds["n_aer_src"].attrs["units"] = "$m^{-3}$"
+        self.ds["n_aer_src"].attrs["long_name"] = "aerosol source number concentration per diameter bin"
         if ci_model.use_ABIFM:
             self.ds["Jhet"] = 10.**(self.Jhet.c + self.Jhet.m * ci_model.ds["delta_aw"]) * 1e4  # calc Jhet
             if self.singular_scale != 1.:
@@ -465,7 +551,11 @@ class AER_pop():
                 "INP percentage relative to total initial aerosol (using a time"
             " constant of %.0f s)" % pct_const
             if self.n_init_weight_prof is not None:
-                self._weight_aer_prof()
+                self._weight_aer_h_or_t()
+
+            if ci_model.prognostic_ice:
+                self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["n_aer"][:,0,:].shape),
+                                                   dims=("height", "diam"))
 
             # Generate a diagnostic initial  INP equivalent to the singular approaches (for comparison purposes)
             self.ds = self.ds.assign_coords({"T": self.T_array})
@@ -482,40 +572,49 @@ class AER_pop():
                 "Initial cumulative (over T) INP array "
             "(equivalent to singular approaches; using a time constant of %.0f s)" % pct_const
 
-    def _weight_aer_prof(self, use_ABIFM=True):
+    def _weight_aer_h_or_t(self, set_internally=True, use_height=True, alternative_dict=None):
         """
         apply weights on initial aerosol profile (weighting on n_init_max). If using singular then returning the
         weights profile
 
         Parameters
         ---------
-        use_ABIFM: bool
-            True - use ABIFM, False - use singular.
+        set_internally: bool
+            True - set n_aer internally (use ABIFM is True), False - return weighted array (for singular).
+            If False, simply returning the weighted profile or time series.
+        alternative_dict: dict or None
+            Alternative dict defining the height/time and weight to be interpolated.
+            Using self.n_init_weight_prof if None.
 
         Returns
         -------
-        weight_prof_interp: np.ndarray (--singular--)
+        weight_arr_interp: np.ndarray (--singular--)
             weight profile with height coordinates
         """
-        if not np.all([x in self.n_init_weight_prof.keys() for x in ["height", "weight"]]):
-            raise KeyError('Weighting the aerosol profiles requires the keys "height" and "weight"')
-        if not np.logical_and(len(self.n_init_weight_prof["height"]) > 1,
-                              len(self.n_init_weight_prof["height"]) == len(self.n_init_weight_prof["weight"])):
-            raise ValueError("weights and heights must have the same length > 1")
-        if np.any(self.n_init_weight_prof["weight"] < 0.):
+        if use_height:
+            Dim = "height"
+        else:
+            Dim = "time"
+        if alternative_dict is None:
+            alternative_dict = self.n_init_weight_prof
+        if not np.all([x in alternative_dict.keys() for x in [Dim, "weight"]]):
+            raise KeyError(f'Weighting the aerosol profiles requires the keys {Dim} and "weight"')
+        if not np.logical_and(len(alternative_dict[Dim]) > 1,
+                              len(alternative_dict[Dim]) == len(alternative_dict["weight"])):
+            raise ValueError(f"weights and {Dim}s must have the same length > 1")
+        if np.any(alternative_dict["weight"] < 0.):
             raise ValueError("weight values must by > 0 (at least one negative value was entered)")
-        if np.any(self.n_init_weight_prof["weight"] > 1.):
-            print("At least one specified weight > 1 (max value = %.1f); normalizing weight profile such that \
-                  max weight == 1" % self.n_init_weight_prof["weight"].max())
-            self.n_init_weight_prof["weight"] = self.n_init_weight_prof["weight"] / \
-                self.n_init_weight_prof["weight"].max()
-        weight_prof_interp = np.interp(self.ds["height"], self.n_init_weight_prof["height"],
-                                       self.n_init_weight_prof["weight"])
-        if use_ABIFM:
-            self.ds["n_aer"][{"time": 0}] = np.tile(np.expand_dims(weight_prof_interp, axis=1),
+        if np.any(alternative_dict["weight"] > 1.):
+            print("At least one specified weight > 1 (max value = %.1f); normalizing weights such that \
+                  max weight == 1" % alternative_dict["weight"].max())
+            alternative_dict["weight"] = alternative_dict["weight"] / \
+                alternative_dict["weight"].max()
+        weight_arr_interp = np.interp(self.ds[Dim], alternative_dict[Dim], alternative_dict["weight"])
+        if set_internally:
+            self.ds["n_aer"][{"time": 0}] = np.tile(np.expand_dims(weight_arr_interp, axis=1),
                                                     (1, self.ds["diam"].size)) * self.ds["n_aer"][{"time": 0}]
         else:  # Relevant for singular when considering particle diameters (e.g., D2010, D2015).
-            return weight_prof_interp
+            return weight_arr_interp
 
 
 class mono_AER(AER_pop):
@@ -524,7 +623,7 @@ class mono_AER(AER_pop):
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, ci_model=None):
+                 psd={}, n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None):
         """
         Parameters as in the 'AER_pop' class (fixed diameter can be specified in the 'psd' dict under the 'diam'
         key or in the diam).
@@ -534,10 +633,16 @@ class mono_AER(AER_pop):
             raise KeyError('mono-dispersed PSD processing requires the "diam" fields')
         diam = psd["diam"]
         dn_dlogD = np.array(n_init_max)
+        if entrain_psd is None:  # Entrained aerosol PSD
+            entrain_psd = {"dn_dlogD": np.copy(dn_dlogD)}
+        else:
+            entrain_psd["dn_dlogD"] = np.array(entrain_psd["n_init_max"])
+
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
-                         n_init_weight_prof=n_init_weight_prof, ci_model=ci_model)
+                         n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)
 
 
 class logn_AER(AER_pop):
@@ -546,7 +651,8 @@ class logn_AER(AER_pop):
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, ci_model=None, correct_discrete=True):
+                 psd={}, n_init_weight_prof=None, correct_discrete=True, 
+                 entrain_psd=None, entrain_to_cth=None, ci_model=None):
         """
         Parameters as in the 'AER_pop' class
 
@@ -576,12 +682,23 @@ class logn_AER(AER_pop):
         self.raw_diam, self.raw_dn_dlogD, self.unnorm_dn_dlogD = dF, nF, dn_dlogD  # bin edge, dn_dlogD, bin unnorm
         if correct_discrete:
             dn_dlogD = self._normalize_to_n_tot(n_init_max, dn_dlogD)  # correct for discretization
+        if entrain_psd is None:  # Entrained aerosol PSD
+            entrain_psd = {"dn_dlogD": np.copy(dn_dlogD)}
+        else:
+            _, dn_dlogD_ent, _, _ = \
+                self._calc_logn_diam_dn_dlogd(entrain_psd, entrain_psd["n_init_max"], diam_in=dF)
+            if correct_discrete:
+                dn_dlogD_ent = self._normalize_to_n_tot(
+                    entrain_psd["n_init_max"], dn_dlogD_ent)  # correct for discretization
+            entrain_psd["dn_dlogD"] = dn_dlogD_ent
+
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
-                         n_init_weight_prof=n_init_weight_prof, ci_model=ci_model)
+                         n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)
 
-    def _calc_logn_diam_dn_dlogd(self, psd, n_init_max, integrate_dn_dlogD=True):
+    def _calc_logn_diam_dn_dlogd(self, psd, n_init_max, integrate_dn_dlogD=True, diam_in=None):
         """
         Assign particle diameter array and calculate dn_dlogD for log-normal distribution.
         Then integrate using trapezoidal rule to get total concentration per bin.
@@ -593,7 +710,10 @@ class logn_AER(AER_pop):
         n_init_max: float
             total initial aerosol concentration [m-3].
         integrate_dn_dlogD: bool
-            True - integrate dn_dlogD using the trapezoidal rule, False - normalize (origianl code).
+            True - integrate dn_dlogD using the trapezoidal rule, False - normalize (origianl code prototype).
+        diam_in: np.ndarray or None
+            Input diameter array instead of generating one using 'diam_min', 'n_bins', and 'm_ratio'.
+            Ignored if None.
 
         Returns
         -------
@@ -606,13 +726,16 @@ class logn_AER(AER_pop):
         dn_dlogD: np.ndarray
             Particle number concentration per diameter (PSD value in units of m-3)
         """
-        if isinstance(psd["diam_min"], float):
-            diam = np.ones(psd["n_bins"]) * psd["diam_min"]
-        elif isinstance(psd["diam_min"], tuple):
-            diam = np.ones(psd["n_bins"]) * psd["diam_min"][0]
-        diam = diam * (psd["m_ratio"] ** (1. / 3.)) ** (np.cumsum(np.ones(psd["n_bins"])) - 1)
-        if isinstance(psd["diam_min"], tuple):  # remove diameters larger than cutoff
-            diam = diam[diam <= psd["diam_min"][1]]
+        if diam_in is None:
+            if isinstance(psd["diam_min"], float):
+                diam = np.ones(psd["n_bins"]) * psd["diam_min"]
+            elif isinstance(psd["diam_min"], tuple):
+                diam = np.ones(psd["n_bins"]) * psd["diam_min"][0]
+            diam = diam * (psd["m_ratio"] ** (1. / 3.)) ** (np.cumsum(np.ones(psd["n_bins"])) - 1)
+            if isinstance(psd["diam_min"], tuple):  # remove diameters larger than cutoff
+                diam = diam[diam <= psd["diam_min"][1]]
+        else:
+            diam = diam_in
         denom = np.sqrt(2 * np.pi) * np.log(psd["geom_sd"])
         if integrate_dn_dlogD:
             diam_bin_mid = np.exp((np.log(diam[:-1]) + np.log(diam[1:])) / 2)  # bin middle in log scale
@@ -654,7 +777,8 @@ class multi_logn_AER(logn_AER):
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, ci_model=None, correct_discrete=True):
+                 psd={}, n_init_weight_prof=None, correct_discrete=True, entrain_psd=None,
+                 entrain_to_cth=None, ci_model=None):
         """
         Parameters as in the 'AER_pop' class. Note that n_init_max should be a list or np.ndarray
         of values for each mode with the same length as diam_mean and geom_sd. Array bins are specified
@@ -699,11 +823,30 @@ class multi_logn_AER(logn_AER):
         self.raw_diam, self.raw_dn_dlogD, self.unnorm_dn_dlogD = dF, nF, dn_dlogD  # bin edge, dn_dlogD, bin unnorm
         if correct_discrete:
             dn_dlogD = super()._normalize_to_n_tot(np.sum(n_init_max), dn_dlogD)  # correct for discretization
+        if entrain_psd is None:  # Entrained aerosol PSD
+            entrain_psd = {"dn_dlogD": np.copy(dn_dlogD)}
+        else:
+            for ii in range(len(entrain_psd["n_init_max"])):
+                psd_tmp = entrain_psd.copy()
+                psd_tmp["diam_mean"] = psd_tmp["diam_mean"][ii]
+                psd_tmp["geom_sd"] = psd_tmp["geom_sd"][ii]
+                _, dn_dlogD_tmp, _, _ = super()._calc_logn_diam_dn_dlogd(
+                    psd_tmp, entrain_psd["n_init_max"][ii], diam_in=dF)
+                if ii == 0:
+                    dn_dlogD_ent = dn_dlogD_tmp
+                else:
+                    dn_dlogD_ent += dn_dlogD_tmp
+            if correct_discrete:
+                dn_dlogD_ent = self._normalize_to_n_tot(
+                    np.sum(entrain_psd["n_init_max"]), dn_dlogD_ent)  # correct for discretization
+            entrain_psd["dn_dlogD"] = dn_dlogD_ent
+
         super(logn_AER, self).__init__(use_ABIFM=use_ABIFM, n_init_max=np.sum(n_init_max),
                                        nucleus_type=nucleus_type, diam=diam, dn_dlogD=dn_dlogD, name=name,
                                        diam_cutoff=diam_cutoff, T_array=T_array, singular_fun=singular_fun,
                                        singular_scale=singular_scale, psd=psd,
-                                       n_init_weight_prof=n_init_weight_prof, ci_model=ci_model)
+                                       n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
+                                       entrain_to_cth=entrain_to_cth, ci_model=ci_model)
 
 
 class custom_AER(AER_pop):
@@ -712,7 +855,8 @@ class custom_AER(AER_pop):
     """
     def __init__(self, use_ABIFM, n_init_max=None, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, ci_model=None):
+                 psd={}, n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None,
+                 ci_model=None):
         """
         Parameters as in the 'AER_pop' class
 
@@ -732,7 +876,19 @@ class custom_AER(AER_pop):
         if "norm_to_n_init_max" in psd.keys():
             if psd["norm_to_n_init_max"]:
                 dn_dlogD = dn_dlogD / np.sum(dn_dlogD) * n_init_max
+        if entrain_psd is None:  # Entrained aerosol PSD
+            entrain_psd = {"dn_dlogD": np.copy(dn_dlogD)}
+        else:
+            if np.logical_or(len(entrain_psd["diam"]) != len(diam),
+                             entrain_psd["dn_dlogD"] != len(entrain_psd["diam"])):
+                raise ValueError("The 'diam', entrain 'diam', and entrain 'dn_dlogD' arrays are not same size!")
+            dn_dlogD_ent = entrain_psd["dn_dlogD"]
+            if "norm_to_n_init_max" in entrain_psd.keys():
+                if entrain_psd["norm_to_n_init_max"]:
+                    dn_dlogD_ent = dn_dlogD_ent / np.sum(entrain_psd["dn_dlogD"]) * entrain_psd["n_init_max"]
+
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
-                         n_init_weight_prof=n_init_weight_prof, ci_model=ci_model)
+                         n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)

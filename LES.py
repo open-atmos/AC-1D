@@ -13,9 +13,11 @@ class LES():
     Attributes
     ----------
     Ni_field: dict
-       Ice number concentration fieldname and scaling factor required for m^-3 units
+        Ice number concentration fieldname and scaling factor required for m^-3 units.
+        If fieldname is a list, summing the list fieldname values.
     pflux_field: dict
         Precipitation flux fieldname and scaling factor for mm/h.
+        If fieldname is a list, summing the list fieldname values.
     T_field: dict
         Temperature field name and addition factor in case of T reported in C (K is needed).
     q_liq_field: dict
@@ -58,20 +60,25 @@ class LES():
 
         Parameters
         ----------
-        t_harvest: scalar, 2-element tuple, list (or ndarray), or None
+        t_harvest: scalar, 2- or 3-element tuple, list (or ndarray), or None
             If scalar then using the nearest time (assuming units of seconds) to initialize the model
             (single profile).
             If a tuple, cropping the range defined by the first two elements (increasing values) using a
-            slice object.
+            slice object. If len(t_harvest) == 3 then using the 3rd element as a time offset to subtract from
+            the tiem array values.
             If a list, cropping the times specified in the list (can be used take LES output profiles every
             delta_t seconds.
         """
         if isinstance(t_harvest, (float, int)):
             self.ds = self.ds.sel({self.time_dim: [t_harvest]}, method='nearest')
         elif isinstance(t_harvest, tuple):  # assuming a 2-element tuple.
-            if len(t_harvest) != 2:
-                raise ValueError("t_harvest (time range) tuple length should be 2")
-            self.ds = self.ds.sel({self.time_dim: slice(*t_harvest)})
+            if np.logical_or(len(t_harvest) < 2, len(t_harvest) > 3):
+                raise ValueError("t_harvest (time range) tuple length should be 2 or 3")
+            elif len(t_harvest) == 2:
+                self.ds = self.ds.sel({self.time_dim: slice(*t_harvest)})
+            elif len(t_harvest) == 3:
+                self.ds = self.ds.sel({self.time_dim: slice(*t_harvest[:2])})
+                self.ds = self.ds.assign_coords({self.time_dim: self.ds[self.time_dim].values - t_harvest[2]})
         elif isinstance(t_harvest, (list, np.ndarray)):
             self.ds = self.ds.sel({self.time_dim: t_harvest}, method='nearest')
 
@@ -79,6 +86,7 @@ class LES():
         """
         Crop the required fields (and other requested fields), with the option of cropping the
         height dim using specified indices.
+        If multiple Ni or pflux fields are specified then those fields are summed. 
 
         Parameters
         ----------
@@ -97,6 +105,24 @@ class LES():
                 - OTHER OPTIONS TO BE ADDED.
             If None then not cropping.
         """
+        if isinstance(self.Ni_field["name"], list):
+            self.ds["Ni_tot"] = self.ds[self.Ni_field["name"][0]].copy(deep=True)
+            if len(self.Ni_field["name"]) > 1:
+                for ff in self.Ni_field["name"]:
+                    self.ds["Ni_tot"].values += self.ds[ff].values
+            self.Ni_field["name"] = "Ni_tot"
+
+        if isinstance(self.pflux_field["name"], list):
+            self.ds["PFtot"] = xr.DataArray(np.zeros_like(self.ds[self.pflux_field["name"][0]].values),
+                                            dims=self.ds[self.pflux_field["name"][0]].dims)
+            for ff in self.pflux_field["name"]:
+                self.ds["PFtot"].values += self.ds[ff].values
+            self.pflux_field["name"] = "PFtot"
+            if not self.les_bin_phys:  # Requires Arakawa C-grid consideration (taking precip at bottim of cell).
+                self.ds[self.pflux_field["name"]] = \
+                    xr.DataArray(self.ds[self.pflux_field["name"]].values[:, :-1].T,
+                                 dims=self.ds[self.Ni_field["name"]].dims)
+
         if fields_to_retain is None:
             fields_to_retain = [self.Ni_field["name"], self.pflux_field["name"], self.T_field["name"],
                                 self.q_liq_field["name"], self.RH_field["name"]]
@@ -222,7 +248,8 @@ class LES():
 
 class DHARMA(LES):
     def __init__(self, les_out_path=None, les_out_filename=None, t_harvest=None, fields_to_retain=None,
-                 height_ind_2crop=None, cbh_det_method="ql_thresh", q_liq_pbl_cut=None):
+                 height_ind_2crop=None, cbh_det_method="ql_thresh", q_liq_pbl_cut=None,
+                 les_bin_phys=True):
         """
         LES class for DHARMA that loads model output dataset
 
@@ -259,12 +286,20 @@ class DHARMA(LES):
         q_liq_pbl_cutoff: float
             value of q_liq_cut (kg/kg) required to define the PBL top z-index (where LWC becomes negligible) -
             to be used in '_crop_fields' if 'height_ind_2crop' == 'ql_pbl'.
+        les_bin_phys: bool
+            IF True, using bin microphysics output namelist for harvesting LES data.
+            If False, using bulk microphysics output namelist for harvesting LES data.
         """
         super().__init__(q_liq_pbl_cut=q_liq_pbl_cut)
-        self.Ni_field = {"name": "ntot_3", "scaling": 1e6}  # scale to m^-3
-        self.pflux_field = {"name": "pflux_3", "scaling": 1}  # scale to mm/h
+        if les_bin_phys: 
+            self.Ni_field = {"name": "ntot_3", "scaling": 1e6}  # scale to m^-3
+            self.pflux_field = {"name": "pflux_3", "scaling": 1}  # scale to mm/h
+            self.q_liq_field = {"name": "qc", "scaling": 1e-3}  # scale to kg/kg
+        else:  # bulk
+            self.Ni_field = {"name": ["nqic", "nqid", "nqif"], "scaling": 1e6}  # scale to m^-3
+            self.pflux_field = {"name": ["PFqic", "PFqid", "PFqif"], "scaling": 1}  # scale to mm/h
+            self.q_liq_field = {"name": "qc", "scaling": 1}  # scale to kg/kg
         self.T_field = {"name": "T", "addition": 0}  # scale to K (addition)
-        self.q_liq_field = {"name": "ql", "scaling": 1e-3}  # scale to kg/kg
         self.RH_field = {"name": "RH", "scaling": 1. / 100.}  # scale to fraction
         self.model_name = "DHARMA"
         self.time_dim = "time"
@@ -278,6 +313,7 @@ class DHARMA(LES):
             les_out_filename = 'dharma.soundings.cdf'
         self.les_out_path = les_out_path
         self.les_out_filename = les_out_filename
+        self.les_bin_phys = les_bin_phys
 
         # load model output
         self.ds = xr.open_dataset(les_out_path + les_out_filename)
