@@ -99,7 +99,7 @@ div.admonition.inline-title p.admonition-title {
 <p>This module is used to initialize the model, and allocate fields and arrays to a ‘ci_model’ class.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="init_model.ci_model">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">init_model.</span></span><span class="sig-name descname"><span class="pre">ci_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">final_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DHARMA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_averaged_les</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_vert_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_e_ent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deplete_entrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_to_cth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">implicit_ent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_mix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1800.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heat_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_act</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">implicit_act</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixing_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_f_ice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_cld_q_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nuc_RH_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_splitting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ent_then_act</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prognostic_inp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aer_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_out_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_out_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_harvest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields_to_retain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_ind_2crop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ql_pbl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbh_det_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ql_thresh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_conc_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_diam_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_heatrate_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_act</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_entrain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_mix_aer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_mix_ice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_sedim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_budgets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_aer_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">init_model.</span></span><span class="sig-name descname"><span class="pre">ci_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">final_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DHARMA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_averaged_les</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_vert_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_e_ent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_to_cth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">implicit_ent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_mix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1800.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heat_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_act</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">implicit_act</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">implicit_sublim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixing_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_f_ice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_cld_q_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nuc_RH_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_splitting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ent_then_act</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prognostic_inp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prognostic_ice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ice_snaps_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_sublim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aer_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_out_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_out_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_bin_phys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_harvest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields_to_retain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_ind_2crop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ql_pbl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbh_det_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ql_thresh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_conc_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_diam_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_heatrate_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_act</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_entrain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_mix_aer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_mix_ice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_sedim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_sublim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_budgets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_aer_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Cloud-ice nucleation 1D model class containing:
 1. All initialization model parameters
@@ -115,6 +115,12 @@ div.admonition.inline-title p.admonition-title {
 <tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.calc_a_ice_w" title="init_model.ci_model.calc_a_ice_w"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_a_ice_w</span></code></a>(T)</p></td>
 <td><p>calculate a_w(ice) using eq.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.ci_model_ds_from_netcdf" title="init_model.ci_model.ci_model_ds_from_netcdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ci_model_ds_from_netcdf</span></code></a>([out_prefix])</p></td>
+<td><p>Load datasets from a model simulation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.ci_model_ds_to_netcdf" title="init_model.ci_model.ci_model_ds_to_netcdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ci_model_ds_to_netcdf</span></code></a>([out_prefix])</p></td>
+<td><p>export datasets from a model simulation.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.generate_figure" title="init_model.ci_model.generate_figure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_figure</span></code></a>(**kwargs)</p></td>
 <td><p>A method for generating a figure object.</p></td>
 </tr>
@@ -129,6 +135,12 @@ div.admonition.inline-title p.admonition-title {
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.plot_tseries" title="init_model.ci_model.plot_tseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_tseries</span></code></a>(**kwargs)</p></td>
 <td><p>A method for time series plots based on the object's xr.DataSet</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.reassign_units" title="init_model.ci_model.reassign_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reassign_units</span></code></a>(ds_4_out)</p></td>
+<td><p>Reassign units to fields in an xr.Dataset loaded from a NetCDF file assuming that a 'stripped_units' attribute exists.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.strip_units" title="init_model.ci_model.strip_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">strip_units</span></code></a>(ds_4_out)</p></td>
+<td><p>Strip units from fields in an xr.Dataset enabling export to NetCDF files (convert pint.Quantity data fields to np.ndarray while saving stripping info).</p></td>
 </tr>
 </tbody>
 </table>
@@ -161,14 +173,11 @@ length s (s &gt; 1) determining time and entrainment rate time series.
 Time values are interpolated between the specified times, and the edge values are used for
 extrapolation.</p>
 </dd>
-<dt><strong>deplete_entrained: bool</strong></dt><dd><p>If True, then entrain from cloud top definition consistent with the ‘cbh_det_method’ input parameter
-and correspondingly deplete aerosol from the grid cell right above CTH.
-If False, then entrain using the initial CTH aerosol concentrations (infinite reservoir, no depletion).</p>
-</dd>
-<dt><strong>entrain_to_cth: bool</strong></dt><dd><p>If True, entrain from the free atmosphere to cloud top after calculating the corresponding delta.
-If False, entrain from the free atmosphere to the surface layer (and calculate the delta using the
-surface aerosol concentration value (i.e., an extreme entrainment case), while using that dz is as at
-cloud top (i.e., using dz value at cth and not dz = z_surf).</p>
+<dt><strong>entrain_to_cth: bool or int</strong></dt><dd><p>If True, entrain to cloud top (mixing layer top) after calculating the corresponding delta.
+If False, entrain to the mixing layer base (surface layer in coupled cases).
+If int, then using this input as index such that 0 or -1 mean consistent entrainment to the surface
+layer or domain top, respectively.
+NOTE: the value of entrain_to_cth will be overwritten if provided as key in aer_info.</p>
 </dd>
 <dt><strong>implicit_ent: bool</strong></dt><dd><p>If True, using an implicit solver for entrainment. If False, using explicit solver.</p>
 </dd>
@@ -187,6 +196,8 @@ If None, then singular activation is instantaneous and depends on delta_t.
 Relevant for singular parameterizations.</p>
 </dd>
 <dt><strong>implicit_act: bool [–singular–]</strong></dt><dd><p>If True and tau_act is a scalar, using implicit solution to activation.</p>
+</dd>
+<dt><strong>implicit_sublim: bool</strong></dt><dd><p>If True, using implicit solution to sublimation (Ni reduction - relevant for relative_sublim == True).</p>
 </dd>
 <dt><strong>mixing_bounds: two-element tuple or list, or None</strong></dt><dd><p>Determining the mixing layer (especially relevant when using time-varying LES input).
 The first element provides a fixed lowest range of mixing (float), a time varying range (dict as
@@ -223,6 +234,20 @@ these two processes are followed by mixing).</p>
 <dt><strong>prognostic_inp: bool</strong></dt><dd><p>if True, using prognostic aerosol (default - essentially, the purpose of this model).
 if False, using diagnostic INP, i.e., total activated INP numbers are calcuated while considering
 tau_act (singular) or Jhet in current time step (ABIFM).</p>
+</dd>
+<dt><strong>prognostic_ice: bool</strong></dt><dd><p>If True, using prognostic ice, i.e., ice particles have INP memory, thereby enabling sublimation
+such that particle INPs are restored (requires setting prognostic_inp to True).
+If False, ice particles have no memory, and therefore, no sublimation, for example.
+Note that prognostic_ice requires more computation time. Memory is only allocated for ice snapshot
+as in INAS.
+Requires: prognostic_inp == True.</p>
+</dd>
+<dt><strong>ice_snaps_t: np.ndarray or None</strong></dt><dd><p>array specifying times at which prognostic ice snapshots will be saved. Saving none if None.
+Requires prognostic_ice == True.</p>
+</dd>
+<dt><strong>relative_sublim: bool</strong></dt><dd><p>If True, using the relative reduction of Ni with height (based on LES).
+If False, using abosulte reduction.
+Requires prognostic_ice == True.</p>
 </dd>
 <dt><strong>aer_info: list of dict</strong></dt><dd><p>Used to initialize the aerosol arrays. Each element of the list describes a single population
 type providing its composition, concentration, and PSD, e.g., can use a single log-normal population
@@ -292,6 +317,21 @@ if weights &gt; 1 are specified, the profile is normalized to max value == 1. he
 between the specified heights, and the edge values are used for extrapolation (can be used to set
 different aerosol source layers at model initialization, and combined with turbulence weighting,
 allows the emulation of cloud-driven mixing.</p>
+<p>8. entrain_psd: [dict] PSD for entrained aerosol - similar to the aer_info dict for specifying the
+PSD parameters of the entrained aerosol (can be surface aerosol fluxes if entrain_from_cth=0, for
+example). The ‘type’ key value must be the same as the aer_info dict.
+optional keys:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>src_weight_time: [dict] a dict with keys “time” and “weight” for entrainment source.</p></li>
+</ol>
+</div></blockquote>
+<p>9. entrain_to_cth: [bool or int] as in the ‘entrain_to_cth’ in the ci_model class attributes, the
+case of which will result in determining this attribute value only for this specific aerosol
+population.
+If not specified, using the default option, i.e., the initial PSD (‘dn_dlogD) with a weight of 1.,
+which in likely most scenarios represent the free-tropospheric (or PBL top) as was the case until
+the Sep 6, 2020 commits.</p>
 </dd>
 </dl>
 </dd>
@@ -315,6 +355,8 @@ The relevant input parameters is: heat_rate.</p>
 </dd>
 <dt><strong>do_sedim: bool</strong></dt><dd><p>determines whether ice sedimentation will be performed.</p>
 </dd>
+<dt><strong>do_sublim: bool</strong></dt><dd><p>determines whether ice sublimation will be performed (based on dNi/dz from LES).</p>
+</dd>
 <dt><strong>output_budgets: bool</strong></dt><dd><p>If True, then activation, entrainment, and mixing budgest are provided in the model output.</p>
 </dd>
 <dt><strong>output_aer_decay: bool</strong></dt><dd><p>If True, then generating an output field of the relative fraction of PBL aerosol relative to
@@ -330,10 +372,14 @@ initial value, as well as the decay rate between consecutive time steps.</p>
 </dd>
 <dt><strong>les_out_filename: str or None</strong></dt><dd><p>LES output filename. Use default file if None.</p>
 </dd>
-<dt><strong>t_harvest: scalar, 2-element tuple, list (or ndarray), or None</strong></dt><dd><p>If scalar then using the nearest time (assuming units of seconds) to initialize the model
+<dt><strong>les_bin_phys: bool</strong></dt><dd><p>IF True, using bin microphysics output namelist for harvesting LES data.
+If False, using bulk microphysics output namelist for harvesting LES data.</p>
+</dd>
+<dt><strong>t_harvest: scalar, 2- or 3-element tuple, list (or ndarray), or None</strong></dt><dd><p>If scalar then using the nearest time (assuming units of seconds) to initialize the model
 (single profile).
 If a tuple, cropping the range defined by the first two elements (increasing values) using a
-slice object.
+slice object. If len(t_harvest) == 3 then using the 3rd element as a time offset to subtract from
+the tiem array values.
 If a list, cropping the times specified in the list (can be used take LES output profiles every
 delta_t seconds.
 NOTE: default in the ci_model class (10800 s) is different than in the DHARMA init method (None).</p>
@@ -377,6 +423,12 @@ NOTE: default in the ci_model class (“ql_pbl”) is different than in the DHAR
 <tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.calc_a_ice_w" title="init_model.ci_model.calc_a_ice_w"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_a_ice_w</span></code></a>(T)</p></td>
 <td><p>calculate a_w(ice) using eq.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.ci_model_ds_from_netcdf" title="init_model.ci_model.ci_model_ds_from_netcdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ci_model_ds_from_netcdf</span></code></a>([out_prefix])</p></td>
+<td><p>Load datasets from a model simulation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.ci_model_ds_to_netcdf" title="init_model.ci_model.ci_model_ds_to_netcdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ci_model_ds_to_netcdf</span></code></a>([out_prefix])</p></td>
+<td><p>export datasets from a model simulation.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.generate_figure" title="init_model.ci_model.generate_figure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_figure</span></code></a>(**kwargs)</p></td>
 <td><p>A method for generating a figure object.</p></td>
 </tr>
@@ -391,6 +443,12 @@ NOTE: default in the ci_model class (“ql_pbl”) is different than in the DHAR
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.plot_tseries" title="init_model.ci_model.plot_tseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_tseries</span></code></a>(**kwargs)</p></td>
 <td><p>A method for time series plots based on the object's xr.DataSet</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#init_model.ci_model.reassign_units" title="init_model.ci_model.reassign_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reassign_units</span></code></a>(ds_4_out)</p></td>
+<td><p>Reassign units to fields in an xr.Dataset loaded from a NetCDF file assuming that a 'stripped_units' attribute exists.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#init_model.ci_model.strip_units" title="init_model.ci_model.strip_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">strip_units</span></code></a>(ds_4_out)</p></td>
+<td><p>Strip units from fields in an xr.Dataset enabling export to NetCDF files (convert pint.Quantity data fields to np.ndarray while saving stripping info).</p></td>
 </tr>
 </tbody>
 </table>
@@ -408,6 +466,42 @@ NOTE: default in the ci_model class (“ql_pbl”) is different than in the DHAR
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
 <dt>a_ice_w: np.ndarray or xr.DataArray</dt><dd><p>water activity for ice nucleation</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="init_model.ci_model.ci_model_ds_from_netcdf">
+<span class="sig-name descname"><span class="pre">ci_model_ds_from_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AC_1D_out'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model.ci_model_ds_from_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model.ci_model_ds_from_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load datasets from a model simulation. Each dataset is stored in a different file.
+Assumes files were generated for the main ci_model object and each aerosol population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>out_prefix: str</strong></dt><dd><p>filename prefix and path from which to load ci_model’s datasets.
+A “_main.nc” suffix is added to the filename of the NetCDF file containing the main
+ci_model dataset, while for each dataset of an aerosol population xxxx, an
+‘aer_pop_xxxx.nc’ suffix is added.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="init_model.ci_model.ci_model_ds_to_netcdf">
+<span class="sig-name descname"><span class="pre">ci_model_ds_to_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AC_1D_out'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model.ci_model_ds_to_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model.ci_model_ds_to_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>export datasets from a model simulation. Each dataset is stored in a different file.
+Files are generated for the main ci_model object and each aerosol population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>out_prefix: str</strong></dt><dd><p>filename prefix and path from which to load ci_model’s datasets.
+A “_main.nc” suffix is added to the filename of the NetCDF file containing the main
+ci_model dataset, while for each dataset of an aerosol population xxxx, an
+‘aer_pop_xxxx.nc’ suffix is added.</p>
 </dd>
 </dl>
 </dd>
@@ -442,6 +536,49 @@ NOTE: default in the ci_model class (“ql_pbl”) is different than in the DHAR
 <dt class="sig sig-object py" id="init_model.ci_model.plot_tseries">
 <span class="sig-name descname"><span class="pre">plot_tseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model.plot_tseries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model.plot_tseries" title="Permalink to this definition">¶</a></dt>
 <dd><p>A method for time series plots based on the object’s xr.DataSet</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="init_model.ci_model.reassign_units">
+<span class="sig-name descname"><span class="pre">reassign_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_4_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model.reassign_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model.reassign_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reassign units to fields in an xr.Dataset loaded from a NetCDF file assuming that
+a ‘stripped_units’ attribute exists.
+(convert np.ndarray data fields to pint.Quantity and delete stripping info).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ds_4_out: xr.Dataset</strong></dt><dd><p>Dataset with to stripped units.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>ds_4_out: xr.Dataset</dt><dd><p>Dataset with with units added to fields.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="init_model.ci_model.strip_units">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strip_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_4_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/init_model.html#ci_model.strip_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#init_model.ci_model.strip_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strip units from fields in an xr.Dataset enabling export to NetCDF files
+(convert pint.Quantity data fields to np.ndarray while saving stripping info).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ds_4_out: xr.Dataset</strong></dt><dd><p>Dataset from which to strip units</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>ds_4_out: xr.Dataset</dt><dd><p>Dataset with to stripped units.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

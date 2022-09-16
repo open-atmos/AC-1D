@@ -91,15 +91,16 @@
 <span class="sd">    3. Model output  output fields (ci_model.ds).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">final_t</span><span class="o">=</span><span class="mi">21600</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">use_ABIFM</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">les_name</span><span class="o">=</span><span class="s2">&quot;DHARMA&quot;</span><span class="p">,</span> <span class="n">t_averaged_les</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">custom_vert_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w_e_ent</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">deplete_entrained</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">entrain_to_cth</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">custom_vert_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w_e_ent</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">entrain_to_cth</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">implicit_ent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tau_mix</span><span class="o">=</span><span class="mf">1800.</span><span class="p">,</span> <span class="n">heat_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tau_act</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span> <span class="n">implicit_act</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">mixing_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_f_ice</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">in_cld_q_thresh</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">nuc_RH_thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">time_splitting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ent_then_act</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">prognostic_inp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">aer_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">t_harvest</span><span class="o">=</span><span class="mi">10800</span><span class="p">,</span>
+                 <span class="n">implicit_sublim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mixing_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_f_ice</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">in_cld_q_thresh</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+                 <span class="n">nuc_RH_thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_splitting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ent_then_act</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">prognostic_inp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">prognostic_ice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ice_snaps_t</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">relative_sublim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">aer_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_bin_phys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">t_harvest</span><span class="o">=</span><span class="mi">10800</span><span class="p">,</span>
                  <span class="n">fields_to_retain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height_ind_2crop</span><span class="o">=</span><span class="s2">&quot;ql_pbl&quot;</span><span class="p">,</span> <span class="n">cbh_det_method</span><span class="o">=</span><span class="s2">&quot;ql_thresh&quot;</span><span class="p">,</span>
                  <span class="n">input_conc_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_diam_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_heatrate_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">do_act</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_entrain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_mix_aer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_mix_ice</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_sedim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">output_budgets</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_aer_decay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">run_model</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                 <span class="n">do_sublim</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_budgets</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_aer_decay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">run_model</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Model namelists and unit conversion coefficient required for the 1D model.</span>
 <span class="sd">        The LES class includes methods to processes model output and prepare the out fields for the 1D model.</span>
@@ -130,15 +131,12 @@
 <span class="sd">            length s (s &gt; 1) determining time and entrainment rate time series.</span>
 <span class="sd">            Time values are interpolated between the specified times, and the edge values are used for</span>
 <span class="sd">            extrapolation.</span>
-<span class="sd">        deplete_entrained: bool</span>
-<span class="sd">            If True, then entrain from cloud top definition consistent with the &#39;cbh_det_method&#39; input parameter</span>
-<span class="sd">            and correspondingly deplete aerosol from the grid cell right above CTH.</span>
-<span class="sd">            If False, then entrain using the initial CTH aerosol concentrations (infinite reservoir, no depletion).</span>
-<span class="sd">        entrain_to_cth: bool</span>
-<span class="sd">            If True, entrain from the free atmosphere to cloud top after calculating the corresponding delta.</span>
-<span class="sd">            If False, entrain from the free atmosphere to the surface layer (and calculate the delta using the</span>
-<span class="sd">            surface aerosol concentration value (i.e., an extreme entrainment case), while using that dz is as at</span>
-<span class="sd">            cloud top (i.e., using dz value at cth and not dz = z_surf).</span>
+<span class="sd">        entrain_to_cth: bool or int</span>
+<span class="sd">            If True, entrain to cloud top (mixing layer top) after calculating the corresponding delta.</span>
+<span class="sd">            If False, entrain to the mixing layer base (surface layer in coupled cases).</span>
+<span class="sd">            If int, then using this input as index such that 0 or -1 mean consistent entrainment to the surface</span>
+<span class="sd">            layer or domain top, respectively.</span>
+<span class="sd">            NOTE: the value of entrain_to_cth will be overwritten if provided as key in aer_info.</span>
 <span class="sd">        implicit_ent: bool</span>
 <span class="sd">            If True, using an implicit solver for entrainment. If False, using explicit solver.</span>
 <span class="sd">        tau_mix: dict or float</span>
@@ -157,6 +155,8 @@
 <span class="sd">            Relevant for singular parameterizations.</span>
 <span class="sd">        implicit_act: bool [--singular--]</span>
 <span class="sd">            If True and tau_act is a scalar, using implicit solution to activation.</span>
+<span class="sd">        implicit_sublim: bool</span>
+<span class="sd">            If True, using implicit solution to sublimation (Ni reduction - relevant for relative_sublim == True).</span>
 <span class="sd">        mixing_bounds: two-element tuple or list, or None</span>
 <span class="sd">            Determining the mixing layer (especially relevant when using time-varying LES input).</span>
 <span class="sd">            The first element provides a fixed lowest range of mixing (float), a time varying range (dict as</span>
@@ -193,6 +193,20 @@
 <span class="sd">            if True, using prognostic aerosol (default - essentially, the purpose of this model).</span>
 <span class="sd">            if False, using diagnostic INP, i.e., total activated INP numbers are calcuated while considering</span>
 <span class="sd">            tau_act (singular) or Jhet in current time step (ABIFM).</span>
+<span class="sd">        prognostic_ice: bool</span>
+<span class="sd">            If True, using prognostic ice, i.e., ice particles have INP memory, thereby enabling sublimation</span>
+<span class="sd">            such that particle INPs are restored (requires setting prognostic_inp to True).</span>
+<span class="sd">            If False, ice particles have no memory, and therefore, no sublimation, for example.</span>
+<span class="sd">            Note that prognostic_ice requires more computation time. Memory is only allocated for ice snapshot</span>
+<span class="sd">            as in INAS.</span>
+<span class="sd">            Requires: prognostic_inp == True.</span>
+<span class="sd">        ice_snaps_t: np.ndarray or None</span>
+<span class="sd">            array specifying times at which prognostic ice snapshots will be saved. Saving none if None.</span>
+<span class="sd">            Requires prognostic_ice == True.</span>
+<span class="sd">        relative_sublim: bool</span>
+<span class="sd">            If True, using the relative reduction of Ni with height (based on LES).</span>
+<span class="sd">            If False, using abosulte reduction.</span>
+<span class="sd">            Requires prognostic_ice == True.</span>
 <span class="sd">        aer_info: list of dict</span>
 <span class="sd">            Used to initialize the aerosol arrays. Each element of the list describes a single population</span>
 <span class="sd">            type providing its composition, concentration, and PSD, e.g., can use a single log-normal population</span>
@@ -260,6 +274,18 @@
 <span class="sd">                between the specified heights, and the edge values are used for extrapolation (can be used to set</span>
 <span class="sd">                different aerosol source layers at model initialization, and combined with turbulence weighting,</span>
 <span class="sd">                allows the emulation of cloud-driven mixing.</span>
+
+<span class="sd">                8. entrain_psd: [dict] PSD for entrained aerosol - similar to the aer_info dict for specifying the</span>
+<span class="sd">                PSD parameters of the entrained aerosol (can be surface aerosol fluxes if entrain_from_cth=0, for</span>
+<span class="sd">                example). The &#39;type&#39; key value must be the same as the aer_info dict.</span>
+<span class="sd">                optional keys:</span>
+<span class="sd">                    1. src_weight_time: [dict] a dict with keys &quot;time&quot; and &quot;weight&quot; for entrainment source.</span>
+<span class="sd">                9. entrain_to_cth: [bool or int] as in the &#39;entrain_to_cth&#39; in the ci_model class attributes, the</span>
+<span class="sd">                case of which will result in determining this attribute value only for this specific aerosol</span>
+<span class="sd">                population.</span>
+<span class="sd">                If not specified, using the default option, i.e., the initial PSD (&#39;dn_dlogD) with a weight of 1.,</span>
+<span class="sd">                which in likely most scenarios represent the free-tropospheric (or PBL top) as was the case until</span>
+<span class="sd">                the Sep 6, 2020 commits.</span>
 <span class="sd">        input_conc_units: str or None</span>
 <span class="sd">            An str specifies the input aerosol concentration units that will be converted to SI in pre-processing.</span>
 <span class="sd">            Relevant input parameters are: n_init_max and dn_dlogD (custom).</span>
@@ -280,6 +306,8 @@
 <span class="sd">            determines whether mixing of ice will be performed.</span>
 <span class="sd">        do_sedim: bool</span>
 <span class="sd">            determines whether ice sedimentation will be performed.</span>
+<span class="sd">        do_sublim: bool</span>
+<span class="sd">            determines whether ice sublimation will be performed (based on dNi/dz from LES).</span>
 <span class="sd">        output_budgets: bool</span>
 <span class="sd">            If True, then activation, entrainment, and mixing budgest are provided in the model output.</span>
 <span class="sd">        output_aer_decay: bool</span>
@@ -294,11 +322,15 @@
 <span class="sd">            LES output path (can be relative to running directory). Use default if None.</span>
 <span class="sd">        les_out_filename: str or None</span>
 <span class="sd">            LES output filename. Use default file if None.</span>
-<span class="sd">        t_harvest: scalar, 2-element tuple, list (or ndarray), or None</span>
+<span class="sd">        les_bin_phys: bool</span>
+<span class="sd">            IF True, using bin microphysics output namelist for harvesting LES data.</span>
+<span class="sd">            If False, using bulk microphysics output namelist for harvesting LES data.</span>
+<span class="sd">        t_harvest: scalar, 2- or 3-element tuple, list (or ndarray), or None</span>
 <span class="sd">            If scalar then using the nearest time (assuming units of seconds) to initialize the model</span>
 <span class="sd">            (single profile).</span>
 <span class="sd">            If a tuple, cropping the range defined by the first two elements (increasing values) using a</span>
-<span class="sd">            slice object.</span>
+<span class="sd">            slice object. If len(t_harvest) == 3 then using the 3rd element as a time offset to subtract from</span>
+<span class="sd">            the tiem array values.</span>
 <span class="sd">            If a list, cropping the times specified in the list (can be used take LES output profiles every</span>
 <span class="sd">            delta_t seconds.</span>
 <span class="sd">            NOTE: default in the ci_model class (10800 s) is different than in the DHARMA init method (None).</span>
@@ -333,6 +365,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">in_cld_q_thresh</span> <span class="o">=</span> <span class="n">in_cld_q_thresh</span>  <span class="c1"># kg/kg</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nuc_RH_thresh</span> <span class="o">=</span> <span class="n">nuc_RH_thresh</span>  <span class="c1"># fraction value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prognostic_inp</span> <span class="o">=</span> <span class="n">prognostic_inp</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">prognostic_inp</span><span class="p">,</span> <span class="n">prognostic_ice</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;prognostic_inp is False while prognostic_ice, which requires True prognostic_inp, is False - &quot;</span>
+                  <span class="s2">&quot;setting prognostic_ice = False&quot;</span><span class="p">)</span>
+            <span class="n">prognostic_ice</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prognostic_ice</span> <span class="o">=</span> <span class="n">prognostic_ice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ice_snaps_t</span> <span class="o">=</span> <span class="n">ice_snaps_t</span>
 
         <span class="c1"># assign a unit registry and define percent units.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ureg</span> <span class="o">=</span> <span class="n">pint</span><span class="o">.</span><span class="n">UnitRegistry</span><span class="p">()</span>
@@ -343,12 +381,14 @@
         <span class="k">if</span> <span class="n">les_name</span> <span class="o">==</span> <span class="s2">&quot;DHARMA&quot;</span><span class="p">:</span>
             <span class="n">les</span> <span class="o">=</span> <span class="n">LES</span><span class="o">.</span><span class="n">DHARMA</span><span class="p">(</span><span class="n">les_out_path</span><span class="o">=</span><span class="n">les_out_path</span><span class="p">,</span> <span class="n">les_out_filename</span><span class="o">=</span><span class="n">les_out_filename</span><span class="p">,</span> <span class="n">t_harvest</span><span class="o">=</span><span class="n">t_harvest</span><span class="p">,</span>
                              <span class="n">fields_to_retain</span><span class="o">=</span><span class="n">fields_to_retain</span><span class="p">,</span> <span class="n">height_ind_2crop</span><span class="o">=</span><span class="n">height_ind_2crop</span><span class="p">,</span>
-                             <span class="n">cbh_det_method</span><span class="o">=</span><span class="n">cbh_det_method</span><span class="p">,</span> <span class="n">q_liq_pbl_cut</span><span class="o">=</span><span class="n">in_cld_q_thresh</span><span class="p">)</span>
+                             <span class="n">cbh_det_method</span><span class="o">=</span><span class="n">cbh_det_method</span><span class="p">,</span> <span class="n">q_liq_pbl_cut</span><span class="o">=</span><span class="n">in_cld_q_thresh</span><span class="p">,</span>
+                             <span class="n">les_bin_phys</span><span class="o">=</span><span class="n">les_bin_phys</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t process LES model output from &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">les_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">LES_attributes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;LES_name&quot;</span><span class="p">:</span> <span class="n">les_name</span><span class="p">,</span>
                                <span class="s2">&quot;les_out_path&quot;</span><span class="p">:</span> <span class="n">les</span><span class="o">.</span><span class="n">les_out_path</span><span class="p">,</span>
                                <span class="s2">&quot;les_out_filename&quot;</span><span class="p">:</span> <span class="n">les</span><span class="o">.</span><span class="n">les_out_filename</span><span class="p">,</span>
+                               <span class="s2">&quot;les_bin_phys&quot;</span><span class="p">:</span> <span class="n">les</span><span class="o">.</span><span class="n">les_bin_phys</span><span class="p">,</span>
                                <span class="s2">&quot;t_averaged_les&quot;</span><span class="p">:</span> <span class="n">t_averaged_les</span><span class="p">,</span>
                                <span class="s2">&quot;t_harvest&quot;</span><span class="p">:</span> <span class="n">t_harvest</span><span class="p">,</span>
                                <span class="s2">&quot;fields_to_retain&quot;</span><span class="p">:</span> <span class="n">fields_to_retain</span><span class="p">,</span>
@@ -439,7 +479,6 @@
 
         <span class="c1"># init entrainment</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">w_e_ent</span> <span class="o">=</span> <span class="n">w_e_ent</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">deplete_entrained</span> <span class="o">=</span> <span class="n">deplete_entrained</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entrain_to_cth</span> <span class="o">=</span> <span class="n">entrain_to_cth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implicit_ent</span> <span class="o">=</span> <span class="n">implicit_ent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_AERut</span><span class="p">(</span><span class="n">w_e_ent</span><span class="p">,</span> <span class="s2">&quot;w_e_ent&quot;</span><span class="p">,</span> <span class="s2">&quot;$m/s$&quot;</span><span class="p">,</span> <span class="s2">&quot;Cloud-top entrainment rate&quot;</span><span class="p">)</span>
@@ -509,6 +548,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">tau_act</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implicit_act</span> <span class="o">=</span> <span class="n">implicit_act</span>
 
+        <span class="c1"># init sublimation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relative_sublim</span> <span class="o">=</span> <span class="n">relative_sublim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">implicit_sublim</span> <span class="o">=</span> <span class="n">implicit_sublim</span>
+
         <span class="c1"># calculate delta_aw</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_calc_delta_aw</span><span class="p">()</span>
 
@@ -518,7 +561,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">input_conc_units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_diam_units</span> <span class="o">=</span> <span class="n">input_conc_units</span><span class="p">,</span> <span class="n">input_diam_units</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_convert_input_to_SI</span><span class="p">()</span>  <span class="c1"># Convert input concentration and/or diameter parameters to SI (if requested).</span>
         <span class="n">optional_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_type&quot;</span><span class="p">,</span> <span class="s2">&quot;diam_cutoff&quot;</span><span class="p">,</span> <span class="s2">&quot;T_array&quot;</span><span class="p">,</span>  <span class="c1"># optional aerosol class input params.</span>
-                         <span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">,</span> <span class="s2">&quot;singular_fun&quot;</span><span class="p">,</span> <span class="s2">&quot;singular_scale&quot;</span><span class="p">]</span>
+                         <span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">,</span> <span class="s2">&quot;singular_fun&quot;</span><span class="p">,</span> <span class="s2">&quot;singular_scale&quot;</span><span class="p">,</span>
+                         <span class="s2">&quot;entrain_psd&quot;</span><span class="p">,</span> <span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">)):</span>
             <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;use_ABIFM&quot;</span><span class="p">:</span> <span class="n">use_ABIFM</span><span class="p">}</span>  <span class="c1"># tmp dict for aerosol attributes to send to class call.</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;n_init_max&quot;</span><span class="p">,</span> <span class="s2">&quot;psd&quot;</span><span class="p">]]):</span>
@@ -562,11 +606,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">diam_dim</span> <span class="o">=</span> <span class="s2">&quot;diam&quot;</span>  <span class="c1"># setting the diam dim even though it is only set when allocating an AER object.</span>
 
         <span class="c1"># Run the model and reassign coordinate unit attributes (typically lost in xr.DataArray manipulations)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">prognostic_ice</span><span class="p">,</span> <span class="n">do_sublim</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;prognostic_ice is False while do_sublim is True, but do_sublim requires prognostic ice - &quot;</span>
+                  <span class="s2">&quot;setting do_sublim = False&quot;</span><span class="p">)</span>
+            <span class="n">do_sublim</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_act</span> <span class="o">=</span> <span class="n">do_act</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_entrain</span> <span class="o">=</span> <span class="n">do_entrain</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_mix_aer</span> <span class="o">=</span> <span class="n">do_mix_aer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_mix_ice</span> <span class="o">=</span> <span class="n">do_mix_ice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_sedim</span> <span class="o">=</span> <span class="n">do_sedim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do_sublim</span> <span class="o">=</span> <span class="n">do_sublim</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_splitting</span> <span class="o">=</span> <span class="n">time_splitting</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ent_then_act</span> <span class="o">=</span> <span class="n">ent_then_act</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_budgets</span> <span class="o">=</span> <span class="n">output_budgets</span>
@@ -694,6 +743,8 @@
                                        <span class="n">psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">],</span> <span class="n">nucleus_type</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;nucleus_type&quot;</span><span class="p">],</span>
                                        <span class="n">name</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">diam_cutoff</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span>
                                        <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span> <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
+                                       <span class="n">entrain_psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_psd&quot;</span><span class="p">],</span>
+                                       <span class="n">entrain_to_cth</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">],</span>
                                        <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
                                        <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;logn&quot;</span><span class="p">:</span>
@@ -701,6 +752,8 @@
                                        <span class="n">psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">],</span> <span class="n">nucleus_type</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;nucleus_type&quot;</span><span class="p">],</span>
                                        <span class="n">name</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">diam_cutoff</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span>
                                        <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span> <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
+                                       <span class="n">entrain_psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_psd&quot;</span><span class="p">],</span>
+                                       <span class="n">entrain_to_cth</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">],</span>
                                        <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
                                        <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;multi_logn&quot;</span><span class="p">:</span>
@@ -710,6 +763,8 @@
                                              <span class="n">name</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">diam_cutoff</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span>
                                              <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span>
                                              <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
+                                             <span class="n">entrain_psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_psd&quot;</span><span class="p">],</span>
+                                             <span class="n">entrain_to_cth</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">],</span>
                                              <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
                                              <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;custom&quot;</span><span class="p">:</span>
@@ -717,6 +772,8 @@
                                          <span class="n">psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">],</span> <span class="n">nucleus_type</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;nucleus_type&quot;</span><span class="p">],</span>
                                          <span class="n">name</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">diam_cutoff</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span>
                                          <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span> <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
+                                         <span class="n">entrain_psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_psd&quot;</span><span class="p">],</span>
+                                         <span class="n">entrain_to_cth</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">],</span>
                                          <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
                                          <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
@@ -726,6 +783,8 @@
                                        <span class="n">psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">],</span> <span class="n">nucleus_type</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;nucleus_type&quot;</span><span class="p">],</span>
                                        <span class="n">name</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">diam_cutoff</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span>
                                        <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span> <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
+                                       <span class="n">entrain_psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_psd&quot;</span><span class="p">],</span>
+                                       <span class="n">entrain_to_cth</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">],</span>
                                        <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
                                        <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 
@@ -872,6 +931,102 @@
                     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Converting diameter dimension units for </span><span class="si">%s</span><span class="s2"> from Celsius to Kelvin&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;T_C&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">})</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">T_dim</span> <span class="o">=</span> <span class="s2">&quot;T&quot;</span>
+    
+<div class="viewcode-block" id="ci_model.ci_model_ds_to_netcdf"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.ci_model_ds_to_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">ci_model_ds_to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_prefix</span><span class="o">=</span><span class="s1">&#39;AC_1D_out&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        export datasets from a model simulation. Each dataset is stored in a different file.</span>
+<span class="sd">        Files are generated for the main ci_model object and each aerosol population.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        out_prefix: str</span>
+<span class="sd">            filename prefix and path from which to load ci_model&#39;s datasets.</span>
+<span class="sd">            A &quot;_main.nc&quot; suffix is added to the filename of the NetCDF file containing the main</span>
+<span class="sd">            ci_model dataset, while for each dataset of an aerosol population xxxx, an</span>
+<span class="sd">            &#39;aer_pop_xxxx.nc&#39; suffix is added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out_filenames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">)</span>
+        <span class="n">out_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="s2">&quot;_main.nc&quot;</span><span class="p">)</span>
+        <span class="n">ds_4_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">out_filenames</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">aer_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">aer_key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">)</span>
+            <span class="n">out_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;_aer_pop_</span><span class="si">{</span><span class="n">aer_key</span><span class="si">}</span><span class="s2">.nc&quot;</span><span class="p">)</span>
+            <span class="n">ds_4_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">out_filenames</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exporting ci_model xr.Dataset to the following files</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">out_filenames</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="ci_model.ci_model_ds_from_netcdf"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.ci_model_ds_from_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">ci_model_ds_from_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_prefix</span><span class="o">=</span><span class="s1">&#39;AC_1D_out&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load datasets from a model simulation. Each dataset is stored in a different file.</span>
+<span class="sd">        Assumes files were generated for the main ci_model object and each aerosol population.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        out_prefix: str</span>
+<span class="sd">            filename prefix and path from which to load ci_model&#39;s datasets.</span>
+<span class="sd">            A &quot;_main.nc&quot; suffix is added to the filename of the NetCDF file containing the main</span>
+<span class="sd">            ci_model dataset, while for each dataset of an aerosol population xxxx, an</span>
+<span class="sd">            &#39;aer_pop_xxxx.nc&#39; suffix is added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ds_4_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="s2">&quot;_main.nc&quot;</span><span class="p">)</span>
+        <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reassign_units</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">ds_4_out</span>
+        <span class="k">for</span> <span class="n">aer_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">ds_4_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;_aer_pop_</span><span class="si">{</span><span class="n">aer_key</span><span class="si">}</span><span class="s2">.nc&quot;</span><span class="p">)</span>
+            <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reassign_units</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">aer_key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">ds_4_out</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading ci_model xr.Datasets from the </span><span class="si">{</span><span class="n">out_prefix</span><span class="si">}</span><span class="s2"> files done!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ci_model.strip_units"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.strip_units">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">strip_units</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Strip units from fields in an xr.Dataset enabling export to NetCDF files</span>
+<span class="sd">        (convert pint.Quantity data fields to np.ndarray while saving stripping info).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds_4_out: xr.Dataset</span>
+<span class="sd">            Dataset from which to strip units</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ds_4_out: xr.Dataset</span>
+<span class="sd">            Dataset with to stripped units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ds_4_out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">quantity</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stripping units from &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">magnitude</span>
+                <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stripped_units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stripped_units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">ds_4_out</span></div>
+
+<div class="viewcode-block" id="ci_model.reassign_units"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.reassign_units">[docs]</a>    <span class="k">def</span> <span class="nf">reassign_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_4_out</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reassign units to fields in an xr.Dataset loaded from a NetCDF file assuming that</span>
+<span class="sd">        a &#39;stripped_units&#39; attribute exists.</span>
+<span class="sd">        (convert np.ndarray data fields to pint.Quantity and delete stripping info).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds_4_out: xr.Dataset</span>
+<span class="sd">            Dataset with to stripped units.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ds_4_out: xr.Dataset</span>
+<span class="sd">            Dataset with with units added to fields.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ds_4_out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stripped_units&quot;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Restoring units to &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ureg</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
+                <span class="k">del</span> <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stripped_units&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ds_4_out</span></div>
 
 <div class="viewcode-block" id="ci_model.generate_figure"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.generate_figure">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">generate_figure</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

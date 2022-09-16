@@ -99,7 +99,7 @@ div.admonition.inline-title p.admonition-title {
 <p>This module includes the LES class and the DHARMA sub-class</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="LES.DHARMA">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">LES.</span></span><span class="sig-name descname"><span class="pre">DHARMA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">les_out_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_out_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_harvest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields_to_retain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_ind_2crop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbh_det_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ql_thresh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_liq_pbl_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LES.html#DHARMA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#LES.DHARMA" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">LES.</span></span><span class="sig-name descname"><span class="pre">DHARMA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">les_out_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_out_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_harvest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields_to_retain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_ind_2crop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbh_det_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ql_thresh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_liq_pbl_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">les_bin_phys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LES.html#DHARMA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#LES.DHARMA" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#LES.LES" title="LES.LES"><code class="xref py py-class docutils literal notranslate"><span class="pre">LES</span></code></a></p>
 <p>LES class for DHARMA that loads model output dataset</p>
 <dl class="field-list">
@@ -144,6 +144,9 @@ the highest index corresponding to the cutoff.</p></li>
 <dt><strong>q_liq_pbl_cutoff: float</strong></dt><dd><p>value of q_liq_cut (kg/kg) required to define the PBL top z-index (where LWC becomes negligible) -
 to be used in ‘_crop_fields’ if ‘height_ind_2crop’ == ‘ql_pbl’.</p>
 </dd>
+<dt><strong>les_bin_phys: bool</strong></dt><dd><p>IF True, using bin microphysics output namelist for harvesting LES data.
+If False, using bulk microphysics output namelist for harvesting LES data.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -158,9 +161,11 @@ The LES class includes methods to processes model output and prepare the out fie
 <dl class="field-list simple">
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>Ni_field: dict</strong></dt><dd><p>Ice number concentration fieldname and scaling factor required for m^-3 units</p>
+<dt><strong>Ni_field: dict</strong></dt><dd><p>Ice number concentration fieldname and scaling factor required for m^-3 units.
+If fieldname is a list, summing the list fieldname values.</p>
 </dd>
-<dt><strong>pflux_field: dict</strong></dt><dd><p>Precipitation flux fieldname and scaling factor for mm/h.</p>
+<dt><strong>pflux_field: dict</strong></dt><dd><p>Precipitation flux fieldname and scaling factor for mm/h.
+If fieldname is a list, summing the list fieldname values.</p>
 </dd>
 <dt><strong>T_field: dict</strong></dt><dd><p>Temperature field name and addition factor in case of T reported in C (K is needed).</p>
 </dd>
