@@ -886,10 +886,6 @@ class custom_AER(AER_pop):
             if "norm_to_n_init_max" in entrain_psd.keys():
                 if entrain_psd["norm_to_n_init_max"]:
                     dn_dlogD_ent = dn_dlogD_ent / np.sum(entrain_psd["dn_dlogD"]) * entrain_psd["n_init_max"]
-            if correct_discrete:
-                dn_dlogD_ent = self._normalize_to_n_tot(
-                    entrain_psd["n_init_max"], dn_dlogD_ent)  # correct for discretization
-            entrain_psd["dn_dlogD"] = dn_dlogD_ent
 
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
