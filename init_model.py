@@ -26,7 +26,7 @@ class ci_model():
                  nuc_RH_thresh=None, time_splitting=True, ent_then_act=True,
                  prognostic_inp=True, prognostic_ice=False, ice_snaps_t=None, relative_sublim=True,
                  aer_info=None, les_out_path=None, les_out_filename=None, les_bin_phys=True, t_harvest=10800,
-                 recalc_les=False, fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
+                 fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
                  do_act=True, do_entrain=True, do_mix_aer=True, do_mix_ice=True, do_sedim=True,
                  do_sublim=False, output_budgets=False, output_aer_decay=True, run_model=True):
@@ -263,9 +263,6 @@ class ci_model():
             If a list, cropping the times specified in the list (can be used take LES output profiles every
             delta_t seconds.
             NOTE: default in the ci_model class (10800 s) is different than in the DHARMA init method (None).
-        recalc_les: bool
-            If True, ONLY recalculating parameters from LES to determine cloud and mixing bounds.
-            If False, do nothing (full model object initialization).
         fields_to_retain: list or None
             Fieldnames to crop from the LES output (required to properly run the model).
             If None, then cropping the minimum number of required fields using DHARMA's namelist convention
@@ -287,10 +284,6 @@ class ci_model():
         """
         # count processing time
         Now = time()
-
-        if recalc_les:
-            self._recalc_les()
-            return None
 
         # Set some simulation attributes.
         self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec"]  # processed variables used by the model.
@@ -980,12 +973,14 @@ class ci_model():
         else:
             print("Unknown cbh method string - skipping cbh detection function")
             return
-        cbh_lowest = np.where(np.logical_and(np.cumsum(cbh_all, axis=0) == 1, cbh_all))
-        cth_lowest = np.where(np.logical_and(np.cumsum(cth_all, axis=0) == 1, cth_all))
         self.ds["lowest_cbh"].values = np.full(self.ds.dims["time"], np.nan)
         self.ds["lowest_cth"].values = np.full(self.ds.dims["time"], np.nan)
-        self.ds["lowest_cbh"][cbh_lowest[1]] = self.ds["height"].values[cbh_lowest[0]]
-        self.ds["lowest_cth"][cth_lowest[1]] = self.ds["height"].values[cth_lowest[0]]
+        for tt in range(self.ds.dims["time"]):
+            cbh_lowest = np.argwhere(cbh_all[:,tt]).flatten()
+            if len(cbh_lowest):
+                cth_lowest = np.argwhere(cth_all[:,tt]).flatten()
+                self.ds["lowest_cbh"].values[tt] = self.ds["height"].values[cbh_lowest[0]]
+                self.ds["lowest_cth"].values[tt] = self.ds["height"].values[cth_lowest[0]]
 
         # redetermine mixing bounds and mixing mask
         if not self.mixing_bounds is None:
