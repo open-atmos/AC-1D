@@ -959,13 +959,15 @@ class ci_model():
 
     def _recalc_cld_and_mixing(self):
         """
-        Recalculate LES-harvested parameters following changes to LES ouput (essentially,
+        Recalculate Jhet (ABIFM) and  LES-harvested parameters following changes to LES ouput (essentially,
         cloud depth) in order for the model to consider in simulation. Mixing bounds are updated only if they
         are cloud-dependent (e.g., using 'ql_thresh').
         NOTE: no other change is made to the grid or cropped fields, so these parameters should be specified in
         the first call to init_model.
+        NOTE: in the case of ABIFM, 'inp_cum_init' and 'inp_pct' are not recalculated.
         ALSO, do not change units from SI before calling this method.
         """
+        print("recalculating cloud depth and mixing layer depth")
         # find all cloud bases and the precip rate in the lowest cloud base in every time step (each profile).
         if self.LES_attributes["cbh_det_method"] == "ql_thresh":
             cbh_all = np.diff(self.ds["ql"].values >= self.in_cld_q_thresh, prepend=0, axis=0) == 1
@@ -997,6 +999,19 @@ class ci_model():
                     np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_top"].values[t])) + 1)  # inc. top
                 mixing_mask[rel_ind, t] = True
             self.ds["mixing_mask"].values = mixing_mask
+
+        # Recalculate delta_aw and Jhet for ABIFM (NOTE: that 'inp_cum_init' and 'inp_pct' are not recalculated)
+        if self.use_ABIFM:
+            print("recalculating delta_aw and Jhet (use_ABIFM == True)")
+            self._calc_delta_aw()  # recalculate delta_aw
+            for key in self.aer.keys():
+                self.aer[key].ds["Jhet"] = 10.**(self.aer[key].Jhet.c + self.aer[key].Jhet.m * \
+                    self.ds["delta_aw"]) * 1e4  # calc Jhet
+                if self.aer[key].singular_scale != 1.:
+                    self.aer[key].ds["Jhet"].values *= self.aer[key].singular_scale
+                self.aer[key].ds["Jhet"].attrs["units"] = "$m^{-2} s^{-1}$"
+                self.aer[key].ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
+
 
     @staticmethod
     def generate_figure(**kwargs):
