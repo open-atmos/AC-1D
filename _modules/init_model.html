@@ -21,6 +21,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 
     
@@ -1030,13 +1031,15 @@
 
     <span class="k">def</span> <span class="nf">_recalc_cld_and_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Recalculate LES-harvested parameters following changes to LES ouput (essentially,</span>
+<span class="sd">        Recalculate Jhet (ABIFM) and  LES-harvested parameters following changes to LES ouput (essentially,</span>
 <span class="sd">        cloud depth) in order for the model to consider in simulation. Mixing bounds are updated only if they</span>
 <span class="sd">        are cloud-dependent (e.g., using &#39;ql_thresh&#39;).</span>
 <span class="sd">        NOTE: no other change is made to the grid or cropped fields, so these parameters should be specified in</span>
 <span class="sd">        the first call to init_model.</span>
+<span class="sd">        NOTE: in the case of ABIFM, &#39;inp_cum_init&#39; and &#39;inp_pct&#39; are not recalculated.</span>
 <span class="sd">        ALSO, do not change units from SI before calling this method.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;recalculating cloud depth and mixing layer depth&quot;</span><span class="p">)</span>
         <span class="c1"># find all cloud bases and the precip rate in the lowest cloud base in every time step (each profile).</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">LES_attributes</span><span class="p">[</span><span class="s2">&quot;cbh_det_method&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ql_thresh&quot;</span><span class="p">:</span>
             <span class="n">cbh_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ql&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_cld_q_thresh</span><span class="p">,</span> <span class="n">prepend</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
@@ -1068,6 +1071,19 @@
                     <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">t</span><span class="p">]))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># inc. top</span>
                 <span class="n">mixing_mask</span><span class="p">[</span><span class="n">rel_ind</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_mask&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">mixing_mask</span>
+
+        <span class="c1"># Recalculate delta_aw and Jhet for ABIFM (NOTE: that &#39;inp_cum_init&#39; and &#39;inp_pct&#39; are not recalculated)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ABIFM</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;recalculating delta_aw and Jhet (use_ABIFM == True)&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_calc_delta_aw</span><span class="p">()</span>  <span class="c1"># recalculate delta_aw</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Jhet&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10.</span><span class="o">**</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">Jhet</span><span class="o">.</span><span class="n">c</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">Jhet</span><span class="o">.</span><span class="n">m</span> <span class="o">*</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;delta_aw&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1e4</span>  <span class="c1"># calc Jhet</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">singular_scale</span> <span class="o">!=</span> <span class="mf">1.</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Jhet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">singular_scale</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Jhet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$m^{-2} s^{-1}$&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Jhet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Heterogeneous ice nucleation rate coefficient&quot;</span>
+
 
 <div class="viewcode-block" id="ci_model.generate_figure"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.generate_figure">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">generate_figure</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1159,7 +1175,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, Israel Silber, Ann Fridlind.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.3.
     </div>
     <!-- cloud_sptheme 1.4 -->
   </body>
