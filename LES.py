@@ -293,13 +293,13 @@ class DHARMA(LES):
         super().__init__(q_liq_pbl_cut=q_liq_pbl_cut)
         if les_bin_phys:
             self.Ni_field = {"name": "ntot_3", "scaling": 1e6}  # scale to m^-3
-            self.pflux_field = {"name": "pflux_3", "scaling": 1}  # scale to mm/h
-            self.q_liq_field = {"name": "qc", "scaling": 1e-3}  # scale to kg/kg
+            self.pflux_field = {"name": "pflux_3", "scaling": 1.}  # scale to mm/h
+            self.q_liq_field = {"name": "qc", "scaling": 1.}  # scale to kg/kg
         else:  # bulk
             self.Ni_field = {"name": ["nqic", "nqid", "nqif"], "scaling": 1e6}  # scale to m^-3
-            self.pflux_field = {"name": ["PFqic", "PFqid", "PFqif"], "scaling": 1}  # scale to mm/h
-            self.q_liq_field = {"name": "qc", "scaling": 1}  # scale to kg/kg
-        self.T_field = {"name": "T", "addition": 0}  # scale to K (addition)
+            self.pflux_field = {"name": ["PFqic", "PFqid", "PFqif"], "scaling": 1.}  # scale to mm/h
+            self.q_liq_field = {"name": "qc", "scaling": 1.}  # scale to kg/kg
+        self.T_field = {"name": "T", "addition": 0.}  # scale to K (addition)
         self.RH_field = {"name": "RH", "scaling": 1. / 100.}  # scale to fraction
         self.model_name = "DHARMA"
         self.time_dim = "time"

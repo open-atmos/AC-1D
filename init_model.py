@@ -285,8 +285,6 @@ class ci_model():
         # count processing time
         Now = time()
 
-        # Convert all input parameters to SI (if requested).
-
         # Set some simulation attributes.
         self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec"]  # processed variables used by the model.
         self.final_t = final_t
@@ -350,8 +348,9 @@ class ci_model():
             les.q_liq_field["name"], les.q_liq_field["scaling"], les.height_dim = \
                 tmp_attrs["ql"]["name"], tmp_attrs["ql"]["scaling"], tmp_attrs["height_dim"]
 
-        # Retain only the LES xr.Dataset for accessibility
-        self.les = les.ds
+        # Make self.les point at the LES object's xr.Dataset for accessibility
+        self.LES_obj = les
+        self.les = self.LES_obj.ds
 
         # Make sure ice does not sediment more than 1 vertical cell per time step. In that case change delta_t
         if isinstance(v_f_ice, dict):
@@ -426,6 +425,7 @@ class ci_model():
 
         # init vertical mixing and generate a mixing layer mask for the model
         self.tau_mix = tau_mix
+        self.mixing_bounds = mixing_bounds
         self._set_1D_or_2D_var_from_AERut(tau_mix, "tau_mix", "$s$", "Boundary-layer mixing time scale")
         if mixing_bounds is None:
             self.ds["mixing_mask"] = xr.DataArray(np.full((self.mod_nz, self.mod_nt),
@@ -956,6 +956,47 @@ class ci_model():
                 ds_4_out[key].data *= self.ureg(ds_4_out[key].attrs["units"])
                 del ds_4_out[key].attrs["stripped_units"]
         return ds_4_out
+
+    def _recalc_cld_and_mixing(self):
+        """
+        Recalculate LES-harvested parameters following changes to LES ouput (essentially,
+        cloud depth) in order for the model to consider in simulation. Mixing bounds are updated only if they
+        are cloud-dependent (e.g., using 'ql_thresh').
+        NOTE: no other change is made to the grid or cropped fields, so these parameters should be specified in
+        the first call to init_model.
+        ALSO, do not change units from SI before calling this method.
+        """
+        # find all cloud bases and the precip rate in the lowest cloud base in every time step (each profile).
+        if self.LES_attributes["cbh_det_method"] == "ql_thresh":
+            cbh_all = np.diff(self.ds["ql"].values >= self.in_cld_q_thresh, prepend=0, axis=0) == 1
+            cth_all = np.diff(self.ds["ql"].values >= self.in_cld_q_thresh, append=0, axis=0) == -1
+        else:
+            print("Unknown cbh method string - skipping cbh detection function")
+            return
+        self.ds["lowest_cbh"].values = np.full(self.ds.dims["time"], np.nan)
+        self.ds["lowest_cth"].values = np.full(self.ds.dims["time"], np.nan)
+        for tt in range(self.ds.dims["time"]):
+            cbh_lowest = np.argwhere(cbh_all[:,tt]).flatten()
+            if len(cbh_lowest):
+                cth_lowest = np.argwhere(cth_all[:,tt]).flatten()
+                self.ds["lowest_cbh"].values[tt] = self.ds["height"].values[cbh_lowest[0]]
+                self.ds["lowest_cth"].values[tt] = self.ds["height"].values[cth_lowest[0]]
+
+        # redetermine mixing bounds and mixing mask
+        if not self.mixing_bounds is None:
+            if isinstance(self.mixing_bounds[0], str):
+                if self.mixing_bounds[0] == "ql_thresh":
+                    self.ds["mixing_base"].values = np.copy(self.ds["lowest_cbh"].values)
+            if isinstance(self.mixing_bounds[1], str):
+                if self.mixing_bounds[1] == "ql_thresh":
+                    self.ds["mixing_top"].values = np.copy(self.ds["lowest_cth"].values)
+            mixing_mask = np.full((self.mod_nz, self.mod_nt), False, dtype=bool)
+            for t in range(self.mod_nt):
+                rel_ind = np.arange(
+                    np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_base"].values[t])),
+                    np.argmin(np.abs(self.ds["height"].values - self.ds["mixing_top"].values[t])) + 1)  # inc. top
+                mixing_mask[rel_ind, t] = True
+            self.ds["mixing_mask"].values = mixing_mask
 
     @staticmethod
     def generate_figure(**kwargs):

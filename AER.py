@@ -234,6 +234,7 @@ class AER_pop():
                 self.ds["ice_snap"].attrs["long_name"] = "prognosed ice number concentration (snapshot)"
                 if not ci_model.ice_snaps_t is None:
                     self.ds = self.ds.assign_coords({"t_ice_snaps": ci_model.ice_snaps_t})
+                    self.ds["t_ice_snaps"].attrs["units"] = "$s$"
                     self.ds["ice_snaps"] = xr.DataArray(
                         np.full((*ci_model.ice_snaps_t.shape, *self.ds["ice_snap"].shape), np.nan),
                         dims=("t_ice_snaps", *self.ds["ice_snap"].dims))
@@ -636,6 +637,7 @@ class mono_AER(AER_pop):
             entrain_psd = {"dn_dlogD": np.copy(dn_dlogD)}
         else:
             entrain_psd["dn_dlogD"] = np.array(entrain_psd["n_init_max"])
+
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
@@ -689,6 +691,7 @@ class logn_AER(AER_pop):
                 dn_dlogD_ent = self._normalize_to_n_tot(
                     entrain_psd["n_init_max"], dn_dlogD_ent)  # correct for discretization
             entrain_psd["dn_dlogD"] = dn_dlogD_ent
+
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
@@ -837,6 +840,7 @@ class multi_logn_AER(logn_AER):
                 dn_dlogD_ent = self._normalize_to_n_tot(
                     np.sum(entrain_psd["n_init_max"]), dn_dlogD_ent)  # correct for discretization
             entrain_psd["dn_dlogD"] = dn_dlogD_ent
+
         super(logn_AER, self).__init__(use_ABIFM=use_ABIFM, n_init_max=np.sum(n_init_max),
                                        nucleus_type=nucleus_type, diam=diam, dn_dlogD=dn_dlogD, name=name,
                                        diam_cutoff=diam_cutoff, T_array=T_array, singular_fun=singular_fun,
@@ -883,12 +887,6 @@ class custom_AER(AER_pop):
                 if entrain_psd["norm_to_n_init_max"]:
                     dn_dlogD_ent = dn_dlogD_ent / np.sum(entrain_psd["dn_dlogD"]) * entrain_psd["n_init_max"]
 
-            _, dn_dlogD_ent, _, _ = \
-                self._calc_logn_diam_dn_dlogd(entrain_psd, entrain_psd["n_init_max"], diam_in=dF)
-            if correct_discrete:
-                dn_dlogD_ent = self._normalize_to_n_tot(
-                    entrain_psd["n_init_max"], dn_dlogD_ent)  # correct for discretization
-            entrain_psd["dn_dlogD"] = dn_dlogD_ent
         super().__init__(use_ABIFM=use_ABIFM, n_init_max=n_init_max, nucleus_type=nucleus_type, diam=diam,
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
