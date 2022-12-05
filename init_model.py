@@ -1000,8 +1000,8 @@ class ci_model():
                 mixing_mask[rel_ind, t] = True
             self.ds["mixing_mask"].values = mixing_mask
 
-        # Recalculate delta_aw and Jhet for ABIFM (NOTE: that 'inp_cum_init' and 'inp_pct' are not recalculated)
         if self.use_ABIFM:
+            # Recalculate delta_aw and Jhet for ABIFM (NOTE: that 'inp_cum_init' and 'inp_pct' are not recalculated)
             print("recalculating delta_aw and Jhet (use_ABIFM == True)")
             self._calc_delta_aw()  # recalculate delta_aw
             for key in self.aer.keys():
@@ -1011,6 +1011,27 @@ class ci_model():
                     self.aer[key].ds["Jhet"].values *= self.aer[key].singular_scale
                 self.aer[key].ds["Jhet"].attrs["units"] = "$m^{-2} s^{-1}$"
                 self.aer[key].ds["Jhet"].attrs["long_name"] = "Heterogeneous ice nucleation rate coefficient"
+        else:
+            # allocate aerosol population Datasets (required since the T array might have changed)
+            self.aer = {}
+            optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # optional aerosol class input params.
+                             "n_init_weight_prof", "singular_fun", "singular_scale",
+                             "entrain_psd", "entrain_to_cth"]
+            for ii in range(len(self.aer_info)):
+                param_dict = {"use_ABIFM": self.use_ABIFM}  # tmp dict for aerosol attributes to send to class call.
+                if np.all([x in self.aer_info[ii].keys() for x in ["n_init_max", "psd"]]):
+                    param_dict["n_init_max"] = self.aer_info[ii]["n_init_max"]
+                    param_dict["psd"] = self.aer_info[ii]["psd"]
+                else:
+                    raise KeyError('aerosol information requires the keys "n_init_max", "psd"')
+                if not self.aer_info[ii]["psd"]["type"] in ["mono", "logn", "multi_logn", "custom", "default"]:
+                    raise ValueError('PSD type must be one of: "mono", "logn", "multi_logn", "custom", "default"')
+                for key in optional_keys:
+                    param_dict[key] = self.aer_info[ii][key] if key in self.aer_info[ii].keys() else None
+
+                # set aerosol population arrays
+                tmp_aer_pop = self._set_aer_obj(param_dict)
+                self.aer[tmp_aer_pop.name] = tmp_aer_pop
 
 
     @staticmethod
