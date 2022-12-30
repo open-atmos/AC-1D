@@ -24,7 +24,7 @@ class ci_model():
                  implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act=10., implicit_act=True,
                  implicit_sublim=True, mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6,
                  nuc_RH_thresh=None, time_splitting=True, ent_then_act=True,
-                 prognostic_inp=True, prognostic_ice=False, ice_snaps_t=None, relative_sublim=True,
+                 prognostic_inp=True, prognostic_ice=False, dt_out=None, relative_sublim=True,
                  aer_info=None, les_out_path=None, les_out_filename=None, les_bin_phys=True, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
@@ -129,8 +129,10 @@ class ci_model():
             Note that prognostic_ice requires more computation time. Memory is only allocated for ice snapshot
             as in INAS.
             Requires: prognostic_inp == True.
-        ice_snaps_t: np.ndarray or None
-            array specifying times at which prognostic ice snapshots will be saved. Saving none if None.
+        dt_out: np.ndarray, float, int, or None
+            array specifying times at which prognostic variables will be saved. 
+            Using a constant value if float or int
+            Saving none if None.
             Requires prognostic_ice == True.
         relative_sublim: bool
             If True, using the relative reduction of Ni with height (based on LES).
@@ -297,7 +299,7 @@ class ci_model():
                   "setting prognostic_ice = False")
             prognostic_ice = False
         self.prognostic_ice = prognostic_ice
-        self.ice_snaps_t = ice_snaps_t
+        self.dt_out = dt_out
 
         # assign a unit registry and define percent units.
         self.ureg = pint.UnitRegistry()

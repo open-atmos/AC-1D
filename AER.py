@@ -232,12 +232,12 @@ class AER_pop():
             if ci_model.prognostic_ice:
                 self.ds["ice_snap"].attrs["units"] = "$m^{-3}$"
                 self.ds["ice_snap"].attrs["long_name"] = "prognosed ice number concentration (snapshot)"
-                if not ci_model.ice_snaps_t is None:
-                    self.ds = self.ds.assign_coords({"t_ice_snaps": ci_model.ice_snaps_t})
-                    self.ds["t_ice_snaps"].attrs["units"] = "$s$"
+                if not ci_model.dt_out is None:
+                    self.ds = self.ds.assign_coords({"t_out": ci_model.dt_out})
+                    self.ds["t_out"].attrs["units"] = "$s$"
                     self.ds["ice_snaps"] = xr.DataArray(
-                        np.full((*ci_model.ice_snaps_t.shape, *self.ds["ice_snap"].shape), np.nan),
-                        dims=("t_ice_snaps", *self.ds["ice_snap"].dims))
+                        np.full((*ci_model.dt_out.shape, *self.ds["ice_snap"].shape), np.nan),
+                        dims=("t_out", *self.ds["ice_snap"].dims))
 
         else:
 

@@ -504,8 +504,8 @@ def run_model(ci_model):
                     t_proc += time() - t_process
                     run_stats["mixing_ice"] += (time() - t_process)
 
-                if not ci_model.ice_snaps_t is None:
-                    if ci_model.ds["time"].values[it] in ci_model.aer[key].ds["t_ice_snaps"].values:
+                if not ci_model.dt_out is None:
+                    if ci_model.ds["time"].values[it] in ci_model.aer[key].ds["t_out"].values:
                         inds = [slice(None)]*(len(ice_dim) + 1)
                         inds[0] = ice_snap_out_ind
                         ci_model.aer[key].ds["ice_snaps"].values[tuple(inds)] = \
