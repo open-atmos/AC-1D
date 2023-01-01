@@ -103,8 +103,15 @@ def run_model(ci_model):
                 ci_model.aer[key].ds["inp_tot"].attrs["long_name"] = \
                     "Total prognosed INP subset number concentration"
             elif np.logical_and(not ci_model.use_ABIFM, not ci_model.aer[key].is_INAS):
+                ci_model.aer[key].ds["inp_tot"] = xr.DataArray(np.zeros_like(ci_model.aer[key].ds["n_aer"]),
+                                                               dims=("height", "time"))
+                ci_model.aer[key].ds["inp_tot"][:, 0].values += \
+                    ci_model.aer[key].ds["inp_snap"].copy().sum("T").values
                 ci_model.aer[key].ds["n_aer"][:, 0].values -= \
-                    ci_model.aer[key].ds["inp"][:, 0, :].copy().sum("T").values
+                    ci_model.aer[key].ds["inp_tot"][:, 0].copy().values
+                ci_model.aer[key].ds["inp_tot"].attrs["units"] = "$m^{-3}$"
+                ci_model.aer[key].ds["inp_tot"].attrs["long_name"] = \
+                    "Total prognosed INP subset number concentration"
         elif np.logical_and(ci_model.output_aer_decay, not ci_model.use_ABIFM):
             ci_model.aer[key].ds["pbl_inp_mean"] = \
                 xr.DataArray(np.zeros(ci_model.ds["time"].shape), dims=(ci_model.time_dim))
@@ -228,10 +235,9 @@ def run_model(ci_model):
                 n_aer_curr = ci_model.aer[key].ds["n_aer"].values[:, it]  # ptr: aerosol conc. in current step.
                 n_aer_curr += n_aer_prev
                 if ci_model.prognostic_inp:
-                    n_inp_prev = np.zeros_like(ci_model.aer[key].ds["inp"].values[:, it - 1, :])
-                    n_inp_prev += ci_model.aer[key].ds["inp"].values[:, it - 1, :]
-                    n_inp_curr = ci_model.aer[key].ds["inp"].values[:, it, :]  # ptr: INP conc. in curr time step.
-                    n_inp_curr += n_inp_prev
+                    n_inp_prev = np.zeros_like(ci_model.aer[key].ds["inp_snap"].values)
+                    n_inp_prev += ci_model.aer[key].ds["inp_snap"].values
+                    n_inp_curr = ci_model.aer[key].ds["inp_snap"].values  # ptr: INP conc. in current step.
                 else:
                     n_inp_curr = None
                     n_inp_prev = None
@@ -543,7 +549,7 @@ def run_model(ci_model):
                         (ci_model.aer[key].ds["n_aer"].values[:, it - 1] - n_aer_curr).sum()
                     if ci_model.prognostic_inp:
                         ci_model.ds["net_budget_0_test"].values[it] += \
-                            (ci_model.aer[key].ds["inp"].values[:, it - 1, :] - n_inp_curr).sum()
+                            (ci_model.aer[key].ds["inp_tot"].values[:, it - 1] - n_inp_curr.sum(axis=-1)).sum()
                 if ci_model.do_entrain:
                     if ci_model.use_ABIFM:
                         ci_model.ds["net_budget_0_test"].values[it] += aer_ent.sum()
@@ -620,7 +626,7 @@ def run_model(ci_model):
                 ci_model.aer[key].ds["n_aer"].values += ci_model.aer[key].ds["inp_tot"].values
                 sum_dims = (ci_model.height_dim, ci_model.diam_dim)  # for aer decay calcs if output_aer_decay
             elif np.logical_and(not ci_model.use_ABIFM, not ci_model.aer[key].is_INAS):
-                ci_model.aer[key].ds["n_aer"].values += ci_model.aer[key].ds["inp"].copy().sum("T").values
+                ci_model.aer[key].ds["n_aer"].values += ci_model.aer[key].ds["inp_tot"].copy().values
                 sum_dims = (ci_model.height_dim)  # for aer decay calcs if output_aer_decay
             else:
                 sum_dims = (ci_model.height_dim, ci_model.diam_dim)  # for aer decay calcs if output_aer_decay
@@ -664,15 +670,14 @@ def run_model(ci_model):
                                      dims=(ci_model.time_dim))
                 else:
                     ci_model.aer[key].ds["pbl_inp_tot_rel_frac"] = \
-                        xr.DataArray((ci_model.aer[key].ds["inp"] * ci_model.ds["delta_z"] *
-                                      ci_model.ds["mixing_mask"]).sum((ci_model.height_dim, ci_model.T_dim)) /
-                                     (ci_model.aer[key].ds["inp"].isel({ci_model.time_dim: 0}) *
-                                      ci_model.ds["delta_z"] *
-                                      ci_model.ds["mixing_mask"]).sum((ci_model.height_dim, ci_model.T_dim)),
+                        xr.DataArray((ci_model.aer[key].ds["inp_tot"] * ci_model.ds["delta_z"] *
+                                      ci_model.ds["mixing_mask"]).sum(sum_dims) /
+                                     (ci_model.aer[key].ds["inp_tot"].isel({ci_model.time_dim: 0}) *
+                                      ci_model.ds["delta_z"] * ci_model.ds["mixing_mask"]).sum(sum_dims),
                                      dims=(ci_model.time_dim))
                     ci_model.aer[key].ds["pbl_inp_mean"] = \
-                        xr.DataArray((ci_model.aer[key].ds["inp"] *
-                                      ci_model.ds["mixing_mask"]).sum((ci_model.height_dim, ci_model.T_dim)) /
+                        xr.DataArray((ci_model.aer[key].ds["inp_tot"] *
+                                      ci_model.ds["mixing_mask"]).sum((ci_model.height_dim)) /
                                      ci_model.ds["mixing_mask"].sum(axis=0),
                                      dims=(ci_model.time_dim))
                 ci_model.aer[key].ds["pbl_inp_tot_rel_frac"].attrs["long_name"] = \
@@ -898,5 +903,5 @@ def place_resolved_aer(ci_model, key, it, n_aer_curr, n_inp_curr=None):
             ci_model.aer[key].ds["inp_tot"][:, it, :].values += np.sum(n_inp_curr, axis=2)
     else:
         if ci_model.prognostic_inp:
-            ci_model.aer[key].ds["inp"].values[:, it, :] = n_inp_curr
+            ci_model.aer[key].ds["inp_tot"][:, it].values += np.sum(n_inp_curr, axis=-1)
         ci_model.aer[key].ds["n_aer"][:, it].values = n_aer_curr

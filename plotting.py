@@ -805,7 +805,8 @@ def plot_psd(ci_model, which_pop=None, field_to_plot="",
                     aer_dim = ci_model.diam_dim
                 else:
                     label = "%s %s" % (which_pop[ii], "INP T spec.")
-                    plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
+                    plot_data = ci_model.aer[which_pop[ii]].ds["inp_snap"].copy()
+                    #plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                     aer_dim = ci_model.T_dim
                 if np.logical_and(field_to_plot in aer_pop_w_diams,
                                   field_to_plot in ci_model.aer[which_pop[ii]].ds.keys()):
@@ -1072,7 +1073,7 @@ def set_out_field_namelists(ci_model, plot_type):
     if plot_type == "curtain":
         if ci_model.prognostic_inp:
             aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct"]
-            aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix", "budget_aer_act"]
+            aer_pop_w_diams = ["inp_tot", "n_aer", "budget_aer_mix", "budget_aer_act"]
             aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
                                    "budget_aer_mix": "mixing budget", "budget_aer_act": "activation budget"}
             diverging_vars = ["budget_aer_mix", "budget_aer_act"]
@@ -1091,8 +1092,8 @@ def set_out_field_namelists(ci_model, plot_type):
         if ci_model.prognostic_inp:
             aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct", "budget_aer_act", "pbl_aer_tot_rel_frac",
                                   "pbl_aer_tot_decay_rate", "pbl_inp_tot_rel_frac", "pbl_inp_mean"]
-            aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix", "budget_aer_ent"]
-            aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
+            aer_pop_w_diams = ["inp_tot", "n_aer", "budget_aer_mix", "budget_aer_ent"]
+            aer_pop_w_diams_str = {"inp_snap": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
                                    "budget_aer_mix": "mix budget", "budget_aer_ent": "entrainment budget",
                                    "budget_aer_act": "activation budget"}
         else:
@@ -1110,7 +1111,7 @@ def set_out_field_namelists(ci_model, plot_type):
         if ci_model.prognostic_inp:
             aer_pop_aux_fields = ["Jhet", "ns_raw", "inp_pct", "pbl_aer_tot_rel_frac", "pbl_aer_tot_decay_rate",
                                   "pbl_inp_tot_rel_frac", "pbl_inp_mean"]
-            aer_pop_w_diams = ["inp", "inp_tot", "n_aer", "budget_aer_mix"]
+            aer_pop_w_diams = ["inp_tot", "n_aer", "budget_aer_mix"]
             aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc.",
                                    "budget_aer_mix": "mix budget", "budget_aer_act": "activation budget"}
         else:
@@ -1123,7 +1124,7 @@ def set_out_field_namelists(ci_model, plot_type):
         return aer_pop_aux_fields, aer_pop_w_diams, aer_pop_w_diams_str
     elif plot_type == "psd":
         if ci_model.prognostic_inp:
-            aer_pop_w_diams = ["inp", "inp_tot", "n_aer"]
+            aer_pop_w_diams = ["inp_tot", "n_aer"]
             aer_pop_w_diams_str = {"inp": "INP T spec.", "inp_tot": "INP conc.", "n_aer": "conc."}
         else:
             aer_pop_w_diams = ["n_aer"]

@@ -454,11 +454,15 @@ class AER_pop():
                                                  (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum(),
                                                  dims=("height", "time"))
                 self.ds["ns_raw"].attrs["long_name"] = "INAS ns-equivalent singular treatment"
-                self.ds["inp"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
-                                                        self.ds["T"].size)), dims=("height", "time", "T"))
-                self.ds["inp"].loc[{"time": 0}] = np.flip(tmp_inp_array, axis=-1)
-                self.ds["inp"].attrs["units"] = "$m^{-3}$"
-                self.ds["inp"].attrs["long_name"] = "INP source (entrained) number concentration per temperature bin"
+                #self.ds["inp"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
+                #                                        self.ds["T"].size)), dims=("height", "time", "T"))
+                #self.ds["inp"].loc[{"time": 0}] = np.flip(tmp_inp_array, axis=-1)
+                #self.ds["inp"].attrs["units"] = "$m^{-3}$"
+                #self.ds["inp"].attrs["long_name"] = "INP source (entrained) number concentration per temperature bin"
+                self.ds["inp_snap"] = xr.DataArray(tmp_inp_array, dims=("height", "T"))
+                self.ds["inp_snap"].values = np.flip(self.ds["inp_snap"].values, axis=-1)
+                self.ds["inp_snap"].attrs["units"] = "$m^{-3}$"
+                self.ds["inp_snap"].attrs["long_name"] = "prognosed INP number concentration (snapshot)"
                 self.ds["inp_src"] = xr.DataArray(np.flip(np.tile(np.expand_dims(
                     tmp_inp_array_src, axis=0), (self.ds["time"].size, 1)), axis=-1), dims=("time", "T"))
                 if not self.src_weight_time is None:
@@ -470,7 +474,9 @@ class AER_pop():
                                                                             (1, ci_model.ds["time"].size))) /
                                                   self.ds["dn_dlogD"].sum() * 100., dims=("height", "time"))
                 if ci_model.prognostic_ice:
-                    self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["inp"][:,0,:].shape),
+                    #self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["inp"][:,0,:].shape),
+                    #                                   dims=("height", "T"))
+                    self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["inp_snap"].shape),
                                                        dims=("height", "T"))
         elif ci_model.prognostic_inp:  # INAS
             self.ds["ns_raw"] = xr.DataArray(self.singular_fun(ci_model.ds["T"], 1), dims=("height", "time"))
