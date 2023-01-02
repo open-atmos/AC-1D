@@ -286,7 +286,7 @@ class ci_model():
         Now = time()
 
         # Set some simulation attributes.
-        self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec"]  # processed variables used by the model.
+        self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec", "rho"]  # processed variables used by the model.
         self.final_t = final_t
         self.use_ABIFM = use_ABIFM
         self.in_cld_q_thresh = in_cld_q_thresh  # kg/kg
@@ -315,6 +315,7 @@ class ci_model():
                              fields_to_retain=fields_to_retain, height_ind_2crop=height_ind_2crop,
                              cbh_det_method=cbh_det_method, q_liq_pbl_cut=in_cld_q_thresh,
                              les_bin_phys=les_bin_phys)
+            les.ds["rho"] = les.ds["rho"].isel({"time": 0})  # density is constant with time (per Exner function)
         else:
             raise NameError("Can't process LES model output from '%s'" % les_name)
         self.LES_attributes = {"LES_name": les_name,

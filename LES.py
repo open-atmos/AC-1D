@@ -44,6 +44,7 @@ class LES():
         self.T_field = {"name": None, "addition": None}  # scale to K
         self.q_liq_field = {"name": None, "scaling": None}  # scale to kg/kg
         self.RH_field = {"name": None, "scaling": None}  # scale to fraction
+        self.rho_field = {"name": None, "scaling": None}  # scale to fraction
         self.model_name = ""
         self.time_dim = ""  # assuming in seconds
         self.height_dim = ""  # assuming in m
@@ -125,7 +126,7 @@ class LES():
 
         if fields_to_retain is None:
             fields_to_retain = [self.Ni_field["name"], self.pflux_field["name"], self.T_field["name"],
-                                self.q_liq_field["name"], self.RH_field["name"]]
+                                self.q_liq_field["name"], self.RH_field["name"], self.rho_field["name"]]
 
         # crop variables
         self.ds = self.ds[fields_to_retain]  # retain variables needed.
@@ -163,7 +164,7 @@ class LES():
         self.ds = self.ds.rename({self.height_dim: "height", self.time_dim: "time",
                                   self.pflux_field["name"]: "prec", self.Ni_field["name"]: "Ni",
                                   self.T_field["name"]: "T", self.q_liq_field["name"]: "ql",
-                                  self.RH_field["name"]: "RH"})
+                                  self.RH_field["name"]: "RH", self.rho_field["name"]: "rho"})
 
         # scale and convert to float64
         for key in self.ds.keys():
@@ -174,6 +175,7 @@ class LES():
         self.ds["T"] += self.T_field["addition"]
         self.ds["Ni"] *= self.Ni_field["scaling"]
         self.ds["prec"] *= self.pflux_field["scaling"]
+        self.ds["rho"] *= self.q_liq_field["scaling"]
 
         # set units
         self.ds["height"].attrs["units"] = "$m$"
@@ -183,6 +185,7 @@ class LES():
         self.ds["T"].attrs["units"] = "$K$"
         self.ds["Ni"].attrs["units"] = "$m^{-3}$"
         self.ds["prec"].attrs["units"] = r"$mm\:h^{-1}$"
+        self.ds["rho"].attrs["units"] = r"$kg\:m^{-3}$"
 
         # calculate ∆aw field for ABIFM
         self._calc_delta_aw()
@@ -301,6 +304,7 @@ class DHARMA(LES):
             self.q_liq_field = {"name": "qc", "scaling": 1.}  # scale to kg/kg
         self.T_field = {"name": "T", "addition": 0.}  # scale to K (addition)
         self.RH_field = {"name": "RH", "scaling": 1. / 100.}  # scale to fraction
+        self.rho_field = {"name": "rhobar", "scaling": 1.}
         self.model_name = "DHARMA"
         self.time_dim = "time"
         self.height_dim = "zt"
