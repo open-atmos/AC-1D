@@ -278,8 +278,6 @@ class ci_model():
                 the highest index corresponding to the cutoff.
                 - OTHER OPTIONS TO BE ADDED.
             If None then not cropping.
-            NOTE: default in the ci_model class ("ql_pbl") is different than in the DHARMA init method (None).
-        cbh_det_method: str
             Method to determine cloud base with:
                 - if == "ql_thresh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
                 - OTHER OPTIONS TO BE ADDED.
@@ -299,6 +297,11 @@ class ci_model():
                   "setting prognostic_ice = False")
             prognostic_ice = False
         self.prognostic_ice = prognostic_ice
+        if isinstance(dt_out, (float, int)):
+            dt_out = np.arange(0., self.final_t + 1e-10, dt_out)
+        elif dt_out is None:
+            print("Setting output time increments to 60 s (none were specified)")
+            dt_out = np.arange(0., self.final_t + 1e-10, 60.)  # By default output every 1 minute
         self.dt_out = dt_out
 
         # assign a unit registry and define percent units.
@@ -374,12 +377,14 @@ class ci_model():
                   "grid cell (%d s)" % delta_t)
         self.delta_t = delta_t
         self.mod_nt = int(final_t / delta_t) + 1  # number of time steps
+        self.mod_nt_out = len(dt_out)  # number of output time steps
         self.mod_nz = len(height)  # number of vertical layers
 
         # allocate xarray DataSet for model atmospheric state and prognosed variable fields
         self.ds = xr.Dataset()
         self.ds = self.ds.assign_coords({"height": height})
         self.ds = self.ds.assign_coords({"time": np.arange(self.mod_nt) * self.delta_t})
+        self.ds = self.ds.assign_coords({"t_out": dt_out})
         delta_z = np.diff(self.ds["height"])
         self.ds["delta_z"] = xr.DataArray(np.concatenate((delta_z, np.array([delta_z[-1]]))),
                                           dims=("height"), attrs={"units": "$m$"})
@@ -531,8 +536,14 @@ class ci_model():
         self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
         self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"].values))
         self.ds["time_h"].attrs["units"] = "$h$"
+        self.ds = self.ds.assign_coords({"t_out": self.dt_out})
+        self.ds["t_out"].attrs["units"] = "$s$"
+        self.ds["t_out_h"] = self.ds["t_out"].copy() / 3600  # add coordinates for time in h.
+        self.ds = self.ds.assign_coords(t_out_h=("t_out", self.ds["t_out_h"].values))
+        self.ds["t_out_h"].attrs["units"] = "$h$"
         self.time_dim = "time"
         self.height_dim = "height"
+        self.t_out_dim = "t_out"
         self.T_dim = "T"  # setting the T dim even though it is only set when allocating an AER object.
         self.diam_dim = "diam"  # setting the diam dim even though it is only set when allocating an AER object.
 
@@ -555,11 +566,15 @@ class ci_model():
             Run(self)
             self.ds["time_h"].attrs["units"] = "$h$"
             self.ds["time"].attrs["units"] = "$s$"
+            self.ds["t_out"].attrs["units"] = "$s$"
+            self.ds["t_out_h"].attrs["units"] = "$h$"
             self.ds["height_km"].attrs["units"] = "$km$"
             self.ds["height"].attrs["units"] = "$m$"
             for key in self.aer.keys():
                 self.aer[key].ds["time_h"].attrs["units"] = "$h$"
                 self.aer[key].ds["time"].attrs["units"] = "$s$"
+                self.aer[key].ds["t_out_h"].attrs["units"] = "$h$"
+                self.aer[key].ds["t_out"].attrs["units"] = "$s$"
                 self.aer[key].ds["height_km"].attrs["units"] = "$km$"
                 self.aer[key].ds["height"].attrs["units"] = "$m$"
 
@@ -833,6 +848,18 @@ class ci_model():
             self.time_dim = "time"
             for key in self.aer.keys():
                 self.aer[key].ds = self.aer[key].ds.swap_dims({"time_h": "time"})
+        if "t_out" in self.ds.dims:
+            print("Converting output time dimension units from seconds to hours")
+            self.ds = self.ds.swap_dims({"t_out": "t_out_h"})
+            self.time_dim = "t_out_h"
+            for key in self.aer.keys():
+                self.aer[key].ds = self.aer[key].ds.swap_dims({"t_out": "t_out_h"})
+        else:
+            print("Converting output time dimension units from hours to seconds")
+            self.ds = self.ds.swap_dims({"t_out_h": "t_out"})
+            self.time_dim = "t_out"
+            for key in self.aer.keys():
+                self.aer[key].ds = self.aer[key].ds.swap_dims({"t_out_h": "t_out"})
 
     def _swap_diam_dim_to_from_um(self):
         """

@@ -210,7 +210,8 @@ class AER_pop():
             if entrain_to_cth is None:
                 self.entrain_to_cth = ci_model.entrain_to_cth
             self.ds = self.ds.assign_coords({"height": ci_model.ds["height"].values,
-                                             "time": ci_model.ds["time"].values})
+                                             "time": ci_model.ds["time"].values,
+                                             "t_out": ci_model.ds["t_out"].values})
             if T_array is None:
                 self._set_T_array(ci_model)  # set T bin array with ∆T that follows a geometric progression.
             else:
@@ -222,22 +223,23 @@ class AER_pop():
                 self._init_aer_singular_array(ci_model)
             self.ds["height"].attrs["units"] = "$m$"
             self.ds["time"].attrs["units"] = "$s$"
+            self.ds["t_out"].attrs["units"] = "$s$"
             self.ds["height_km"] = self.ds["height"].copy() / 1e3  # add coordinates for height in km.
             self.ds = self.ds.assign_coords(height_km=("height", self.ds["height_km"].values))
             self.ds["height_km"].attrs["units"] = "$km$"
             self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
             self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"].values))
             self.ds["time_h"].attrs["units"] = "$h$"
+            self.ds["t_out_h"] = self.ds["t_out"].copy() / 3600  # add coordinates for time in h.
+            self.ds = self.ds.assign_coords(t_out_h=("t_out", self.ds["t_out_h"].values))
+            self.ds["t_out_h"].attrs["units"] = "$h$"
             
             if ci_model.prognostic_ice:
                 self.ds["ice_snap"].attrs["units"] = "$m^{-3}$"
                 self.ds["ice_snap"].attrs["long_name"] = "prognosed ice number concentration (snapshot)"
-                if not ci_model.dt_out is None:
-                    self.ds = self.ds.assign_coords({"t_out": ci_model.dt_out})
-                    self.ds["t_out"].attrs["units"] = "$s$"
-                    self.ds["ice_snaps"] = xr.DataArray(
-                        np.full((*ci_model.dt_out.shape, *self.ds["ice_snap"].shape), np.nan),
-                        dims=("t_out", *self.ds["ice_snap"].dims))
+                self.ds["ice_snaps"] = xr.DataArray(
+                    np.full((*ci_model.dt_out.shape, *self.ds["ice_snap"].shape), np.nan),
+                    dims=(*self.ds["t_out"].dims, *self.ds["ice_snap"].dims))
 
         else:
 
@@ -432,14 +434,24 @@ class AER_pop():
             src_weight_tseries = \
                 self._weight_aer_h_or_t(False, use_height=False, alternative_dict=self.src_weight_time)
         if not self.is_INAS:  # singular
-            self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size)),
-                                            dims=("height", "time"))
-            self.ds["n_aer"].loc[{"time": 0}] = np.sum(self.ds["dn_dlogD"].values)
+            self.ds["n_aer_snap"] = xr.DataArray(
+                np.full(self.ds["height"].size, np.sum(self.ds["dn_dlogD"].values)), dims=("height"))
+            #self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size)),
+            #                                dims=("height", "time"))
+            #self.ds["n_aer"].loc[{"time": 0}] = np.sum(self.ds["dn_dlogD"].values)
             if self.n_init_weight_prof is not None:
-                self.ds["n_aer"].loc[{"time": 0}] = \
-                    self._weight_aer_h_or_t(False) * self.ds["n_aer"].loc[{"time": 0}]
+                #self.ds["n_aer"].loc[{"time": 0}] = \
+                #    self._weight_aer_h_or_t(False) * self.ds["n_aer"].loc[{"time": 0}]
+                self.ds["n_aer_snap"] = \
+                    self._weight_aer_h_or_t(False) * self.ds["n_aer_snap"]
+            self.ds["n_aer_snap"].attrs["units"] = "$m^{-3}$"
+            self.ds["n_aer_snap"].attrs["long_name"] = "aerosol number concentration (snapshot)"
+            self.ds["n_aer"] = xr.DataArray(
+                np.zeros((*self.ds["n_aer_snap"].shape, *ci_model.dt_out.shape)),
+                dims=(*self.ds["n_aer_snap"].dims, *self.ds["t_out"].dims))
             self.ds["n_aer"].attrs["units"] = "$m^{-3}$"
             self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration"
+
             self.ds["n_aer_src"] = xr.DataArray(np.tile(np.sum(self.ds["dn_dlogD_src"].values),
                                                         (self.ds["time"].size)), dims=("time"))
             if not self.src_weight_time is None:
@@ -526,13 +538,24 @@ class AER_pop():
             time constant to use for the diagnostic INP percentage calculation.
             If None (default), using the model's delta_t
         """
-        self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
-                                                  self.ds["diam"].size)),
-                                        dims=("height", "time", "diam"))
-        self.ds["n_aer"].loc[{"time": 0}] = np.tile(np.expand_dims(self.ds["dn_dlogD"].values, axis=0),
-                                                    (self.ds["height"].size, 1))
+        self.ds["n_aer_snap"] = xr.DataArray(np.tile(np.expand_dims(self.ds["dn_dlogD"].values, axis=0),
+                                                     (self.ds["height"].size, 1)),
+                                             dims=("height", "diam"))
+        self.ds["n_aer_snap"].attrs["units"] = "$m^{-3}$"
+        self.ds["n_aer_snap"].attrs["long_name"] = "aerosol number concentration per diameter bin (snapshot)"
+        self.ds["n_aer"] = xr.DataArray(
+            np.zeros((self.ds["n_aer_snap"].shape[0], *ci_model.dt_out.shape, self.ds["n_aer_snap"].shape[1])),
+                                        dims=(*self.ds["height"].dims, *self.ds["t_out"].dims,
+                                              *self.ds["diam"].dims))
         self.ds["n_aer"].attrs["units"] = "$m^{-3}$"
-        self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration per diameter bin"
+        self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration"
+        #self.ds["n_aer"] = xr.DataArray(np.zeros((self.ds["height"].size, self.ds["time"].size,
+        #                                          self.ds["diam"].size)),
+        #                                dims=("height", "time", "diam"))
+        #self.ds["n_aer"].loc[{"time": 0}] = np.tile(np.expand_dims(self.ds["dn_dlogD"].values, axis=0),
+        #                                            (self.ds["height"].size, 1))
+        #self.ds["n_aer"].attrs["units"] = "$m^{-3}$"
+        #self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration per diameter bin"
         self.ds["n_aer_src"] = xr.DataArray(np.tile(np.expand_dims(self.ds["dn_dlogD_src"].values, axis=0),
                                                     (self.ds["time"].size, 1)), dims=("time", "diam"))
         if not self.src_weight_time is None:
@@ -560,7 +583,9 @@ class AER_pop():
                 self._weight_aer_h_or_t()
 
             if ci_model.prognostic_ice:
-                self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["n_aer"][:,0,:].shape),
+                #self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["n_aer"][:,0,:].shape),
+                #                                   dims=("height", "diam"))
+                self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["n_aer_snap"].shape),
                                                    dims=("height", "diam"))
 
             # Generate a diagnostic initial  INP equivalent to the singular approaches (for comparison purposes)
@@ -569,9 +594,13 @@ class AER_pop():
             delta_aw = aw - ci_model.calc_a_ice_w(self.T_array)  # delta_aw equivalent to the singular T array
             Jhet_tmp = 10.**(self.Jhet.c + self.Jhet.m * delta_aw) * 1e4  # corresponding Jhet in SI units
             INP_array = np.tile(np.expand_dims(Jhet_tmp, axis=(0, 1)),
-                                (*self.ds["n_aer"][{"time": 0}].shape, 1)) * self.singular_scale * \
-                np.tile(np.expand_dims(self.ds["n_aer"][{"time": 0}] * self.ds["surf_area"], axis=2),
+                                (*self.ds["n_aer_snap"].shape, 1)) * self.singular_scale * \
+                np.tile(np.expand_dims(self.ds["n_aer_snap"] * self.ds["surf_area"], axis=2),
                         (1, 1, self.ds["T"].size)) * pct_const
+            #INP_array = np.tile(np.expand_dims(Jhet_tmp, axis=(0, 1)),
+            #                    (*self.ds["n_aer"][{"time": 0}].shape, 1)) * self.singular_scale * \
+            #    np.tile(np.expand_dims(self.ds["n_aer"][{"time": 0}] * self.ds["surf_area"], axis=2),
+            #            (1, 1, self.ds["T"].size)) * pct_const
             self.ds["inp_cum_init"] = xr.DataArray(INP_array, dims=("height", "diam", "T"))
             self.ds["inp_cum_init"].attrs["units"] = "$m^{-3}$"
             self.ds["inp_cum_init"].attrs["long_name"] = \
@@ -617,8 +646,10 @@ class AER_pop():
                 alternative_dict["weight"].max()
         weight_arr_interp = np.interp(self.ds[Dim], alternative_dict[Dim], alternative_dict["weight"])
         if set_internally:
-            self.ds["n_aer"][{"time": 0}] = np.tile(np.expand_dims(weight_arr_interp, axis=1),
-                                                    (1, self.ds["diam"].size)) * self.ds["n_aer"][{"time": 0}]
+            #self.ds["n_aer"][{"time": 0}] = np.tile(np.expand_dims(weight_arr_interp, axis=1),
+            #                                        (1, self.ds["diam"].size)) * self.ds["n_aer"][{"time": 0}]
+            self.ds["n_aer_snap"] = np.tile(np.expand_dims(weight_arr_interp, axis=1),
+                                                    (1, self.ds["diam"].size)) * self.ds["n_aer_snap"]
         else:  # Relevant for singular when considering particle diameters (e.g., D2010, D2015).
             return weight_arr_interp
 
