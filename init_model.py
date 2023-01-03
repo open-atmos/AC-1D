@@ -33,6 +33,7 @@ class ci_model():
         """
         Model namelists and unit conversion coefficient required for the 1D model.
         The LES class includes methods to processes model output and prepare the out fields for the 1D model.
+        This method also initializes the aerosol populations and runs the model.
 
         Parameters
         ----------

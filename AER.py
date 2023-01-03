@@ -531,8 +531,8 @@ class AER_pop():
             self.ds["inp_pct"].values = np.where(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
                                                  self.ds["inp_pct"].values, 0)  # crop in-cloud pixels
             self.ds["inp_pct"].attrs["units"] = "$percent$"
-            self.ds["inp_pct"].attrs["long_name"] = "INP parameterization percentage relative to total initial"
-            " aerosol concentrations"
+            self.ds["inp_pct"].attrs["long_name"] = ("INP parameterization percentage relative to total initial"
+                                                     " aerosol concentrations")
             self.ds["inp_cum_init"].attrs["units"] = "$m^{-3}$"
             self.ds["inp_cum_init"].attrs["long_name"] = \
                 "Initial cumulative (over T) INP array"
@@ -590,8 +590,8 @@ class AER_pop():
                 (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum() * pct_const / self.ds["dn_dlogD"].sum() * 100.
             self.ds["inp_pct"].attrs["units"] = "$percent$"
             self.ds["inp_pct"].attrs["long_name"] = \
-                "INP percentage relative to total initial aerosol (using a time"
-            " constant of %.0f s)" % pct_const
+                ("INP percentage relative to total initial aerosol (using a time"
+                 " constant of %.0f s)" % pct_const)
             if self.n_init_weight_prof is not None:
                 self._weight_aer_h_or_t()
 
