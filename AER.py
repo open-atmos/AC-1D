@@ -343,7 +343,7 @@ class AER_pop():
         else:  # assuming lambda function
             self.singular_fun = singular_fun
 
-    def _init_aer_singular_array(self, ci_model):
+    def _init_aer_singular_array(self, ci_model, std_L_to_L=True):
         """
         initialize the aerosol and INP concentration arrays as well as other diagnostic arrays for singular
         (height x time x temperature) or (height x time x diam).
@@ -352,6 +352,8 @@ class AER_pop():
         ---------
         ci_model: ci_model class object
             Cloud-ice nucleation model object including all model initialization and prognosed field datasets.
+        std_L_to_L: bool [singular]
+            True - converting number concentration parameterization from standard liter to SI liter
         """
         if ci_model.prognostic_inp:
             self.ds = self.ds.assign_coords({"T": self.T_array})
@@ -380,6 +382,17 @@ class AER_pop():
                     if self.n_init_weight_prof is not None:
                         tmp_n_inp = np.tile(np.expand_dims(self._weight_aer_h_or_t(False), axis=1),
                                             (1, self.ds["T"].size)) * tmp_n_inp
+
+                    # Convert INN parameterization from SL-1 to L-1 (using lowest T & rho in time 0 for src)
+                    if std_L_to_L:
+                        print("Converting INP from standard liter to SI liter")
+                        tmp_n_inp = self.convert_SL_to_L(
+                            np.tile(np.expand_dims(ci_model.ds["rho"].values[:, 0], axis=1), (1, self.ds["T"].size)),
+                            np.tile(np.expand_dims(ci_model.ds["T"].values[:, 0], axis=1), (1, self.ds["T"].size)),
+                            conc_field_in=tmp_n_inp)
+                        tmp_n_inp_src = self.convert_SL_to_L(
+                            ci_model.ds["rho"].values[0, 0], ci_model.ds["T"][0, 0].values,
+                            conc_field_in=tmp_n_inp_src)
 
             elif 's_area' in self.singular_fun.__code__.co_varnames:  # 2nd argument is surface area
                 self.is_INAS = True
@@ -652,6 +665,36 @@ class AER_pop():
                                                     (1, self.ds["diam"].size)) * self.ds["n_aer_snap"]
         else:  # Relevant for singular when considering particle diameters (e.g., D2010, D2015).
             return weight_arr_interp
+
+    @staticmethod
+    def convert_SL_to_L(rho_in, T_in, post_1982=True, conc_field_in=None):
+        """
+        Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).
+
+        Parameters
+        ---------
+        rho_in: np.ndarray or float
+            input density [kg m-3]
+        T_in: np.ndarray or float
+            input temperature [K]
+        post_1982: bool
+            True - P0 post 1982 (100000 Pa), False - P0 pre 1982 (101325 Pa)
+        conc_field_in: np.ndarray
+            number concentration field in standard liter
+
+        Returns
+        -------
+        conc_field_out: np.ndarray
+            number concentration field in SI liter
+        """
+        Rd = 287.052874  # J kg-1 K-1
+        if post_1982:
+            P0 = 100000  # in Pa
+        else:
+            P0 = 101325  # in Pa 
+        P = rho_in * Rd * T_in  # calculating pressure [Pa]
+        conc_field_out = conc_field_in * (T_in / 273.15) * (P0 / P)
+        return conc_field_out
 
 
 class mono_AER(AER_pop):
