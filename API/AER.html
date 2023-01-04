@@ -104,6 +104,18 @@ In addition, it includes the Jhet class.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">AER.</span></span><span class="sig-name descname"><span class="pre">AER_pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dn_dlogD</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_weight_prof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_to_cth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#AER_pop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.AER_pop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>class for aerosol population</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#AER.AER_pop.convert_SL_to_L" title="AER.AER_pop.convert_SL_to_L"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_SL_to_L</span></code></a>(rho_in, T_in[, post_1982, ...])</p></td>
+<td><p>Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).</p></td>
+</tr>
+</tbody>
+</table>
 <p>aerosol population namelist</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
@@ -185,6 +197,45 @@ singular: height x time x T</p>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#AER.AER_pop.convert_SL_to_L" title="AER.AER_pop.convert_SL_to_L"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_SL_to_L</span></code></a>(rho_in, T_in[, post_1982, ...])</p></td>
+<td><p>Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="AER.AER_pop.convert_SL_to_L">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_SL_to_L</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_1982</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conc_field_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#AER_pop.convert_SL_to_L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.AER_pop.convert_SL_to_L" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h2>
+<dl class="simple">
+<dt>rho_in: np.ndarray or float</dt><dd><p>input density [kg m-3]</p>
+</dd>
+<dt>T_in: np.ndarray or float</dt><dd><p>input temperature [K]</p>
+</dd>
+<dt>post_1982: bool</dt><dd><p>True - P0 post 1982 (100000 Pa), False - P0 pre 1982 (101325 Pa)</p>
+</dd>
+<dt>conc_field_in: np.ndarray</dt><dd><p>number concentration field in standard liter</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>conc_field_out: np.ndarray</dt><dd><p>number concentration field in SI liter</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -193,8 +244,8 @@ singular: height x time x T</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to load Jhet LUT and assign c and m coefficient values based on requested aerosol type.</p>
 <p>set the ABIFM linear fit coefficients for the aerosol type.</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h2>
+<section id="id1">
+<h2>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
 <dl class="simple">
 <dt>nucleus_type: str</dt><dd><p>aerosol type to use (must match the LUT (not case sensitive).</p>
 </dd>
@@ -210,6 +261,18 @@ Alpert, 2013, DOI: 10.1039/C3FD00035D.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">AER.</span></span><span class="sig-name descname"><span class="pre">custom_AER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_weight_prof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_to_cth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#custom_AER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.custom_AER" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#AER.AER_pop" title="AER.AER_pop"><code class="xref py py-class docutils literal notranslate"><span class="pre">AER_pop</span></code></a></p>
 <p>custom aerosol PSD (‘dn_dlogD’ and ‘diam’ with optional normalization to n_init_max).</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_SL_to_L</span></code>(rho_in, T_in[, post_1982, ...])</p></td>
+<td><p>Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).</p></td>
+</tr>
+</tbody>
+</table>
 <p>Parameters as in the ‘AER_pop’ class</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -220,6 +283,18 @@ must be specified.</p>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_SL_to_L</span></code>(rho_in, T_in[, post_1982, ...])</p></td>
+<td><p>Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="py class">
@@ -227,6 +302,18 @@ must be specified.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">AER.</span></span><span class="sig-name descname"><span class="pre">logn_AER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_weight_prof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct_discrete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_to_cth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#logn_AER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.logn_AER" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#AER.AER_pop" title="AER.AER_pop"><code class="xref py py-class docutils literal notranslate"><span class="pre">AER_pop</span></code></a></p>
 <p>Log-normal aerosol PSD.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_SL_to_L</span></code>(rho_in, T_in[, post_1982, ...])</p></td>
+<td><p>Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).</p></td>
+</tr>
+</tbody>
+</table>
 <p>Parameters as in the ‘AER_pop’ class</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -249,6 +336,18 @@ Effectively, the diameter ratio between consecutive bins is m_ratio**(1/3).</p>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_SL_to_L</span></code>(rho_in, T_in[, post_1982, ...])</p></td>
+<td><p>Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="py class">
@@ -256,8 +355,32 @@ Effectively, the diameter ratio between consecutive bins is m_ratio**(1/3).</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">AER.</span></span><span class="sig-name descname"><span class="pre">mono_AER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_weight_prof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_to_cth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#mono_AER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.mono_AER" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#AER.AER_pop" title="AER.AER_pop"><code class="xref py py-class docutils literal notranslate"><span class="pre">AER_pop</span></code></a></p>
 <p>Uniform (fixed) aerosol diameter.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_SL_to_L</span></code>(rho_in, T_in[, post_1982, ...])</p></td>
+<td><p>Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).</p></td>
+</tr>
+</tbody>
+</table>
 <p>Parameters as in the ‘AER_pop’ class (fixed diameter can be specified in the ‘psd’ dict under the ‘diam’
 key or in the diam).</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_SL_to_L</span></code>(rho_in, T_in[, post_1982, ...])</p></td>
+<td><p>Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="py class">
@@ -265,6 +388,18 @@ key or in the diam).</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">AER.</span></span><span class="sig-name descname"><span class="pre">multi_logn_AER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ABIFM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diam_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init_weight_prof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct_discrete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_psd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entrain_to_cth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/AER.html#multi_logn_AER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#AER.multi_logn_AER" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#AER.logn_AER" title="AER.logn_AER"><code class="xref py py-class docutils literal notranslate"><span class="pre">logn_AER</span></code></a></p>
 <p>Multiple log-normal aerosol PSD.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_SL_to_L</span></code>(rho_in, T_in[, post_1982, ...])</p></td>
+<td><p>Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).</p></td>
+</tr>
+</tbody>
+</table>
 <p>Parameters as in the ‘AER_pop’ class. Note that n_init_max should be a list or np.ndarray
 of values for each mode with the same length as diam_mean and geom_sd. Array bins are specified
 using scalars.</p>
@@ -289,6 +424,18 @@ Effectively, the diameter ratio between consecutive bins is m_ratio**(1/3).</p>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_SL_to_L</span></code>(rho_in, T_in[, post_1982, ...])</p></td>
+<td><p>Convert a number concentration field from standard liter to SI liter (useful for INP in INN params).</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </section>
@@ -303,7 +450,10 @@ Effectively, the diameter ratio between consecutive bins is m_ratio**(1/3).</p>
     <h3><a href="../index.html">Page contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">AER module</a><ul>
-<li><a class="reference internal" href="#AER.AER_pop"><code class="docutils literal notranslate"><span class="pre">AER_pop</span></code></a></li>
+<li><a class="reference internal" href="#AER.AER_pop"><code class="docutils literal notranslate"><span class="pre">AER_pop</span></code></a><ul>
+<li><a class="reference internal" href="#AER.AER_pop.convert_SL_to_L"><code class="docutils literal notranslate"><span class="pre">AER_pop.convert_SL_to_L()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#AER.Jhet"><code class="docutils literal notranslate"><span class="pre">Jhet</span></code></a></li>
 <li><a class="reference internal" href="#AER.custom_AER"><code class="docutils literal notranslate"><span class="pre">custom_AER</span></code></a></li>
 <li><a class="reference internal" href="#AER.logn_AER"><code class="docutils literal notranslate"><span class="pre">logn_AER</span></code></a></li>

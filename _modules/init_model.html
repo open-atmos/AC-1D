@@ -85,7 +85,7 @@
 
 
 <div class="viewcode-block" id="ci_model"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model">[docs]</a><span class="k">class</span> <span class="nc">ci_model</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Cloud-ice nucleation 1D model class containing:</span>
 <span class="sd">    1. All initialization model parameters</span>
 <span class="sd">    2. LES output dataset used to initialize and inform the model (ci_model.les).</span>
@@ -96,13 +96,13 @@
                  <span class="n">implicit_ent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tau_mix</span><span class="o">=</span><span class="mf">1800.</span><span class="p">,</span> <span class="n">heat_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tau_act</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span> <span class="n">implicit_act</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">implicit_sublim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mixing_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_f_ice</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">in_cld_q_thresh</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
                  <span class="n">nuc_RH_thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_splitting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ent_then_act</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">prognostic_inp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">prognostic_ice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ice_snaps_t</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">relative_sublim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">prognostic_inp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">prognostic_ice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dt_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">relative_sublim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">aer_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_bin_phys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">t_harvest</span><span class="o">=</span><span class="mi">10800</span><span class="p">,</span>
                  <span class="n">fields_to_retain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height_ind_2crop</span><span class="o">=</span><span class="s2">&quot;ql_pbl&quot;</span><span class="p">,</span> <span class="n">cbh_det_method</span><span class="o">=</span><span class="s2">&quot;ql_thresh&quot;</span><span class="p">,</span>
                  <span class="n">input_conc_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_diam_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_heatrate_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">do_act</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_entrain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_mix_aer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_mix_ice</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_sedim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">do_sublim</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_budgets</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_aer_decay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">run_model</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Model namelists and unit conversion coefficient required for the 1D model.</span>
 <span class="sd">        The LES class includes methods to processes model output and prepare the out fields for the 1D model.</span>
 
@@ -201,8 +201,10 @@
 <span class="sd">            Note that prognostic_ice requires more computation time. Memory is only allocated for ice snapshot</span>
 <span class="sd">            as in INAS.</span>
 <span class="sd">            Requires: prognostic_inp == True.</span>
-<span class="sd">        ice_snaps_t: np.ndarray or None</span>
-<span class="sd">            array specifying times at which prognostic ice snapshots will be saved. Saving none if None.</span>
+<span class="sd">        dt_out: np.ndarray, float, int, or None</span>
+<span class="sd">            array specifying times at which prognostic variables will be saved. </span>
+<span class="sd">            Using a constant value if float or int</span>
+<span class="sd">            Saving none if None.</span>
 <span class="sd">            Requires prognostic_ice == True.</span>
 <span class="sd">        relative_sublim: bool</span>
 <span class="sd">            If True, using the relative reduction of Ni with height (based on LES).</span>
@@ -348,8 +350,6 @@
 <span class="sd">                the highest index corresponding to the cutoff.</span>
 <span class="sd">                - OTHER OPTIONS TO BE ADDED.</span>
 <span class="sd">            If None then not cropping.</span>
-<span class="sd">            NOTE: default in the ci_model class (&quot;ql_pbl&quot;) is different than in the DHARMA init method (None).</span>
-<span class="sd">        cbh_det_method: str</span>
 <span class="sd">            Method to determine cloud base with:</span>
 <span class="sd">                - if == &quot;ql_thresh&quot; then cbh is determined by a q_liq threshold set with the &#39;q_liq_cbh&#39; attribute.</span>
 <span class="sd">                - OTHER OPTIONS TO BE ADDED.</span>
@@ -358,7 +358,7 @@
         <span class="n">Now</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
 
         <span class="c1"># Set some simulation attributes.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vars_harvested_from_les</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RH&quot;</span><span class="p">,</span> <span class="s2">&quot;ql&quot;</span><span class="p">,</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;Ni&quot;</span><span class="p">,</span> <span class="s2">&quot;prec&quot;</span><span class="p">]</span>  <span class="c1"># processed variables used by the model.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vars_harvested_from_les</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RH&quot;</span><span class="p">,</span> <span class="s2">&quot;ql&quot;</span><span class="p">,</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;Ni&quot;</span><span class="p">,</span> <span class="s2">&quot;prec&quot;</span><span class="p">,</span> <span class="s2">&quot;rho&quot;</span><span class="p">]</span>  <span class="c1"># processed variables used by the model.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_t</span> <span class="o">=</span> <span class="n">final_t</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_ABIFM</span> <span class="o">=</span> <span class="n">use_ABIFM</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">in_cld_q_thresh</span> <span class="o">=</span> <span class="n">in_cld_q_thresh</span>  <span class="c1"># kg/kg</span>
@@ -369,7 +369,12 @@
                   <span class="s2">&quot;setting prognostic_ice = False&quot;</span><span class="p">)</span>
             <span class="n">prognostic_ice</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prognostic_ice</span> <span class="o">=</span> <span class="n">prognostic_ice</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ice_snaps_t</span> <span class="o">=</span> <span class="n">ice_snaps_t</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt_out</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+            <span class="n">dt_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_t</span> <span class="o">+</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="n">dt_out</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dt_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Setting output time increments to 60 s (none were specified)&quot;</span><span class="p">)</span>
+            <span class="n">dt_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_t</span> <span class="o">+</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="mf">60.</span><span class="p">)</span>  <span class="c1"># By default output every 1 minute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt_out</span> <span class="o">=</span> <span class="n">dt_out</span>
 
         <span class="c1"># assign a unit registry and define percent units.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ureg</span> <span class="o">=</span> <span class="n">pint</span><span class="o">.</span><span class="n">UnitRegistry</span><span class="p">()</span>
@@ -382,6 +387,7 @@
                              <span class="n">fields_to_retain</span><span class="o">=</span><span class="n">fields_to_retain</span><span class="p">,</span> <span class="n">height_ind_2crop</span><span class="o">=</span><span class="n">height_ind_2crop</span><span class="p">,</span>
                              <span class="n">cbh_det_method</span><span class="o">=</span><span class="n">cbh_det_method</span><span class="p">,</span> <span class="n">q_liq_pbl_cut</span><span class="o">=</span><span class="n">in_cld_q_thresh</span><span class="p">,</span>
                              <span class="n">les_bin_phys</span><span class="o">=</span><span class="n">les_bin_phys</span><span class="p">)</span>
+            <span class="n">les</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;rho&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">les</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;rho&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>  <span class="c1"># density is constant with time (per Exner function)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t process LES model output from &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">les_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">LES_attributes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;LES_name&quot;</span><span class="p">:</span> <span class="n">les_name</span><span class="p">,</span>
@@ -444,12 +450,14 @@
                   <span class="s2">&quot;grid cell (</span><span class="si">%d</span><span class="s2"> s)&quot;</span> <span class="o">%</span> <span class="n">delta_t</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span> <span class="o">=</span> <span class="n">delta_t</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mod_nt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">final_t</span> <span class="o">/</span> <span class="n">delta_t</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># number of time steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mod_nt_out</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dt_out</span><span class="p">)</span>  <span class="c1"># number of output time steps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mod_nz</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>  <span class="c1"># number of vertical layers</span>
 
         <span class="c1"># allocate xarray DataSet for model atmospheric state and prognosed variable fields</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mod_nt</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;t_out&quot;</span><span class="p">:</span> <span class="n">dt_out</span><span class="p">})</span>
         <span class="n">delta_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;delta_z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">delta_z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">delta_z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]))),</span>
                                           <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">),</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;$m$&quot;</span><span class="p">})</span>
@@ -601,8 +609,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time_h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3600</span>  <span class="c1"># add coordinates for time in h.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">time_h</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;t_out&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_out</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$s$&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3600</span>  <span class="c1"># add coordinates for time in h.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">t_out_h</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;t_out&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height_dim</span> <span class="o">=</span> <span class="s2">&quot;height&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_out_dim</span> <span class="o">=</span> <span class="s2">&quot;t_out&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">T_dim</span> <span class="o">=</span> <span class="s2">&quot;T&quot;</span>  <span class="c1"># setting the T dim even though it is only set when allocating an AER object.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">diam_dim</span> <span class="o">=</span> <span class="s2">&quot;diam&quot;</span>  <span class="c1"># setting the diam dim even though it is only set when allocating an AER object.</span>
 
@@ -625,17 +639,21 @@
             <span class="n">Run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$s$&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$s$&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height_km&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$km$&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$m$&quot;</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$s$&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$s$&quot;</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height_km&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$km$&quot;</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$m$&quot;</span>
 
 <div class="viewcode-block" id="ci_model.calc_a_ice_w"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.calc_a_ice_w">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">calc_a_ice_w</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        calculate a_w(ice) using eq. 7 in Koop and Zobrist (2009, https://doi.org/10.1039/B914289D.</span>
 
 <span class="sd">        Parameters</span>
@@ -658,7 +676,7 @@
         <span class="k">return</span> <span class="n">a_ice_w</span></div>
 
     <span class="k">def</span> <span class="nf">_calc_delta_aw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        calculate the ∆aw field and S_ice for ABIFM using:</span>
 <span class="sd">        1. eq. 1 in Knopf and Alpert (2013, https://doi.org/10.1039/C3FD00035D) combined with:</span>
 <span class="sd">        2. eq. 7 in Koop and Zobrist (2009, https://doi.org/10.1039/B914289D) for a_w(ice)</span>
@@ -671,7 +689,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;S_ice&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_set_1D_or_2D_var_from_AERut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_in</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">units_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">long_name_str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        set a 1D xr.DataArray from a scalar or a dictionary containing &quot;time&quot; and &quot;value&quot; keys.</span>
 <span class="sd">        If &#39;var_in&#39; is a scalar then generating a uniform time series.</span>
 <span class="sd">        Values are linearly interpolated onto the model temporal grid (values outside the provided</span>
@@ -724,7 +742,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">long_name_str</span>
 
     <span class="k">def</span> <span class="nf">_set_aer_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Invoke an AER class call and use the input parameters provided. Using a full dictionary key call to</span>
 <span class="sd">        maintain consistency even if some AER class input variable order will be changed in future updates.</span>
 
@@ -792,7 +810,7 @@
         <span class="k">return</span> <span class="n">tmp_aer_pop</span>
 
     <span class="k">def</span> <span class="nf">_convert_input_to_SI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert one or more input parameters to SI if other units were specified.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_conc_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># assuming input_conc_units is an str with valid conc. units</span>
@@ -801,7 +819,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_do_input_conversion</span><span class="p">([</span><span class="s2">&quot;diam&quot;</span><span class="p">,</span> <span class="s2">&quot;diam_mean&quot;</span><span class="p">,</span> <span class="s2">&quot;diam_min&quot;</span><span class="p">,</span> <span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_diam_units</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_do_input_conversion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_list</span><span class="p">,</span> <span class="n">from_units</span><span class="p">,</span> <span class="n">to_units</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Search for input parameters in the aer_info input list of dicts and convert units to SI.</span>
 <span class="sd">        Quantity type is parsed by pint (for all valid unit strings see:</span>
 <span class="sd">        https://github.com/hgrecco/pint/blob/master/pint/default_en.txt).</span>
@@ -839,7 +857,7 @@
                           <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">from_units</span><span class="p">,</span> <span class="n">to_units</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_convert_quantity_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_units</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert a quantity units (e.g., volume, concentration) in all relevant arrays (e.g., from 1/m^3 to L-1).</span>
 
 <span class="sd">        Parameters</span>
@@ -871,7 +889,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No fields with units able to convert to </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">to_units</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_swap_height_dim_to_from_km</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the height dim is in m changing to km and vice versa.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;height&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
@@ -888,7 +906,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;height_km&quot;</span><span class="p">:</span> <span class="s2">&quot;height&quot;</span><span class="p">})</span>
 
     <span class="k">def</span> <span class="nf">_swap_time_dim_to_from_hr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the time dim is in seconds changing to hours and vice versa.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
@@ -903,9 +921,21 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;time_h&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">})</span>
+        <span class="k">if</span> <span class="s2">&quot;t_out&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Converting output time dimension units from seconds to hours&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;t_out&quot;</span><span class="p">:</span> <span class="s2">&quot;t_out_h&quot;</span><span class="p">})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;t_out_h&quot;</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;t_out&quot;</span><span class="p">:</span> <span class="s2">&quot;t_out_h&quot;</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Converting output time dimension units from hours to seconds&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">:</span> <span class="s2">&quot;t_out&quot;</span><span class="p">})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;t_out&quot;</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">:</span> <span class="s2">&quot;t_out&quot;</span><span class="p">})</span>
 
     <span class="k">def</span> <span class="nf">_swap_diam_dim_to_from_um</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the diam dim is in m changing to um and vice versa.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -919,7 +949,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">diam_dim</span> <span class="o">=</span> <span class="s2">&quot;diam&quot;</span>
 
     <span class="k">def</span> <span class="nf">_swap_T_dim_to_from_C</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the T dim is in Kelvin changing to Celsius and vice versa (singular).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ABIFM</span><span class="p">:</span>
@@ -934,7 +964,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">T_dim</span> <span class="o">=</span> <span class="s2">&quot;T&quot;</span>
     
 <div class="viewcode-block" id="ci_model.ci_model_ds_to_netcdf"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.ci_model_ds_to_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">ci_model_ds_to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_prefix</span><span class="o">=</span><span class="s1">&#39;AC_1D_out&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        export datasets from a model simulation. Each dataset is stored in a different file.</span>
 <span class="sd">        Files are generated for the main ci_model object and each aerosol population.</span>
 
@@ -960,7 +990,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">out_filenames</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
         
 <div class="viewcode-block" id="ci_model.ci_model_ds_from_netcdf"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.ci_model_ds_from_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">ci_model_ds_from_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_prefix</span><span class="o">=</span><span class="s1">&#39;AC_1D_out&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load datasets from a model simulation. Each dataset is stored in a different file.</span>
 <span class="sd">        Assumes files were generated for the main ci_model object and each aerosol population.</span>
 
@@ -983,7 +1013,7 @@
 
 <div class="viewcode-block" id="ci_model.strip_units"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.strip_units">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">strip_units</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Strip units from fields in an xr.Dataset enabling export to NetCDF files</span>
 <span class="sd">        (convert pint.Quantity data fields to np.ndarray while saving stripping info).</span>
 
@@ -1007,7 +1037,7 @@
         <span class="k">return</span> <span class="n">ds_4_out</span></div>
 
 <div class="viewcode-block" id="ci_model.reassign_units"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.reassign_units">[docs]</a>    <span class="k">def</span> <span class="nf">reassign_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_4_out</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reassign units to fields in an xr.Dataset loaded from a NetCDF file assuming that</span>
 <span class="sd">        a &#39;stripped_units&#39; attribute exists.</span>
 <span class="sd">        (convert np.ndarray data fields to pint.Quantity and delete stripping info).</span>
@@ -1030,7 +1060,7 @@
         <span class="k">return</span> <span class="n">ds_4_out</span></div>
 
     <span class="k">def</span> <span class="nf">_recalc_cld_and_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Recalculate Jhet (ABIFM) and  LES-harvested parameters following changes to LES ouput (essentially,</span>
 <span class="sd">        cloud depth) in order for the model to consider in simulation. Mixing bounds are updated only if they</span>
 <span class="sd">        are cloud-dependent (e.g., using &#39;ql_thresh&#39;).</span>
@@ -1108,31 +1138,31 @@
 
 <div class="viewcode-block" id="ci_model.generate_figure"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.generate_figure">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">generate_figure</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A method for generating a figure object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">generate_figure</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ci_model.plot_curtain"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.plot_curtain">[docs]</a>    <span class="k">def</span> <span class="nf">plot_curtain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A method for curtain plots based on the object&#39;s xr.DataSet</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">plot_curtain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ci_model.plot_tseries"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.plot_tseries">[docs]</a>    <span class="k">def</span> <span class="nf">plot_tseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A method for time series plots based on the object&#39;s xr.DataSet</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">plot_tseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ci_model.plot_profile"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.plot_profile">[docs]</a>    <span class="k">def</span> <span class="nf">plot_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A method for profile plots based on the object&#39;s xr.DataSet</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">plot_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ci_model.plot_psd"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.plot_psd">[docs]</a>    <span class="k">def</span> <span class="nf">plot_psd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A method for PSD plots based on the object&#39;s xr.DataSet</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">plot_psd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
