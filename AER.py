@@ -237,7 +237,7 @@ class AER_pop():
             if ci_model.prognostic_ice:
                 self.ds["ice_snap"].attrs["units"] = "$m^{-3}$"
                 self.ds["ice_snap"].attrs["long_name"] = "prognosed ice number concentration (snapshot)"
-                self.ds["ice_snaps"] = xr.DataArray(
+                self.ds["Ni_nuc"] = xr.DataArray(
                     np.full((*ci_model.dt_out.shape, *self.ds["ice_snap"].shape), np.nan),
                     dims=(*self.ds["t_out"].dims, *self.ds["ice_snap"].dims))
 
