@@ -408,11 +408,11 @@ class AER_pop():
                                                           (1, self.ds["T"].size)))
                     tmp_n_inp = np.tile(np.expand_dims(tmp_n_inp, axis=0), (self.ds["height"].size, 1, 1))
                     tmp_n_inp_src = self.singular_fun(np.tile(np.expand_dims(np.flip(self.ds["T"].values), axis=0),
-                                                          (self.ds["diam"].size, 1)),
-                                                              np.tile(np.expand_dims(
-                                                              (self.ds["surf_area"] *
-                                                               self.ds["dn_dlogD_src"]).values, axis=1),
-                                                                      (1, self.ds["T"].size)))
+                                                              (self.ds["diam"].size, 1)),
+                                                      np.tile(np.expand_dims(
+                                                          (self.ds["surf_area"] *
+                                                           self.ds["dn_dlogD_src"]).values, axis=1),
+                                                              (1, self.ds["T"].size)))
 
                     # weight array vertically.
                     if self.n_init_weight_prof is not None:
