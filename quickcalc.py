@@ -92,7 +92,8 @@ class ci_quickcalc(ci_model):
             (logn, multi_logn), and diam_cutoff.
         """
         # First, setting flags,arrays, and scalars required for AER module operation.
-        self.prognostic_ice, self.prognostic_inp, self.entrain_to_cth, self.use_ABIFM, self.dt_out, self.in_cld_q_thresh = \
+        self.prognostic_ice, self.prognostic_inp, self.entrain_to_cth, \
+            self.use_ABIFM, self.dt_out, self.in_cld_q_thresh = \
             False, True, True, use_ABIFM, np.array([0.]), 0.
 
         # set dummy dataset
@@ -105,12 +106,12 @@ class ci_quickcalc(ci_model):
         if P_in is None:
             P_in = np.nan
         self.ds = xr.Dataset(
-            data_vars={"T": (["height", "time"], np.full((1,1), T_in)),
-                       "RH": (["height", "time"], np.full((1,1), RH_in)),
-                       "rho": (["height", "time"], np.full((1,1), P_in / (self.Rd * T_in))),
-                       "ql": (["height", "time"], np.full((1,1), 1.))},
+            data_vars={"T": (["height", "time"], np.full((1, 1), T_in)),
+                       "RH": (["height", "time"], np.full((1, 1), RH_in)),
+                       "rho": (["height", "time"], np.full((1, 1), P_in / (self.Rd * T_in))),
+                       "ql": (["height", "time"], np.full((1, 1), 1.))},
             coords={"height": [0.], "time": [0.], "t_out": [0.]}
-            )
+        )
 
         # calc Delta_aw
         if use_ABIFM:
@@ -118,7 +119,7 @@ class ci_quickcalc(ci_model):
 
         # allocate aerosol population Datasets
         self.aer = {}
-        self.aer_info_dict = copy.deepcopy(aer_info_dict)  # save the aerosol info dict for reference in a deep copy.
+        self.aer_info_dict = copy.deepcopy(aer_info_dict)  # save aerosol info dict for reference in a deep copy
         self.input_conc_units, self.input_diam_units = input_conc_units, input_diam_units
         self._convert_input_to_SI()  # Convert input concentration and/or diameter parameters to SI (if requested).
         optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # optional aerosol class input params.
@@ -138,6 +139,7 @@ class ci_quickcalc(ci_model):
         # set aerosol population arrays
         tmp_aer_pop = self._set_aer_obj(param_dict)
         self.aer[tmp_aer_pop.name] = tmp_aer_pop
+
 
 def quickcalc(aer_info_dict, T_in, use_ABIFM=True, RH_in=None, P_in=None, ABIFM_delta_t=10.,
               input_conc_units=None, input_diam_units=None):
@@ -162,21 +164,22 @@ def quickcalc(aer_info_dict, T_in, use_ABIFM=True, RH_in=None, P_in=None, ABIFM_
     if qct.use_ABIFM:
         qct.aer.ds.attrs["Parameterization"] = "ABIFM"
         qct.aer.ds["inp_tot"] = xr.DataArray(qct.aer.ds["inp_pct"] * qct.aer.ds["dn_dlogD"].sum() / 100.,
-                                            attrs={"long_name": "total INP activated in %.1f s" % qct.delta_t,
-                                                   "units": r"$m^{-3}$"})
+                                             attrs={"long_name": "total INP activated in %.1f s" % qct.delta_t,
+                                                    "units": r"$m^{-3}$"})
         qct.aer.ds["inp"] = xr.DataArray(qct.aer.ds["Jhet"] * (qct.aer.ds["dn_dlogD"] * qct.aer.ds["surf_area"]),
-                                        attrs={"long_name": "INP activated in %.1f s" % qct.delta_t,
-                                               "units": r"$m^{-3}$"})
+                                         attrs={"long_name": "INP activated in %.1f s" % qct.delta_t,
+                                                "units": r"$m^{-3}$"})
         qct.aer.ds = qct.aer.ds.assign(variables={"S_ice": qct.ds["S_ice"], "Delta_aw": qct.ds["delta_aw"],
-                                                "T_in": qct.ds["T"], "RH_in": qct.ds["RH"]})
-        qct = qct.aer.ds.drop(["dn_dlogD_src", "n_aer", "n_aer_snap", "n_aer_src", "inp_cum_init", "T"]).squeeze(drop=True)
+                                                  "T_in": qct.ds["T"], "RH_in": qct.ds["RH"]})
+        qct = qct.aer.ds.drop(
+            ["dn_dlogD_src", "n_aer", "n_aer_snap", "n_aer_src", "inp_cum_init", "T"]).squeeze(drop=True)
     else:
         qct.aer.ds["inp_tot"] = xr.DataArray(qct.aer.ds["inp_pct"] * qct.aer.ds["dn_dlogD"].sum() / 100.,
-                                            attrs={"long_name": "total Diagnostic INP",
-                                                   "units": r"$m^{-3}$"})
+                                             attrs={"long_name": "total Diagnostic INP",
+                                                    "units": r"$m^{-3}$"})
         qct.aer.ds["inp"] = xr.DataArray(qct.aer.ds["inp_snap"],
-                                        attrs={"long_name": "Diagnostic INP",
-                                               "units": r"$m^{-3}$"})
+                                         attrs={"long_name": "Diagnostic INP",
+                                                "units": r"$m^{-3}$"})
         qct.aer.ds = qct.aer.ds.assign(variables={"T_in": qct.ds["T"]})
         if qct.aer.is_INAS:
             qct.aer.ds.attrs["Parameterization"] = "INAS"

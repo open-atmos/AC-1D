@@ -87,7 +87,7 @@ class LES():
         """
         Crop the required fields (and other requested fields), with the option of cropping the
         height dim using specified indices.
-        If multiple Ni or pflux fields are specified then those fields are summed. 
+        If multiple Ni or pflux fields are specified then those fields are summed.
 
         Parameters
         ----------
@@ -294,7 +294,7 @@ class DHARMA(LES):
             If False, using bulk microphysics output namelist for harvesting LES data.
         """
         super().__init__(q_liq_pbl_cut=q_liq_pbl_cut)
-        if les_bin_phys: 
+        if les_bin_phys:
             self.Ni_field = {"name": "ntot_3", "scaling": 1e6}  # scale to m^-3
             self.pflux_field = {"name": "pflux_3", "scaling": 1.}  # scale to mm/h
             self.q_liq_field = {"name": "qc", "scaling": 1.}  # scale to kg/kg

@@ -442,7 +442,7 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
         raise RuntimeError("processed aerosol field still has 3 dimensions. Consider reducing by selecting \
                            a single values or indices or average/sum")
     elif plot_data.ndim == 2:
-        dim_2nd = [x for x in plot_data.dims if x != ci_model.t_out_dim][0]  # dim for loop (height unless aerosol).
+        dim_2nd = [x for x in plot_data.dims if x != ci_model.t_out_dim][0]  # dim for loop (height unless aerosol)
         for ii in range(plot_data[dim_2nd].size):
             if "units" in plot_data[dim_2nd].attrs:
                 label_p = label + " (%s = %.1f %s)" % (dim_2nd, plot_data[dim_2nd][ii],
@@ -806,7 +806,6 @@ def plot_psd(ci_model, which_pop=None, field_to_plot="",
                 else:
                     label = "%s %s" % (which_pop[ii], "INP T spec.")
                     plot_data = ci_model.aer[which_pop[ii]].ds["inp_snap"].copy()
-                    #plot_data = ci_model.aer[which_pop[ii]].ds["inp"].copy()  # plot INP field
                     aer_dim = ci_model.T_dim
                 if np.logical_and(field_to_plot in aer_pop_w_diams,
                                   field_to_plot in ci_model.aer[which_pop[ii]].ds.keys()):

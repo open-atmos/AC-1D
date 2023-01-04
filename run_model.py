@@ -150,15 +150,15 @@ def run_model(ci_model):
         dNi = np.concatenate((dNi, np.expand_dims(dNi[-1, :], axis=0)), axis=0)
         dNi_dz = dNi / np.tile(np.expand_dims(ci_model.ds["delta_z"].values, axis=1), (1, dNi.shape[1]))
         if ci_model.relative_sublim:  # dNi_dz represent change relative to top of layer (given that ice falls).
-            dNi_dz = dNi_dz / np.concatenate((ci_model.ds["Ni"].values[1:,:],
-                                              np.expand_dims(ci_model.ds["Ni"].values[-1,:], axis=0)), axis=0)
+            dNi_dz = dNi_dz / np.concatenate((ci_model.ds["Ni"].values[1:, :],
+                                              np.expand_dims(ci_model.ds["Ni"].values[-1, :], axis=0)), axis=0)
         # set dNi/dz to a very large number to essentialy remove ice where Ni = 0 or if profile indicates
         # ice-regrowth (the latter is not a simplified case - we won't account for in the forseeable future).
         dNi_dz = np.where(dNi_dz >= 0, dNi_dz, debug_sublim_val)
         if no_sublim_in_cld:
             dNi_dz = np.where(ci_model.ds["ql"].values < ci_model.in_cld_q_thresh, dNi_dz, 0.)
         del dNi
- 
+
     if np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, float)):  # Define nucleation w/ RH
         in_cld_mask = ci_model.ds["RH"].values >= ci_model.nuc_RH_thresh
     elif np.logical_and(ci_model.use_ABIFM, isinstance(ci_model.nuc_RH_thresh, str)):
@@ -186,7 +186,7 @@ def run_model(ci_model):
             if ci_model.use_ABIFM:  # ABIFM
                 ice_dim = (1,)
             elif ci_model.aer[key].is_INAS:  # surface area based
-                ice_dim = (1,2)
+                ice_dim = (1, 2)
             else:  # number based
                 ice_dim = (1,)
         else:
@@ -427,7 +427,7 @@ def run_model(ci_model):
             # ----------------------------------------------------------------------------------------------
             if ci_model.prognostic_ice:
 
-                # sublimation of ice (dNi/dt = dNi/dz * dz/dt = dNi_dz * v_f_ice; more ice sedim --> more sublimation)
+                # sublimation of ice (dNi/dt = dNi/dz * dz/dt = dNi_dz * v_f_ice; more ice sedim --> more sublim)
                 if ci_model.do_sublim:
                     t_process = time()
                     if ci_model.ds["v_f_ice"].ndim == 2:
@@ -457,7 +457,7 @@ def run_model(ci_model):
 
                 # Sedimentation of ice (after aerosol were activated).
                 if ci_model.do_sedim:
-                    inds_out = [slice(None)]*(len(ice_dim) + 1)
+                    inds_out = [slice(None)] * (len(ice_dim) + 1)
                     inds_in = inds_out[:]
                     inds_out[0] = np.arange(1, ci_model.mod_nz)
                     inds_in[0] = np.arange(0, ci_model.mod_nz - 1)
@@ -500,7 +500,7 @@ def run_model(ci_model):
                                 n_ice_calc, np.nan), axis=0)
                             ice_fully_mixed = np.tile(np.expand_dims(ice_fully_mixed, axis=0),
                                                       (np.sum(t_step_mix_mask), *(1,) * len(ice_dim)))
-                            inds = [slice(None)]*(len(ice_dim) + 1)
+                            inds = [slice(None)] * (len(ice_dim) + 1)
                             inds[0] = t_step_mix_mask
                             inds = tuple(inds)  # now 'inds' serves as flexible multi-dim indices
                             ice_mixing = delta_t / ci_model.ds["tau_mix"].values[it - 1] * \
@@ -512,7 +512,7 @@ def run_model(ci_model):
                     run_stats["mixing_ice"] += (time() - t_process)
 
                 if update_out_data:
-                    inds = [slice(None)]*(len(ice_dim) + 1)
+                    inds = [slice(None)] * (len(ice_dim) + 1)
                     inds[0] = t_out_ind
                     ci_model.aer[key].ds["Ni_nuc"].values[tuple(inds)] = \
                         np.copy(n_ice_curr)
@@ -523,7 +523,7 @@ def run_model(ci_model):
                 if ci_model.output_budgets:
                     ci_model.ds["net_budget_0_test"].values[it] += (n_ice_prev - n_ice_curr).sum()
                     if ci_model.do_sedim:
-                        inds = [slice(None)]*(len(ice_dim) + 1)
+                        inds = [slice(None)] * (len(ice_dim) + 1)
                         inds[0] = 0
                         ci_model.ds["net_budget_0_test"].values[it] -= ice_sedim_out[tuple(inds)].sum()
 
@@ -636,7 +636,8 @@ def run_model(ci_model):
 
             # Calculate INP and aerosol decay statistics
             if ci_model.output_aer_decay:
-                t_out_overlap = np.isin(ci_model.aer[key].ds["time"].values, ci_model.aer[key].ds[ci_model.t_out_dim].values)
+                t_out_overlap = np.isin(
+                    ci_model.aer[key].ds["time"].values, ci_model.aer[key].ds[ci_model.t_out_dim].values)
                 mixing_mask_t_out = ci_model.ds["mixing_mask"][:, t_out_overlap].copy(deep=True)
                 mixing_mask_t_out = mixing_mask_t_out.rename({"time": ci_model.t_out_dim})
                 ci_model.aer[key].ds["pbl_aer_tot_rel_frac"] = \
@@ -776,7 +777,7 @@ def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_cu
         aer_act = np.minimum(n_aer_calc * JJ * AA * delta_t, n_aer_calc)
         if not ci_model.prognostic_inp:
             tmp_ice_curr = np.tile(np.expand_dims(n_ice_curr, axis=1), (1, diam_dim_l))
-            aer_act = np.where(aer_act < tmp_ice_curr, 0., aer_act - tmp_ice_curr)  # aer_act is max using Ninp + Nice
+            aer_act = np.where(aer_act < tmp_ice_curr, 0., aer_act - tmp_ice_curr)  # aer_act is max w/ Ninp + Nice
         if ci_model.nuc_RH_thresh is not None:
             aer_act = np.where(np.tile(np.expand_dims(in_cld_mask[:, it - 1], axis=1), (1, diam_dim_l)),
                                aer_act, 0.)
