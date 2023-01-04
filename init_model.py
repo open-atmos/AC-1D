@@ -24,7 +24,7 @@ class ci_model():
                  implicit_ent=True, tau_mix=1800., heat_rate=None, tau_act=10., implicit_act=True,
                  implicit_sublim=True, mixing_bounds=None, v_f_ice=0.3, in_cld_q_thresh=1e-6,
                  nuc_RH_thresh=None, time_splitting=True, ent_then_act=True,
-                 prognostic_inp=True, prognostic_ice=False, ice_snaps_t=None, relative_sublim=True,
+                 prognostic_inp=True, prognostic_ice=False, dt_out=None, relative_sublim=True,
                  aer_info=None, les_out_path=None, les_out_filename=None, les_bin_phys=True, t_harvest=10800,
                  fields_to_retain=None, height_ind_2crop="ql_pbl", cbh_det_method="ql_thresh",
                  input_conc_units=None, input_diam_units=None, input_heatrate_units=None,
@@ -129,8 +129,10 @@ class ci_model():
             Note that prognostic_ice requires more computation time. Memory is only allocated for ice snapshot
             as in INAS.
             Requires: prognostic_inp == True.
-        ice_snaps_t: np.ndarray or None
-            array specifying times at which prognostic ice snapshots will be saved. Saving none if None.
+        dt_out: np.ndarray, float, int, or None
+            array specifying times at which prognostic variables will be saved. 
+            Using a constant value if float or int
+            Saving none if None.
             Requires prognostic_ice == True.
         relative_sublim: bool
             If True, using the relative reduction of Ni with height (based on LES).
@@ -276,8 +278,6 @@ class ci_model():
                 the highest index corresponding to the cutoff.
                 - OTHER OPTIONS TO BE ADDED.
             If None then not cropping.
-            NOTE: default in the ci_model class ("ql_pbl") is different than in the DHARMA init method (None).
-        cbh_det_method: str
             Method to determine cloud base with:
                 - if == "ql_thresh" then cbh is determined by a q_liq threshold set with the 'q_liq_cbh' attribute.
                 - OTHER OPTIONS TO BE ADDED.
@@ -286,7 +286,7 @@ class ci_model():
         Now = time()
 
         # Set some simulation attributes.
-        self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec"]  # processed variables used by the model.
+        self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec", "rho"]  # processed variables used by the model.
         self.final_t = final_t
         self.use_ABIFM = use_ABIFM
         self.in_cld_q_thresh = in_cld_q_thresh  # kg/kg
@@ -297,7 +297,12 @@ class ci_model():
                   "setting prognostic_ice = False")
             prognostic_ice = False
         self.prognostic_ice = prognostic_ice
-        self.ice_snaps_t = ice_snaps_t
+        if isinstance(dt_out, (float, int)):
+            dt_out = np.arange(0., self.final_t + 1e-10, dt_out)
+        elif dt_out is None:
+            print("Setting output time increments to 60 s (none were specified)")
+            dt_out = np.arange(0., self.final_t + 1e-10, 60.)  # By default output every 1 minute
+        self.dt_out = dt_out
 
         # assign a unit registry and define percent units.
         self.ureg = pint.UnitRegistry()
@@ -310,6 +315,7 @@ class ci_model():
                              fields_to_retain=fields_to_retain, height_ind_2crop=height_ind_2crop,
                              cbh_det_method=cbh_det_method, q_liq_pbl_cut=in_cld_q_thresh,
                              les_bin_phys=les_bin_phys)
+            les.ds["rho"] = les.ds["rho"].isel({"time": 0})  # density is constant with time (per Exner function)
         else:
             raise NameError("Can't process LES model output from '%s'" % les_name)
         self.LES_attributes = {"LES_name": les_name,
@@ -372,12 +378,14 @@ class ci_model():
                   "grid cell (%d s)" % delta_t)
         self.delta_t = delta_t
         self.mod_nt = int(final_t / delta_t) + 1  # number of time steps
+        self.mod_nt_out = len(dt_out)  # number of output time steps
         self.mod_nz = len(height)  # number of vertical layers
 
         # allocate xarray DataSet for model atmospheric state and prognosed variable fields
         self.ds = xr.Dataset()
         self.ds = self.ds.assign_coords({"height": height})
         self.ds = self.ds.assign_coords({"time": np.arange(self.mod_nt) * self.delta_t})
+        self.ds = self.ds.assign_coords({"t_out": dt_out})
         delta_z = np.diff(self.ds["height"])
         self.ds["delta_z"] = xr.DataArray(np.concatenate((delta_z, np.array([delta_z[-1]]))),
                                           dims=("height"), attrs={"units": "$m$"})
@@ -529,8 +537,14 @@ class ci_model():
         self.ds["time_h"] = self.ds["time"].copy() / 3600  # add coordinates for time in h.
         self.ds = self.ds.assign_coords(time_h=("time", self.ds["time_h"].values))
         self.ds["time_h"].attrs["units"] = "$h$"
+        self.ds = self.ds.assign_coords({"t_out": self.dt_out})
+        self.ds["t_out"].attrs["units"] = "$s$"
+        self.ds["t_out_h"] = self.ds["t_out"].copy() / 3600  # add coordinates for time in h.
+        self.ds = self.ds.assign_coords(t_out_h=("t_out", self.ds["t_out_h"].values))
+        self.ds["t_out_h"].attrs["units"] = "$h$"
         self.time_dim = "time"
         self.height_dim = "height"
+        self.t_out_dim = "t_out"
         self.T_dim = "T"  # setting the T dim even though it is only set when allocating an AER object.
         self.diam_dim = "diam"  # setting the diam dim even though it is only set when allocating an AER object.
 
@@ -553,11 +567,15 @@ class ci_model():
             Run(self)
             self.ds["time_h"].attrs["units"] = "$h$"
             self.ds["time"].attrs["units"] = "$s$"
+            self.ds["t_out"].attrs["units"] = "$s$"
+            self.ds["t_out_h"].attrs["units"] = "$h$"
             self.ds["height_km"].attrs["units"] = "$km$"
             self.ds["height"].attrs["units"] = "$m$"
             for key in self.aer.keys():
                 self.aer[key].ds["time_h"].attrs["units"] = "$h$"
                 self.aer[key].ds["time"].attrs["units"] = "$s$"
+                self.aer[key].ds["t_out_h"].attrs["units"] = "$h$"
+                self.aer[key].ds["t_out"].attrs["units"] = "$s$"
                 self.aer[key].ds["height_km"].attrs["units"] = "$km$"
                 self.aer[key].ds["height"].attrs["units"] = "$m$"
 
@@ -831,6 +849,18 @@ class ci_model():
             self.time_dim = "time"
             for key in self.aer.keys():
                 self.aer[key].ds = self.aer[key].ds.swap_dims({"time_h": "time"})
+        if "t_out" in self.ds.dims:
+            print("Converting output time dimension units from seconds to hours")
+            self.ds = self.ds.swap_dims({"t_out": "t_out_h"})
+            self.time_dim = "t_out_h"
+            for key in self.aer.keys():
+                self.aer[key].ds = self.aer[key].ds.swap_dims({"t_out": "t_out_h"})
+        else:
+            print("Converting output time dimension units from hours to seconds")
+            self.ds = self.ds.swap_dims({"t_out_h": "t_out"})
+            self.time_dim = "t_out"
+            for key in self.aer.keys():
+                self.aer[key].ds = self.aer[key].ds.swap_dims({"t_out_h": "t_out"})
 
     def _swap_diam_dim_to_from_um(self):
         """
