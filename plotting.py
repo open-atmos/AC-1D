@@ -125,7 +125,7 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
     cb: Matplotlib colorbar handle (if 'colorbar' is True).
     """
     if x is None:
-        x = ci_model.time_dim
+        x = ci_model.t_out_dim
     if y is None:
         y = ci_model.height_dim
 
@@ -191,9 +191,9 @@ def plot_curtain(ci_model, which_pop=None, field_to_plot="", x=None, y=None, aer
                                            % (aer_dim, aer_dim))
             xf, yf = plot_data[x], plot_data[y]
             if np.logical_or(ci_model.aer[which_pop[ii]].is_INAS, ci_model.use_ABIFM):
-                possible_fields = {ci_model.height_dim, ci_model.time_dim, ci_model.diam_dim}
+                possible_fields = {ci_model.height_dim, ci_model.t_out_dim, ci_model.diam_dim}
             else:
-                possible_fields = {ci_model.height_dim, ci_model.time_dim, ci_model.T_dim}
+                possible_fields = {ci_model.height_dim, ci_model.t_out_dim, ci_model.T_dim}
             [possible_fields.remove(fn) for fn in [x, y] if fn in possible_fields]
             if len(possible_fields) > 1:
                 raise RuntimeError("something is not right - too many optional fields \
@@ -428,8 +428,8 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
         plot_data = process_dim(plot_data, ci_model.height_dim, Height, Height_dim_treat)
 
     if xlabel is None:
-        if "units" in plot_data[ci_model.time_dim].attrs:
-            xlabel = "%s [%s]" % ("time", plot_data[ci_model.time_dim].attrs["units"])
+        if "units" in plot_data[ci_model.t_out_dim].attrs:
+            xlabel = "%s [%s]" % ("time", plot_data[ci_model.t_out_dim].attrs["units"])
         else:
             xlabel = "time"
     if ylabel is None:
@@ -442,7 +442,7 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
         raise RuntimeError("processed aerosol field still has 3 dimensions. Consider reducing by selecting \
                            a single values or indices or average/sum")
     elif plot_data.ndim == 2:
-        dim_2nd = [x for x in plot_data.dims if x != ci_model.time_dim][0]  # dim for loop (height unless aerosol).
+        dim_2nd = [x for x in plot_data.dims if x != ci_model.t_out_dim][0]  # dim for loop (height unless aerosol).
         for ii in range(plot_data[dim_2nd].size):
             if "units" in plot_data[dim_2nd].attrs:
                 label_p = label + " (%s = %.1f %s)" % (dim_2nd, plot_data[dim_2nd][ii],
@@ -451,13 +451,13 @@ def plot_tseries(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
                 label_p = label + " (%s = %.1f)" % (dim_2nd, plot_data[dim_2nd][ii])
             if legend_label is not None:  # Assuming a string
                 label_p = legend_label
-            ax.plot(plot_data[ci_model.time_dim], plot_data.isel({dim_2nd: ii}), label=label_p, **kwargs)
+            ax.plot(plot_data[ci_model.t_out_dim], plot_data.isel({dim_2nd: ii}), label=label_p, **kwargs)
         if legend is None:
             legend = True
     else:
         if legend_label is not None:  # Assuming a string
             label = legend_label
-        ax.plot(plot_data[ci_model.time_dim], plot_data, label=label, **kwargs)
+        ax.plot(plot_data[ci_model.t_out_dim], plot_data, label=label, **kwargs)
 
     ax = fine_tuning(ax, title, None, yscale, grid, xlabel, ylabel, tight_layout, font_size, xtick, xticklabel,
                      ytick, yticklabel, xlim, ylim)
@@ -624,7 +624,7 @@ def plot_profile(ci_model, which_pop=None, field_to_plot="", aer_z=None, dim_tre
 
     # Select values or indices from the time dim and treat (mean, sum, as-is).
     if plot_data.ndim == 2:
-        plot_data = process_dim(plot_data, ci_model.time_dim, Time, Time_dim_treat)
+        plot_data = process_dim(plot_data, ci_model.t_out_dim, Time, Time_dim_treat)
 
     if ylabel is None:
         if "units" in plot_data[ci_model.height_dim].attrs:
@@ -842,7 +842,7 @@ def plot_psd(ci_model, which_pop=None, field_to_plot="",
         plot_data.data = plot_data.data.magnitude
 
     # Select values or indices from the time and height dims and treat (mean, sum, as-is).
-    plot_data = process_dim(plot_data, ci_model.time_dim, Time, Time_dim_treat)
+    plot_data = process_dim(plot_data, ci_model.t_out_dim, Time, Time_dim_treat)
     plot_data = process_dim(plot_data, ci_model.height_dim, Height, Height_dim_treat)
 
     if xlabel is None:
@@ -854,14 +854,14 @@ def plot_psd(ci_model, which_pop=None, field_to_plot="",
             ylabel = label
 
     if plot_data.ndim == 3:
-        plot_data = plot_data.stack(h_t=(ci_model.height_dim, ci_model.time_dim))
+        plot_data = plot_data.stack(h_t=(ci_model.height_dim, ci_model.t_out_dim))
         heights = plot_data[ci_model.height_dim].values
-        times = plot_data[ci_model.time_dim].values
+        times = plot_data[ci_model.t_out_dim].values
     elif plot_data.ndim == 2:
         if "time" in plot_data.dims:
-            times = plot_data[ci_model.time_dim].values
+            times = plot_data[ci_model.t_out_dim].values
             heights = None
-            plot_data = plot_data.rename({ci_model.time_dim: "h_t"})
+            plot_data = plot_data.rename({ci_model.t_out_dim: "h_t"})
         else:
             times = None
             heights = plot_data[ci_model.height_dim].values
@@ -876,7 +876,7 @@ def plot_psd(ci_model, which_pop=None, field_to_plot="",
         if heights is not None:
             label_p = label_p + "; $h$ = %.0f %s" % (heights[ii], ci_model.ds[ci_model.height_dim].attrs["units"])
         if times is not None:
-            label_p = label_p + "; $t$ = %.0f %s" % (times[ii], ci_model.ds[ci_model.time_dim].attrs["units"])
+            label_p = label_p + "; $t$ = %.0f %s" % (times[ii], ci_model.ds[ci_model.t_out_dim].attrs["units"])
 
         ax.plot(plot_data[aer_dim], plot_data.isel({"h_t": ii}).values, label=label_p, **kwargs)
     if legend is None:

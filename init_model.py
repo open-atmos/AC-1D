@@ -518,12 +518,16 @@ class ci_model():
             self.aer[tmp_aer_pop.name] = tmp_aer_pop
 
         # allocate nucleated ice DataArrays
+        if not self.prognostic_ice:
+            self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["height"].size), dims=("height"))
+            self.ds["ice_snap"].attrs["units"] = "$m^{-3}$"
+            self.ds["ice_snap"].attrs["long_name"] = "Diagnostic ice number concentration (snapshot)"
         self.ds["Ni_nuc"] = xr.DataArray(np.zeros((self.mod_nz,
-                                         self.mod_nt)), dims=("height", "time"))
+                                     self.mod_nt_out)), dims=("height", "t_out"))
         self.ds["Ni_nuc"].attrs["units"] = "$m^{-3}$"
         self.ds["Ni_nuc"].attrs["long_name"] = "Nucleated ice"
         self.ds["nuc_rate"] = xr.DataArray(np.zeros((self.mod_nz,
-                                           self.mod_nt)), dims=("height", "time"))
+                                           self.mod_nt_out)), dims=("height", "t_out"))
         self.ds["nuc_rate"].attrs["units"] = r"$m^{-3}\:s^{-1}$"
         self.ds["nuc_rate"].attrs["long_name"] = "Ice nucleation rate"
 
