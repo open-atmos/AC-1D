@@ -513,8 +513,9 @@ class AER_pop():
             if ci_model.prognostic_ice:
                 self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["inp_snap"].shape),
                                                    dims=("height", "diam", "T"))
-        self.ds["inp_src"].attrs["units"] = "$m^{-3}$"
-        self.ds["inp_src"].attrs["long_name"] = "INP source number concentration"
+        if ci_model.prognostic_inp:
+            self.ds["inp_src"].attrs["units"] = "$m^{-3}$"
+            self.ds["inp_src"].attrs["long_name"] = "INP source number concentration"
         if ci_model.prognostic_inp:
             self.ds["ns_raw"].values = np.where(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
                                                 self.ds["ns_raw"].values, 0)  # crop in-cloud pixels

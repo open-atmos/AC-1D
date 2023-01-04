@@ -857,13 +857,13 @@ class ci_model():
         if "t_out" in self.ds.dims:
             print("Converting output time dimension units from seconds to hours")
             self.ds = self.ds.swap_dims({"t_out": "t_out_h"})
-            self.time_dim = "t_out_h"
+            self.t_out_dim = "t_out_h"
             for key in self.aer.keys():
                 self.aer[key].ds = self.aer[key].ds.swap_dims({"t_out": "t_out_h"})
         else:
             print("Converting output time dimension units from hours to seconds")
             self.ds = self.ds.swap_dims({"t_out_h": "t_out"})
-            self.time_dim = "t_out"
+            self.t_out_dim = "t_out"
             for key in self.aer.keys():
                 self.aer[key].ds = self.aer[key].ds.swap_dims({"t_out_h": "t_out"})
 

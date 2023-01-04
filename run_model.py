@@ -129,19 +129,25 @@ def run_model(ci_model):
             else:
                 DIMS = ("height", "time")
                 SHAPES = ci_model.ds["T"].shape
+            budget_dims, budget_shape = list(ci_model.aer[key].ds["n_aer"].dims), \
+                list(ci_model.aer[key].ds["n_aer"].shape)
+            budget_dims[1] = ci_model.aer[key].ds["time"].dims[0]
+            budget_shape[1] = ci_model.aer[key].ds["time"].size
+            budget_dims, budget_shape = tuple(budget_dims), tuple(budget_shape)
+
             ci_model.aer[key].ds["budget_aer_act"] = \
                 xr.DataArray(np.zeros(SHAPES), dims=DIMS,
                              attrs={"units": "$m^{-3} s^{-1}$"})
             if ci_model.do_entrain:
                 ci_model.aer[key].ds["budget_aer_ent"] = \
-                    xr.DataArray(np.zeros(SHAPES[1:]), dims=DIMS[1:],
+                    xr.DataArray(np.zeros(budget_shape[1:]), dims=budget_dims[1:],
                                  attrs={"units": "$m^{-3} s^{-1}$"})
                 if not np.logical_or(ci_model.use_ABIFM,
                                      np.logical_and(ci_model.aer[key].is_INAS, ci_model.prognostic_inp)):
                     budget_aer_ent = ci_model.aer[key].ds["budget_aer_ent"].values
             if ci_model.do_mix_aer:
                 ci_model.aer[key].ds["budget_aer_mix"] = \
-                    xr.DataArray(np.zeros(SHAPES), dims=DIMS, attrs={"units": "$m^{-3} s^{-1}$"})
+                    xr.DataArray(np.zeros(budget_shape), dims=budget_dims, attrs={"units": "$m^{-3} s^{-1}$"})
 
     if ci_model.do_sublim:  # do_sublim automatically sets to False if prognostic_ice is False.
         no_sublim_in_cld = True
@@ -609,7 +615,9 @@ def run_model(ci_model):
 
             run_stats["data_allocation"] += (time() - t_loop - t_proc)
 
-        t_out_ind += 1
+        # Progress t_out index
+        if update_out_data:
+            t_out_ind += 1
 
     # Reassign units (often occurring in xarray in data allocation) & and add total INP to n_aero in INAS
     for key in ci_model.aer.keys():
@@ -624,6 +632,13 @@ def run_model(ci_model):
         if "units" not in ci_model.aer[key].ds['height'].attrs:
             ci_model.aer[key].ds["height"].attrs["units"] = r"$m$"
 
+        # set mixing mask for t_out vector
+        t_out_overlap = np.isin(
+            ci_model.aer[key].ds["time"].values, ci_model.aer[key].ds[ci_model.t_out_dim].values)
+        mixing_mask_t_out = ci_model.ds["mixing_mask"][:, t_out_overlap].copy(deep=True)
+        mixing_mask_t_out = mixing_mask_t_out.rename({"time": ci_model.t_out_dim})
+
+
         if ci_model.prognostic_inp:
             if ci_model.aer[key].is_INAS:
                 ci_model.aer[key].ds["n_aer"].values += ci_model.aer[key].ds["inp_tot"].values
@@ -636,10 +651,6 @@ def run_model(ci_model):
 
             # Calculate INP and aerosol decay statistics
             if ci_model.output_aer_decay:
-                t_out_overlap = np.isin(
-                    ci_model.aer[key].ds["time"].values, ci_model.aer[key].ds[ci_model.t_out_dim].values)
-                mixing_mask_t_out = ci_model.ds["mixing_mask"][:, t_out_overlap].copy(deep=True)
-                mixing_mask_t_out = mixing_mask_t_out.rename({"time": ci_model.t_out_dim})
                 ci_model.aer[key].ds["pbl_aer_tot_rel_frac"] = \
                     xr.DataArray((ci_model.aer[key].ds["n_aer"] * ci_model.ds["delta_z"] *
                                   mixing_mask_t_out).sum(sum_dims) /
