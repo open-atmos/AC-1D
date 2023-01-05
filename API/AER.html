@@ -322,7 +322,8 @@ must be specified.</p>
 </dd>
 <dt><strong>geom_sd: float</strong></dt><dd><p>geometric standard deviation</p>
 </dd>
-<dt><strong>n_bins: int</strong></dt><dd><p>number of bins in psd array</p>
+<dt><strong>n_bins: int</strong></dt><dd><p>if int, specify the number of bins in psd array.
+if list or np.ndarray, specifies diameter bin edges thereby bypassing the diameter array setup</p>
 </dd>
 <dt><strong>diam_min: float or 2-element tuple</strong></dt><dd><p>minimum diameter [um]. If a 2-element tuple, then the 1st element is the minimum diameter
 and the 2nd is the maximum diameter cutoff (large diameters will not be considered).</p>
