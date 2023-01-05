@@ -4,6 +4,7 @@ This module is used for quick calculations of INP, Jhet, etc.
 import xarray as xr
 import numpy as np
 import copy
+import AER
 from init_model import ci_model
 
 
@@ -114,8 +115,7 @@ class ci_quickcalc(ci_model):
         )
 
         # calc Delta_aw
-        if use_ABIFM:
-            self._calc_delta_aw()
+        self._calc_delta_aw()
 
         # allocate aerosol population Datasets
         self.aer = {}
@@ -161,6 +161,10 @@ def quickcalc(aer_info_dict, T_in, use_ABIFM=True, RH_in=None, P_in=None, ABIFM_
 
     key = [key for key in qct.aer.keys()]
     qct.aer = qct.aer[key[0]]
+    if isinstance(qct.aer, (AER.multi_logn_AER, AER.logn_AER)):
+        qct.aer.ds["diam_bin_edges"] = xr.DataArray(qct.aer.raw_diam, coords={"diam_edge": qct.aer.raw_diam},
+                                                    attrs={"units": r"$m$",
+                                                           "long_name": "Diameter bin array edges"})
     if qct.use_ABIFM:
         qct.aer.ds.attrs["Parameterization"] = "ABIFM"
         qct.aer.ds["inp_tot"] = xr.DataArray(qct.aer.ds["inp_pct"] * qct.aer.ds["dn_dlogD"].sum() / 100.,
