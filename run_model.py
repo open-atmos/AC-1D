@@ -131,9 +131,6 @@ def run_model(ci_model):
                 SHAPES = (*ci_model.aer[key].ds["height"].shape, *ci_model.aer[key].ds["t_out"].shape)
             budget_dims, budget_shape = list(ci_model.aer[key].ds["n_aer"].dims), \
                 list(ci_model.aer[key].ds["n_aer"].shape)
-            #budget_dims[1] = ci_model.aer[key].ds["time"].dims[0]
-            #budget_shape[1] = ci_model.aer[key].ds["time"].size
-            #budget_dims, budget_shape = tuple(budget_dims), tuple(budget_shape)
 
             ci_model.aer[key].ds["budget_aer_act"] = \
                 xr.DataArray(np.zeros(SHAPES), dims=DIMS,
@@ -637,7 +634,6 @@ def run_model(ci_model):
             ci_model.aer[key].ds["time"].values, ci_model.aer[key].ds[ci_model.t_out_dim].values)
         mixing_mask_t_out = ci_model.ds["mixing_mask"][:, t_out_overlap].copy(deep=True)
         mixing_mask_t_out = mixing_mask_t_out.rename({"time": ci_model.t_out_dim})
-
 
         if ci_model.prognostic_inp:
             if ci_model.aer[key].is_INAS:
