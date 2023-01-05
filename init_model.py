@@ -133,7 +133,7 @@ class ci_model():
         dt_out: np.ndarray, float, int, or None
             array specifying times at which prognostic variables will be saved.
             Using a constant value if float or int
-            Saving none if None.
+            Saving every time step if None
             Requires prognostic_ice == True.
         relative_sublim: bool
             If True, using the relative reduction of Ni with height (based on LES).
@@ -299,10 +299,11 @@ class ci_model():
             prognostic_ice = False
         self.prognostic_ice = prognostic_ice
         if isinstance(dt_out, (float, int)):
+            print(f"Setting output time increments to {dt_out} s")
             dt_out = np.arange(0., self.final_t + 1e-10, dt_out)
         elif dt_out is None:
-            print("Setting output time increments to 60 s (none were specified)")
-            dt_out = np.arange(0., self.final_t + 1e-10, 60.)  # By default output every 1 minute
+            print(f"Setting output time increments to 1 time step of {delta_t} s (none were specified)")
+            dt_out = np.arange(0., self.final_t + 1e-10, delta_t)  # By default output every time step
         self.dt_out = dt_out
 
         # assign a unit registry and define percent units.
