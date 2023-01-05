@@ -146,7 +146,8 @@ div.admonition.inline-title p.admonition-title {
 </tbody>
 </table>
 <p>Model namelists and unit conversion coefficient required for the 1D model.
-The LES class includes methods to processes model output and prepare the out fields for the 1D model.</p>
+The LES class includes methods to processes model output and prepare the out fields for the 1D model.
+This method also initializes the aerosol populations and runs the model.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -243,9 +244,9 @@ Note that prognostic_ice requires more computation time. Memory is only allocate
 as in INAS.
 Requires: prognostic_inp == True.</p>
 </dd>
-<dt><strong>dt_out: np.ndarray, float, int, or None</strong></dt><dd><p>array specifying times at which prognostic variables will be saved. 
+<dt><strong>dt_out: np.ndarray, float, int, or None</strong></dt><dd><p>array specifying times at which prognostic variables will be saved.
 Using a constant value if float or int
-Saving none if None.
+Saving every time step if None
 Requires prognostic_ice == True.</p>
 </dd>
 <dt><strong>relative_sublim: bool</strong></dt><dd><p>If True, using the relative reduction of Ni with height (based on LES).
