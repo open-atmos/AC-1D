@@ -719,7 +719,8 @@ class logn_AER(AER_pop):
         geom_sd: float
             geometric standard deviation
         n_bins: int
-            number of bins in psd array
+            if int, specify the number of bins in psd array.
+            if list or np.ndarray, specifies diameter bin edges thereby bypassing the diameter array setup
         diam_min: float or 2-element tuple
             minimum diameter [um]. If a 2-element tuple, then the 1st element is the minimum diameter
             and the 2nd is the maximum diameter cutoff (large diameters will not be considered).
@@ -769,6 +770,8 @@ class logn_AER(AER_pop):
             True - integrate dn_dlogD using the trapezoidal rule, False - normalize (origianl code prototype).
         diam_in: np.ndarray or None
             Input diameter array instead of generating one using 'diam_min', 'n_bins', and 'm_ratio'.
+            An alternative to diam_in (as currently implemented in the call of this method from init_model is
+            to specify the input diameter array in the 'n_bins' input variable.
             Ignored if None.
 
         Returns
@@ -783,13 +786,16 @@ class logn_AER(AER_pop):
             Particle number concentration per diameter (PSD value in units of m-3)
         """
         if diam_in is None:
-            if isinstance(psd["diam_min"], float):
-                diam = np.ones(psd["n_bins"]) * psd["diam_min"]
-            elif isinstance(psd["diam_min"], tuple):
-                diam = np.ones(psd["n_bins"]) * psd["diam_min"][0]
-            diam = diam * (psd["m_ratio"] ** (1. / 3.)) ** (np.cumsum(np.ones(psd["n_bins"])) - 1)
-            if isinstance(psd["diam_min"], tuple):  # remove diameters larger than cutoff
-                diam = diam[diam <= psd["diam_min"][1]]
+            if isinstance(psd["n_bins"], (np.ndarray, list)):  # specified diam edge array as in custom_AER
+                diam = psd["n_bins"]
+            else:
+                if isinstance(psd["diam_min"], float):
+                    diam = np.ones(psd["n_bins"]) * psd["diam_min"]
+                elif isinstance(psd["diam_min"], tuple):
+                    diam = np.ones(psd["n_bins"]) * psd["diam_min"][0]
+                diam = diam * (psd["m_ratio"] ** (1. / 3.)) ** (np.cumsum(np.ones(psd["n_bins"])) - 1)
+                if isinstance(psd["diam_min"], tuple):  # remove diameters larger than cutoff
+                    diam = diam[diam <= psd["diam_min"][1]]
         else:
             diam = diam_in
         denom = np.sqrt(2 * np.pi) * np.log(psd["geom_sd"])
