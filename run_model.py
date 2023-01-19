@@ -612,7 +612,7 @@ def run_model(ci_model):
 
             run_stats["data_allocation"] += (time() - t_loop - t_proc)
 
-        # Progress t_out index
+        # Move to the next output step
         if update_out_data:
             t_out_ind += 1
 
