@@ -1034,10 +1034,13 @@ class ci_model():
                 mixing_mask[rel_ind, t] = True
             self.ds["mixing_mask"].values = mixing_mask
 
+        # Recalculate delta_aw
+        print("recalculating delta_aw")
+        self._calc_delta_aw()  # recalculate delta_aw
+
         if self.use_ABIFM:
-            # Recalculate delta_aw and Jhet for ABIFM (NOTE: that 'inp_cum_init' and 'inp_pct' are not recalculated)
-            print("recalculating delta_aw and Jhet (use_ABIFM == True)")
-            self._calc_delta_aw()  # recalculate delta_aw
+            # Recalculate Jhet for ABIFM (NOTE that 'inp_cum_init' and 'inp_pct' are not recalculated)
+            print("recalculating Jhet (use_ABIFM == True)")
             for key in self.aer.keys():
                 self.aer[key].ds["Jhet"] = 10.**(self.aer[key].Jhet.c + self.aer[key].Jhet.m * \
                     self.ds["delta_aw"]) * 1e4  # calc Jhet
