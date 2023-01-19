@@ -532,7 +532,6 @@ def run_model(ci_model):
             # Place resolved aerosol and/or INP
             if update_out_data:
                 place_resolved_aer(ci_model, key, t_out_ind, n_aer_curr, n_inp_curr)
-                t_out_ind += 1
             if ci_model.output_budgets:
                 if ci_model.use_ABIFM:
                     ci_model.ds["net_budget_0_test"].values[it] += \
@@ -604,12 +603,15 @@ def run_model(ci_model):
             # Place resolved ice
             if update_out_data:
                 ci_model.ds["Ni_nuc"][:, t_out_ind].values += n_ice_curr
-                t_out_ind += 1
             if ci_model.output_budgets:
                 ci_model.ds["net_budget_0_test"].values[it] += \
                     (n_ice_prev - n_ice_curr).sum() - ice_sedim_out[0].sum()
 
             run_stats["data_allocation"] += (time() - t_loop - t_proc)
+
+        # Move to the next output step
+        if update_out_data:
+            t_out_ind += 1
 
     # Reassign units (often occurring in xarray in data allocation) & and add total INP to n_aero in INAS
     for key in ci_model.aer.keys():
