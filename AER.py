@@ -118,7 +118,7 @@ class AER_pop():
         entrain_to_cth: bool or int or None
             determines where to entrain aerosol (cloud top / mixing layer base / specific height index).
             If specified, then overrides the ci_model input value.
-            If None, using the ci_model object value. 
+            If None, using the ci_model object value.
         name: str
             population name (or tag).
         n_init_weight_prof: dict or None
@@ -233,7 +233,7 @@ class AER_pop():
             self.ds["t_out_h"] = self.ds["t_out"].copy() / 3600  # add coordinates for time in h.
             self.ds = self.ds.assign_coords(t_out_h=("t_out", self.ds["t_out_h"].values))
             self.ds["t_out_h"].attrs["units"] = "$h$"
-            
+
             if ci_model.prognostic_ice:
                 self.ds["ice_snap"].attrs["units"] = "$m^{-3}$"
                 self.ds["ice_snap"].attrs["long_name"] = "prognosed ice number concentration (snapshot)"
@@ -387,7 +387,8 @@ class AER_pop():
                     if std_L_to_L:
                         print("Converting INP from standard liter to SI liter")
                         tmp_n_inp = self.convert_SL_to_L(
-                            np.tile(np.expand_dims(ci_model.ds["rho"].values[:, 0], axis=1), (1, self.ds["T"].size)),
+                            np.tile(np.expand_dims(ci_model.ds["rho"].values[:, 0], axis=1),
+                                    (1, self.ds["T"].size)),
                             np.tile(np.expand_dims(ci_model.ds["T"].values[:, 0], axis=1), (1, self.ds["T"].size)),
                             conc_field_in=tmp_n_inp)
                         tmp_n_inp_src = self.convert_SL_to_L(
@@ -407,10 +408,11 @@ class AER_pop():
                                                           (1, self.ds["T"].size)))
                     tmp_n_inp = np.tile(np.expand_dims(tmp_n_inp, axis=0), (self.ds["height"].size, 1, 1))
                     tmp_n_inp_src = self.singular_fun(np.tile(np.expand_dims(np.flip(self.ds["T"].values), axis=0),
-                                                          (self.ds["diam"].size, 1)),
-                                                  np.tile(np.expand_dims((self.ds["surf_area"] *
-                                                                          self.ds["dn_dlogD_src"]).values, axis=1),
-                                                          (1, self.ds["T"].size)))
+                                                              (self.ds["diam"].size, 1)),
+                                                      np.tile(np.expand_dims(
+                                                          (self.ds["surf_area"] *
+                                                           self.ds["dn_dlogD_src"]).values,
+                                                          axis=1), (1, self.ds["T"].size)))
 
                     # weight array vertically.
                     if self.n_init_weight_prof is not None:
@@ -443,7 +445,7 @@ class AER_pop():
             self.ds["T_C"].attrs["units"] = "$° C$"
             self.ds["T"].attrs["units"] = "$K$"  # set coordinate attributes.
 
-        if not self.src_weight_time is None:
+        if self.src_weight_time is not None:
             src_weight_tseries = \
                 self._weight_aer_h_or_t(False, use_height=False, alternative_dict=self.src_weight_time)
         if not self.is_INAS:  # singular
@@ -462,7 +464,7 @@ class AER_pop():
 
             self.ds["n_aer_src"] = xr.DataArray(np.tile(np.sum(self.ds["dn_dlogD_src"].values),
                                                         (self.ds["time"].size)), dims=("time"))
-            if not self.src_weight_time is None:
+            if self.src_weight_time is not None:
                 self.ds["n_aer_src"].values *= src_weight_tseries
             self.ds["n_aer_src"].attrs["units"] = "$m^{-3}$"
             self.ds["n_aer_src"].attrs["long_name"] = "aerosol source number concentration per diameter bin"
@@ -480,7 +482,7 @@ class AER_pop():
                 self.ds["inp_snap"].attrs["long_name"] = "prognosed INP number concentration (snapshot)"
                 self.ds["inp_src"] = xr.DataArray(np.flip(np.tile(np.expand_dims(
                     tmp_inp_array_src, axis=0), (self.ds["time"].size, 1)), axis=-1), dims=("time", "T"))
-                if not self.src_weight_time is None:
+                if self.src_weight_time is not None:
                     self.ds["inp_src"].values *= np.tile(
                         np.expand_dims(src_weight_tseries, axis=-1), (1, self.ds["T"].size))
                 self.ds["inp_pct"] = xr.DataArray(self.singular_fun(ci_model.ds["T"],
@@ -500,9 +502,9 @@ class AER_pop():
             self.ds["inp_src"] = xr.DataArray(np.flip(np.tile(np.expand_dims(tmp_inp_array_src, axis=0),
                                                               (ci_model.ds["time"].size, 1, 1)),
                                                       axis=-1), dims=("time", "diam", "T"))
-            if not self.src_weight_time is None:
+            if self.src_weight_time is not None:
                 self.ds["inp_src"].values *= np.tile(
-                    np.expand_dims(src_weight_tseries, axis=(1,2)), (1, self.ds["diam"].size, self.ds["T"].size))
+                    np.expand_dims(src_weight_tseries, axis=(1, 2)), (1, self.ds["diam"].size, self.ds["T"].size))
             self.ds["inp_snap"].attrs["long_name"] = "prognosed INP number concentration (snapshot)"
             self.ds["inp_init"] = self.ds["inp_snap"].copy()  # copy of initial INP (might be used for entrainment)
             self.ds["inp_init"].attrs["long_name"] = "prognosed INP number concentration (initial)"
@@ -511,16 +513,17 @@ class AER_pop():
             if ci_model.prognostic_ice:
                 self.ds["ice_snap"] = xr.DataArray(np.zeros(self.ds["inp_snap"].shape),
                                                    dims=("height", "diam", "T"))
-        self.ds["inp_src"].attrs["units"] = "$m^{-3}$"
-        self.ds["inp_src"].attrs["long_name"] = "INP source number concentration"
+        if ci_model.prognostic_inp:
+            self.ds["inp_src"].attrs["units"] = "$m^{-3}$"
+            self.ds["inp_src"].attrs["long_name"] = "INP source number concentration"
         if ci_model.prognostic_inp:
             self.ds["ns_raw"].values = np.where(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
                                                 self.ds["ns_raw"].values, 0)  # crop in-cloud pixels
             self.ds["inp_pct"].values = np.where(ci_model.ds["ql"].values >= ci_model.in_cld_q_thresh,
                                                  self.ds["inp_pct"].values, 0)  # crop in-cloud pixels
             self.ds["inp_pct"].attrs["units"] = "$percent$"
-            self.ds["inp_pct"].attrs["long_name"] = "INP parameterization percentage relative to total initial"
-            " aerosol concentrations"
+            self.ds["inp_pct"].attrs["long_name"] = ("INP parameterization percentage relative to total initial"
+                                                     " aerosol concentrations")
             self.ds["inp_cum_init"].attrs["units"] = "$m^{-3}$"
             self.ds["inp_cum_init"].attrs["long_name"] = \
                 "Initial cumulative (over T) INP array"
@@ -546,13 +549,13 @@ class AER_pop():
         self.ds["n_aer_snap"].attrs["long_name"] = "aerosol number concentration per diameter bin (snapshot)"
         self.ds["n_aer"] = xr.DataArray(
             np.zeros((self.ds["n_aer_snap"].shape[0], *ci_model.dt_out.shape, self.ds["n_aer_snap"].shape[1])),
-                                        dims=(*self.ds["height"].dims, *self.ds["t_out"].dims,
-                                              *self.ds["diam"].dims))
+            dims=(*self.ds["height"].dims, *self.ds["t_out"].dims,
+                  *self.ds["diam"].dims))
         self.ds["n_aer"].attrs["units"] = "$m^{-3}$"
         self.ds["n_aer"].attrs["long_name"] = "aerosol number concentration"
         self.ds["n_aer_src"] = xr.DataArray(np.tile(np.expand_dims(self.ds["dn_dlogD_src"].values, axis=0),
                                                     (self.ds["time"].size, 1)), dims=("time", "diam"))
-        if not self.src_weight_time is None:
+        if self.src_weight_time is not None:
             src_weight_tseries = \
                 self._weight_aer_h_or_t(False, use_height=False, alternative_dict=self.src_weight_time)
             self.ds["n_aer_src"].values *= np.tile(
@@ -571,8 +574,8 @@ class AER_pop():
                 (self.ds["dn_dlogD"] * self.ds["surf_area"]).sum() * pct_const / self.ds["dn_dlogD"].sum() * 100.
             self.ds["inp_pct"].attrs["units"] = "$percent$"
             self.ds["inp_pct"].attrs["long_name"] = \
-                "INP percentage relative to total initial aerosol (using a time"
-            " constant of %.0f s)" % pct_const
+                ("INP percentage relative to total initial aerosol (using a time"
+                 " constant of %.0f s)" % pct_const)
             if self.n_init_weight_prof is not None:
                 self._weight_aer_h_or_t()
 
@@ -635,7 +638,7 @@ class AER_pop():
         weight_arr_interp = np.interp(self.ds[Dim], alternative_dict[Dim], alternative_dict["weight"])
         if set_internally:
             self.ds["n_aer_snap"] = np.tile(np.expand_dims(weight_arr_interp, axis=1),
-                                                    (1, self.ds["diam"].size)) * self.ds["n_aer_snap"]
+                                            (1, self.ds["diam"].size)) * self.ds["n_aer_snap"]
         else:  # Relevant for singular when considering particle diameters (e.g., D2010, D2015).
             return weight_arr_interp
 
@@ -664,7 +667,7 @@ class AER_pop():
         if post_1982:
             P0 = 100000  # in Pa
         else:
-            P0 = 101325  # in Pa 
+            P0 = 101325  # in Pa
         P = rho_in * Rd * T_in  # calculating pressure [Pa]
         conc_field_out = conc_field_in * (T_in / 273.15) * (P0 / P)
         return conc_field_out
@@ -704,7 +707,7 @@ class logn_AER(AER_pop):
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, correct_discrete=True, 
+                 psd={}, n_init_weight_prof=None, correct_discrete=True,
                  entrain_psd=None, entrain_to_cth=None, ci_model=None):
         """
         Parameters as in the 'AER_pop' class
@@ -716,7 +719,8 @@ class logn_AER(AER_pop):
         geom_sd: float
             geometric standard deviation
         n_bins: int
-            number of bins in psd array
+            if int, specify the number of bins in psd array.
+            if list or np.ndarray, specifies diameter bin edges thereby bypassing the diameter array setup
         diam_min: float or 2-element tuple
             minimum diameter [um]. If a 2-element tuple, then the 1st element is the minimum diameter
             and the 2nd is the maximum diameter cutoff (large diameters will not be considered).
@@ -766,6 +770,8 @@ class logn_AER(AER_pop):
             True - integrate dn_dlogD using the trapezoidal rule, False - normalize (origianl code prototype).
         diam_in: np.ndarray or None
             Input diameter array instead of generating one using 'diam_min', 'n_bins', and 'm_ratio'.
+            An alternative to diam_in (as currently implemented in the call of this method from init_model is
+            to specify the input diameter array in the 'n_bins' input variable.
             Ignored if None.
 
         Returns
@@ -780,13 +786,16 @@ class logn_AER(AER_pop):
             Particle number concentration per diameter (PSD value in units of m-3)
         """
         if diam_in is None:
-            if isinstance(psd["diam_min"], float):
-                diam = np.ones(psd["n_bins"]) * psd["diam_min"]
-            elif isinstance(psd["diam_min"], tuple):
-                diam = np.ones(psd["n_bins"]) * psd["diam_min"][0]
-            diam = diam * (psd["m_ratio"] ** (1. / 3.)) ** (np.cumsum(np.ones(psd["n_bins"])) - 1)
-            if isinstance(psd["diam_min"], tuple):  # remove diameters larger than cutoff
-                diam = diam[diam <= psd["diam_min"][1]]
+            if isinstance(psd["n_bins"], (np.ndarray, list)):  # specified diam edge array as in custom_AER
+                diam = psd["n_bins"]
+            else:
+                if isinstance(psd["diam_min"], float):
+                    diam = np.ones(psd["n_bins"]) * psd["diam_min"]
+                elif isinstance(psd["diam_min"], tuple):
+                    diam = np.ones(psd["n_bins"]) * psd["diam_min"][0]
+                diam = diam * (psd["m_ratio"] ** (1. / 3.)) ** (np.cumsum(np.ones(psd["n_bins"])) - 1)
+                if isinstance(psd["diam_min"], tuple):  # remove diameters larger than cutoff
+                    diam = diam[diam <= psd["diam_min"][1]]
         else:
             diam = diam_in
         denom = np.sqrt(2 * np.pi) * np.log(psd["geom_sd"])

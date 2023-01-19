@@ -33,6 +33,7 @@ class ci_model():
         """
         Model namelists and unit conversion coefficient required for the 1D model.
         The LES class includes methods to processes model output and prepare the out fields for the 1D model.
+        This method also initializes the aerosol populations and runs the model.
 
         Parameters
         ----------
@@ -130,9 +131,9 @@ class ci_model():
             as in INAS.
             Requires: prognostic_inp == True.
         dt_out: np.ndarray, float, int, or None
-            array specifying times at which prognostic variables will be saved. 
+            array specifying times at which prognostic variables will be saved.
             Using a constant value if float or int
-            Saving none if None.
+            Saving every time step if None
             Requires prognostic_ice == True.
         relative_sublim: bool
             If True, using the relative reduction of Ni with height (based on LES).
@@ -153,9 +154,9 @@ class ci_model():
                     - "mono": fixed-size population, i.e., a single particle diameter should be provided
                       (diam [m]).
                     - "logn": log--normal: provide geometric mean diameter (diam_mean [m]), geometric SD
-                      (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [m]; can also be  a
-                      2-element tuple and then the 2nd is the maximum diameter cutoff), and
-                      bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio
+                      (geom_sd), number of PSD bins or an alternative diameter bin array (n_bins), minimum diameter
+                      (diam_min [m]; can be a 2-element tuple and then the 2nd is the maximum diameter cutoff),
+                      and bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio
                       equals m_ratio**(1/3).
                     - "multi_logn": multi-modal log-normal: as in "logn" but diam_mean, geom_sd, and n_init_max
                       need to be specified as lists or np.ndarrays with the same length (each characterizing
@@ -286,7 +287,7 @@ class ci_model():
         Now = time()
 
         # Set some simulation attributes.
-        self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec", "rho"]  # processed variables used by the model.
+        self.vars_harvested_from_les = ["RH", "ql", "T", "Ni", "prec", "rho"]  # processed vars used by the model
         self.final_t = final_t
         self.use_ABIFM = use_ABIFM
         self.in_cld_q_thresh = in_cld_q_thresh  # kg/kg
@@ -298,10 +299,11 @@ class ci_model():
             prognostic_ice = False
         self.prognostic_ice = prognostic_ice
         if isinstance(dt_out, (float, int)):
+            print(f"Setting output time increments to {dt_out} s")
             dt_out = np.arange(0., self.final_t + 1e-10, dt_out)
         elif dt_out is None:
-            print("Setting output time increments to 60 s (none were specified)")
-            dt_out = np.arange(0., self.final_t + 1e-10, 60.)  # By default output every 1 minute
+            print(f"Setting output time increments to 1 time step of {delta_t} s (none were specified)")
+            dt_out = np.arange(0., self.final_t + 1e-10, delta_t)  # By default output every time step
         self.dt_out = dt_out
 
         # assign a unit registry and define percent units.
@@ -522,7 +524,7 @@ class ci_model():
             self.ds["ice_snap"].attrs["units"] = "$m^{-3}$"
             self.ds["ice_snap"].attrs["long_name"] = "Diagnostic ice number concentration (snapshot)"
         self.ds["Ni_nuc"] = xr.DataArray(np.zeros((self.mod_nz,
-                                     self.mod_nt_out)), dims=("height", "t_out"))
+                                                   self.mod_nt_out)), dims=("height", "t_out"))
         self.ds["Ni_nuc"].attrs["units"] = "$m^{-3}$"
         self.ds["Ni_nuc"].attrs["long_name"] = "Nucleated ice"
         self.ds["nuc_rate"] = xr.DataArray(np.zeros((self.mod_nz,
@@ -856,13 +858,13 @@ class ci_model():
         if "t_out" in self.ds.dims:
             print("Converting output time dimension units from seconds to hours")
             self.ds = self.ds.swap_dims({"t_out": "t_out_h"})
-            self.time_dim = "t_out_h"
+            self.t_out_dim = "t_out_h"
             for key in self.aer.keys():
                 self.aer[key].ds = self.aer[key].ds.swap_dims({"t_out": "t_out_h"})
         else:
             print("Converting output time dimension units from hours to seconds")
             self.ds = self.ds.swap_dims({"t_out_h": "t_out"})
-            self.time_dim = "t_out"
+            self.t_out_dim = "t_out"
             for key in self.aer.keys():
                 self.aer[key].ds = self.aer[key].ds.swap_dims({"t_out_h": "t_out"})
 
@@ -894,7 +896,7 @@ class ci_model():
                     print("Converting diameter dimension units for %s from Celsius to Kelvin" % key)
                     self.aer[key].ds = self.aer[key].ds.swap_dims({"T_C": "T"})
                     self.T_dim = "T"
-    
+
     def ci_model_ds_to_netcdf(self, out_prefix='AC_1D_out'):
         """
         export datasets from a model simulation. Each dataset is stored in a different file.
@@ -920,7 +922,7 @@ class ci_model():
             ds_4_out.to_netcdf(out_filenames[-1])
         print("Exporting ci_model xr.Dataset to the following files\n")
         print(out_filenames + "\n")
-        
+
     def ci_model_ds_from_netcdf(self, out_prefix='AC_1D_out'):
         """
         Load datasets from a model simulation. Each dataset is stored in a different file.
@@ -1012,14 +1014,14 @@ class ci_model():
         self.ds["lowest_cbh"].values = np.full(self.ds.dims["time"], np.nan)
         self.ds["lowest_cth"].values = np.full(self.ds.dims["time"], np.nan)
         for tt in range(self.ds.dims["time"]):
-            cbh_lowest = np.argwhere(cbh_all[:,tt]).flatten()
+            cbh_lowest = np.argwhere(cbh_all[:, tt]).flatten()
             if len(cbh_lowest):
-                cth_lowest = np.argwhere(cth_all[:,tt]).flatten()
+                cth_lowest = np.argwhere(cth_all[:, tt]).flatten()
                 self.ds["lowest_cbh"].values[tt] = self.ds["height"].values[cbh_lowest[0]]
                 self.ds["lowest_cth"].values[tt] = self.ds["height"].values[cth_lowest[0]]
 
         # redetermine mixing bounds and mixing mask
-        if not self.mixing_bounds is None:
+        if self.mixing_bounds is not None:
             if isinstance(self.mixing_bounds[0], str):
                 if self.mixing_bounds[0] == "ql_thresh":
                     self.ds["mixing_base"].values = np.copy(self.ds["lowest_cbh"].values)
@@ -1042,8 +1044,8 @@ class ci_model():
             # Recalculate Jhet for ABIFM (NOTE that 'inp_cum_init' and 'inp_pct' are not recalculated)
             print("recalculating Jhet (use_ABIFM == True)")
             for key in self.aer.keys():
-                self.aer[key].ds["Jhet"] = 10.**(self.aer[key].Jhet.c + self.aer[key].Jhet.m * \
-                    self.ds["delta_aw"]) * 1e4  # calc Jhet
+                self.aer[key].ds["Jhet"] = 10.**(self.aer[key].Jhet.c + self.aer[key].Jhet.m *
+                                                 self.ds["delta_aw"]) * 1e4  # calc Jhet
                 if self.aer[key].singular_scale != 1.:
                     self.aer[key].ds["Jhet"].values *= self.aer[key].singular_scale
                 self.aer[key].ds["Jhet"].attrs["units"] = "$m^{-2} s^{-1}$"
@@ -1051,11 +1053,11 @@ class ci_model():
         else:
             # allocate aerosol population Datasets (required since the T array might have changed)
             self.aer = {}
-            optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # optional aerosol class input params.
+            optional_keys = ["name", "nucleus_type", "diam_cutoff", "T_array",  # opt. aerosol class input params
                              "n_init_weight_prof", "singular_fun", "singular_scale",
                              "entrain_psd", "entrain_to_cth"]
             for ii in range(len(self.aer_info)):
-                param_dict = {"use_ABIFM": self.use_ABIFM}  # tmp dict for aerosol attributes to send to class call.
+                param_dict = {"use_ABIFM": self.use_ABIFM}  # tmp dict for aerosol attributes to send to class call
                 if np.all([x in self.aer_info[ii].keys() for x in ["n_init_max", "psd"]]):
                     param_dict["n_init_max"] = self.aer_info[ii]["n_init_max"]
                     param_dict["psd"] = self.aer_info[ii]["psd"]
@@ -1069,7 +1071,6 @@ class ci_model():
                 # set aerosol population arrays
                 tmp_aer_pop = self._set_aer_obj(param_dict)
                 self.aer[tmp_aer_pop.name] = tmp_aer_pop
-
 
     @staticmethod
     def generate_figure(**kwargs):
