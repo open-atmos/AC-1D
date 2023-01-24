@@ -1,22 +1,21 @@
 Aerosol-Cloud Column Model (AC-1D)
 ==================================
 
-The goal of this simplified 1D model is to enable the comparison and evaluation of different ice formation mechanisms from the literature against observational constraints. The model is informed from LES case study output. The default Arctic case study is described and simulated by Fridlind et al. (2012).
+The goal of this simplified 1D model is to facilitate the comparison and evaluation of different parameterizations and approaches for ice nucleation via immersion freezing from the literature against each other and observational constraints. The model is informed from LES case study output. The default Arctic case study from the SHEBA field campaign is described and simulated by Fridlind et al. (2012).
 
 Assumptions
-^^^^^^^^^^^^^^
+^^^^^^^^^^^
 
-1. Cloud conditions are assumed steady-state (unaffected by weak ice formation).  
-2. All aerosol are assumed to be activated in updrafts and restored in downdrafts.  
-3. Thus, all in-cloud aerosol (including INP) are within a droplet suitable for immersion freezing.  
+1. Cloud conditions are independent of ice nucleation (no interactions). For the default case study, the cloud conditions are assumed at steady-state (unaffected by weak ice formation).
+2. All aerosol are assumed to be activated in updrafts and restored in downdrafts, and hence, all in-cloud aerosol (including INP) are within a droplet suitable for immersion freezing (no interstatial state).
 
 Step-by-step (model operation)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. Profiles of temperature, RH, and cloud water mixing ratio are read in from LES output.  
-2. Model predicts evolution of Naer(z,t,D), Ninp(z,t,D,T) (INAS) or Ninp(z,t,T) (singular), and Nice(z,t).  
-3. Precipitation rates are estimated from LES number-weighted value at cloud base.  
-4. Predicted nucleation rate profiles are also saved and plotted.  
+1. Profiles of temperature, RH, and cloud water mixing ratio are read in from LES output (thermodynamic profiles can also be modified after model object initialization and prior to model run).
+2. Model predicts evolution of Naer(z,t,D), Ninp(z,t,D,T) (INAS) or Ninp(z,t,T) (INN), and Nice(z,t) (optionally prognostic with the same dims as Ninp).
+3. Precipitation rates are estimated from pre-specified number-weighted value. For example, numbers based on LES output at cloud base.
+4. Predicted nucleation rate profiles are saved and can be plotted.  
 
 Requirements
 ^^^^^^^^^^^^

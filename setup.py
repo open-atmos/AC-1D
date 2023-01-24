@@ -15,14 +15,14 @@ def read(filename):
 
 setup(
     name="AC-1D",
-    version="0.1",
+    version="1.0",
     url="https://github.com/isilber/cld_INP_1D_model",
     license='MIT',
 
     author="Israel Silber",
     author_email="ixs34@psu.edu",
 
-    description="LES_informed 1D model for the evaluation of different ice formation mechanisms from literature",
+    description="A simplified 1D model to examine immersion freezing parameterization impact on INP reservoir",
     long_description=read("README.rst"),
     include_package_data=True,
     packages=find_packages(exclude=('tests',)),
@@ -36,5 +36,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
 )
