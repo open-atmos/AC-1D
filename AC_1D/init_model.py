@@ -3,13 +3,13 @@ This module is used to initialize the model, and allocate fields and arrays to a
 """
 import xarray as xr
 import numpy as np
-from time import time
-import LES
-import AER
-import plotting
 import copy
-from run_model import run_model as Run
 import pint
+from time import time
+from . import LES
+from . import AER
+from . import plotting
+from .run_model import run_model as Run
 
 
 class ci_model():

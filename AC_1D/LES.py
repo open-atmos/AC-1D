@@ -3,7 +3,7 @@ This module includes the LES class and the DHARMA sub-class
 """
 import xarray as xr
 import numpy as np
-
+import os
 
 class LES():
     """
@@ -54,6 +54,8 @@ class LES():
         else:
             self.q_liq_pbl_cut = q_liq_pbl_cut
         self.q_liq_cbh = self.q_liq_pbl_cut  # Equal to the pbl cutoff value by default
+
+        self.les_data_path = os.path.join(os.path.dirname(__file__), 'data_les')
 
     def _crop_time_range(self, t_harvest=None):
         """
@@ -312,7 +314,7 @@ class DHARMA(LES):
 
         # using the default ISDAC model output if None.
         if les_out_path is None:
-            les_out_path = 'data_les/SHEBA_DHARMA_Baseline/'
+            les_out_path = self.les_data_path + '/SHEBA_DHARMA_Baseline/'
         if les_out_filename is None:
             les_out_filename = 'dharma.soundings.cdf'
         self.les_out_path = les_out_path

@@ -5,13 +5,14 @@ In addition, it includes the Jhet class.
 import xarray as xr
 import numpy as np
 import pandas as pd
+import os
 
 
 class Jhet():
     """
     Class to load Jhet LUT and assign c and m coefficient values based on requested aerosol type.
     """
-    def __init__(self, nucleus_type="Illite", coeff_filename="Jhet_coeff.csv"):
+    def __init__(self, nucleus_type="Illite", coeff_filename=None):
         """
         set the ABIFM linear fit coefficients for the aerosol type.
 
@@ -26,7 +27,7 @@ class Jhet():
         self.Jhet_coeff_table = self._load_Jhet_coeff(coeff_filename=coeff_filename)
         self._set_Jhet_coeff(nucleus_type=nucleus_type)
 
-    def _load_Jhet_coeff(self, coeff_filename="Jhet_coeff.csv"):
+    def _load_Jhet_coeff(self, coeff_filename=None):
         """
         Loads Jhet coefficients tables assuming that the columns represent (from left to right): aerosol type
         (substance), c coefficient, c SD, lower and upper confidence levels for c (respectively), m coefficient,
@@ -44,6 +45,8 @@ class Jhet():
         The Jhet coefficients including c (slope) and m (intercept) required for the Jhet calculation.
 
         """
+        if coeff_filename is None:
+            coeff_filename = os.path.dirname(__file__) + "/Jhet_coeff.csv"
         Jhet_coeff_table = pd.read_csv(coeff_filename, names=["nucleus_type", "c", "sigma_c", "LCL_c", "UCL_c",
                                                               "m", "sigma_m", "LCL_m", "UCL_m"], index_col=0)
         return Jhet_coeff_table

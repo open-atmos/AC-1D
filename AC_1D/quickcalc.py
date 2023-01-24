@@ -4,8 +4,8 @@ This module is used for quick calculations of INP, Jhet, etc.
 import xarray as xr
 import numpy as np
 import copy
-import AER
-from init_model import ci_model
+from . import AER
+from .init_model import ci_model as ci_model
 
 
 class ci_quickcalc(ci_model):
