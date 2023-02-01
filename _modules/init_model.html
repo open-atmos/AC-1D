@@ -3,25 +3,23 @@
 
 <!DOCTYPE html>
 
-<html lang="en">
+<html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>init_model &#8212; Aerosol-Cloud Column Model (AC-1D)  documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/cloud.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-rendered-html.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noticia+Text:400,i,b,bi|Open+Sans:400,i,b,bi|Roboto+Mono:400,i,b,bi&amp;display=swap" type="text/css" />
     
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
 
     
@@ -79,33 +77,27 @@
 <span class="kn">import</span> <span class="nn">LES</span>
 <span class="kn">import</span> <span class="nn">AER</span>
 <span class="kn">import</span> <span class="nn">plotting</span>
-<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">run_model</span> <span class="kn">import</span> <span class="n">run_model</span> <span class="k">as</span> <span class="n">Run</span>
 <span class="kn">import</span> <span class="nn">pint</span>
 
 
 <div class="viewcode-block" id="ci_model"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model">[docs]</a><span class="k">class</span> <span class="nc">ci_model</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Cloud-ice nucleation 1D model class containing:</span>
 <span class="sd">    1. All initialization model parameters</span>
 <span class="sd">    2. LES output dataset used to initialize and inform the model (ci_model.les).</span>
 <span class="sd">    3. Model output  output fields (ci_model.ds).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">final_t</span><span class="o">=</span><span class="mi">21600</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">use_ABIFM</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">les_name</span><span class="o">=</span><span class="s2">&quot;DHARMA&quot;</span><span class="p">,</span> <span class="n">t_averaged_les</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">custom_vert_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w_e_ent</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">entrain_to_cth</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">implicit_ent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tau_mix</span><span class="o">=</span><span class="mf">1800.</span><span class="p">,</span> <span class="n">heat_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tau_act</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span> <span class="n">implicit_act</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">implicit_sublim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mixing_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_f_ice</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">in_cld_q_thresh</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
-                 <span class="n">nuc_RH_thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_splitting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ent_then_act</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">prognostic_inp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">prognostic_ice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dt_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">relative_sublim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">aer_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_bin_phys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">t_harvest</span><span class="o">=</span><span class="mi">10800</span><span class="p">,</span>
+                 <span class="n">custom_vert_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w_e_ent</span><span class="o">=</span><span class="mf">0.1e-3</span><span class="p">,</span> <span class="n">deplete_entrained</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tau_mix</span><span class="o">=</span><span class="mf">1800.</span><span class="p">,</span>
+                 <span class="n">mixing_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_f_ice</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">in_cld_q_thresh</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">nuc_RH_thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">aer_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">les_out_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">t_harvest</span><span class="o">=</span><span class="mi">10800</span><span class="p">,</span>
                  <span class="n">fields_to_retain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height_ind_2crop</span><span class="o">=</span><span class="s2">&quot;ql_pbl&quot;</span><span class="p">,</span> <span class="n">cbh_det_method</span><span class="o">=</span><span class="s2">&quot;ql_thresh&quot;</span><span class="p">,</span>
-                 <span class="n">input_conc_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_diam_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_heatrate_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">do_act</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_entrain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_mix_aer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_mix_ice</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_sedim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">do_sublim</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_budgets</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_aer_decay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">run_model</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+                 <span class="n">input_conc_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_diam_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">do_entrain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_mix_aer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_mix_ice</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">do_sedim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">run_model</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Model namelists and unit conversion coefficient required for the 1D model.</span>
 <span class="sd">        The LES class includes methods to processes model output and prepare the out fields for the 1D model.</span>
-<span class="sd">        This method also initializes the aerosol populations and runs the model.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -133,32 +125,14 @@
 <span class="sd">            length s (s &gt; 1) determining time and entrainment rate time series.</span>
 <span class="sd">            Time values are interpolated between the specified times, and the edge values are used for</span>
 <span class="sd">            extrapolation.</span>
-<span class="sd">        entrain_to_cth: bool or int</span>
-<span class="sd">            If True, entrain to cloud top (mixing layer top) after calculating the corresponding delta.</span>
-<span class="sd">            If False, entrain to the mixing layer base (surface layer in coupled cases).</span>
-<span class="sd">            If int, then using this input as index such that 0 or -1 mean consistent entrainment to the surface</span>
-<span class="sd">            layer or domain top, respectively.</span>
-<span class="sd">            NOTE: the value of entrain_to_cth will be overwritten if provided as key in aer_info.</span>
-<span class="sd">        implicit_ent: bool</span>
-<span class="sd">            If True, using an implicit solver for entrainment. If False, using explicit solver.</span>
+<span class="sd">        deplete_entrained: bool</span>
+<span class="sd">            If True, then entrain from cloud top definition consistent with the &#39;cbh_det_method&#39; input parameter</span>
+<span class="sd">            and correspondingly deplete aerosol from the grid cell right above CTH.</span>
+<span class="sd">            If False, then entrain using the initial CTH aerosol concentrations (infinite reservoir, no depletion).</span>
 <span class="sd">        tau_mix: dict or float</span>
 <span class="sd">            boundary-layer mixing time scale [s].</span>
 <span class="sd">            if a float then using its value throughout the simulation time.</span>
 <span class="sd">            if a dict, then treated as in the case of a dict for w_e_ent.</span>
-<span class="sd">        heat_rate: xr DataArray, dict, or float</span>
-<span class="sd">            heating rate over the domain added to the LES output sounding (negative values = cooling) [K s-1]</span>
-<span class="sd">            if a float then using its value throughout the simulation time.</span>
-<span class="sd">            if a dict, then treated as in the case of a dict for w_e_ent.</span>
-<span class="sd">            if an xr DataArray, must contain the &quot;height&quot; [m] and &quot;time&quot; [s] coordinates. Values outside the</span>
-<span class="sd">            coordinate range are extrapolated using the nearest edge values.</span>
-<span class="sd">        tau_act: float, int, or None [--singular--]</span>
-<span class="sd">            If float or int, then setting an activation time scale (10 s by default matching the CFDC).</span>
-<span class="sd">            If None, then singular activation is instantaneous and depends on delta_t.</span>
-<span class="sd">            Relevant for singular parameterizations.</span>
-<span class="sd">        implicit_act: bool [--singular--]</span>
-<span class="sd">            If True and tau_act is a scalar, using implicit solution to activation.</span>
-<span class="sd">        implicit_sublim: bool</span>
-<span class="sd">            If True, using implicit solution to sublimation (Ni reduction - relevant for relative_sublim == True).</span>
 <span class="sd">        mixing_bounds: two-element tuple or list, or None</span>
 <span class="sd">            Determining the mixing layer (especially relevant when using time-varying LES input).</span>
 <span class="sd">            The first element provides a fixed lowest range of mixing (float), a time varying range (dict as</span>
@@ -183,34 +157,6 @@
 <span class="sd">            If list and the first element equals to &quot;use_RH_and_ql&quot; then limiting nucleation to levels where</span>
 <span class="sd">            ql &gt; in_cld_q_thresh and/or RH &gt;= RH threshold set in the second list element.</span>
 <span class="sd">            Ignored if None.</span>
-<span class="sd">        time_splitting: bool</span>
-<span class="sd">            If True, running the model using time splitting (processes are calculated sequentially, each based on</span>
-<span class="sd">            the state produced by the other).</span>
-<span class="sd">            If False, using process splitting (process calculations are based on the same state and their</span>
-<span class="sd">            tendencies are added to produce the updated state).</span>
-<span class="sd">        ent_then_act: bool</span>
-<span class="sd">            if True, entrain aerosol and then activate. If False, activate and then entrain (in either case,</span>
-<span class="sd">            these two processes are followed by mixing).</span>
-<span class="sd">        prognostic_inp: bool</span>
-<span class="sd">            if True, using prognostic aerosol (default - essentially, the purpose of this model).</span>
-<span class="sd">            if False, using diagnostic INP, i.e., total activated INP numbers are calcuated while considering</span>
-<span class="sd">            tau_act (singular) or Jhet in current time step (ABIFM).</span>
-<span class="sd">        prognostic_ice: bool</span>
-<span class="sd">            If True, using prognostic ice, i.e., ice particles have INP memory, thereby enabling sublimation</span>
-<span class="sd">            such that particle INPs are restored (requires setting prognostic_inp to True).</span>
-<span class="sd">            If False, ice particles have no memory, and therefore, no sublimation, for example.</span>
-<span class="sd">            Note that prognostic_ice requires more computation time. Memory is only allocated for ice snapshot</span>
-<span class="sd">            as in INAS.</span>
-<span class="sd">            Requires: prognostic_inp == True.</span>
-<span class="sd">        dt_out: np.ndarray, float, int, or None</span>
-<span class="sd">            array specifying times at which prognostic variables will be saved.</span>
-<span class="sd">            Using a constant value if float or int</span>
-<span class="sd">            Saving every time step if None</span>
-<span class="sd">            Requires prognostic_ice == True.</span>
-<span class="sd">        relative_sublim: bool</span>
-<span class="sd">            If True, using the relative reduction of Ni with height (based on LES).</span>
-<span class="sd">            If False, using abosulte reduction.</span>
-<span class="sd">            Requires prognostic_ice == True.</span>
 <span class="sd">        aer_info: list of dict</span>
 <span class="sd">            Used to initialize the aerosol arrays. Each element of the list describes a single population</span>
 <span class="sd">            type providing its composition, concentration, and PSD, e.g., can use a single log-normal population</span>
@@ -226,9 +172,9 @@
 <span class="sd">                    - &quot;mono&quot;: fixed-size population, i.e., a single particle diameter should be provided</span>
 <span class="sd">                      (diam [m]).</span>
 <span class="sd">                    - &quot;logn&quot;: log--normal: provide geometric mean diameter (diam_mean [m]), geometric SD</span>
-<span class="sd">                      (geom_sd), number of PSD bins or an alternative diameter bin array (n_bins), minimum diameter</span>
-<span class="sd">                      (diam_min [m]; can be a 2-element tuple and then the 2nd is the maximum diameter cutoff),</span>
-<span class="sd">                      and bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio</span>
+<span class="sd">                      (geom_sd), number of PSD bins (n_bins), minimum diameter (diam_min [m]; can also be  a</span>
+<span class="sd">                      2-element tuple and then the 2nd is the maximum diameter cutoff), and</span>
+<span class="sd">                      bin-to-bin mass ratio (m_ratio). Note that the effective bin-to-bin diameter ratio</span>
 <span class="sd">                      equals m_ratio**(1/3).</span>
 <span class="sd">                    - &quot;multi_logn&quot;: multi-modal log-normal: as in &quot;logn&quot; but diam_mean, geom_sd, and n_init_max</span>
 <span class="sd">                      need to be specified as lists or np.ndarrays with the same length (each characterizing</span>
@@ -258,17 +204,14 @@
 <span class="sd">                5. singular_fun: [lambda func. or str; --singular--] INP parametrization (typically as a function</span>
 <span class="sd">                of T).</span>
 <span class="sd">                str: use &quot;D2010&quot; to use eq. 1 in DeMott et al., 2010, &quot;D2015&quot; to use eq. 2 in DeMott et al.,</span>
-<span class="sd">                2015, &quot;D2010fit&quot; to use the temperature dependence fit from fig. 2 in DeMott et al., 2010,</span>
-<span class="sd">                &quot;ND2012&quot; for surface area temperature-based fit (eq. 5) in Niemand et al., JAS, 2012,</span>
-<span class="sd">                &quot;SC2020&quot; for surface area temperature-based fit (eq. 5) in Schill et al., PNAS, 202,</span>
-<span class="sd">                and &quot;AT2013&quot; for surface area temperature_based fit (eq.6) in Atkinson et al., NATURE, 2013.</span>
+<span class="sd">                2015, or &quot;D2010fit&quot; to use the temperature dependence fit from fig. 2 in DeMott et al., 2010.</span>
 <span class="sd">                The D2015 has default values of the five coeff. from eq. 2 (cf - calibration correction factor,</span>
 <span class="sd">                alpha, beta, gamma, delta); these might be coded as optional input for the AER class in</span>
 <span class="sd">                the future.</span>
 <span class="sd">                Note that &quot;D2010fit&quot; does not consider aerosol PSDs.</span>
 <span class="sd">                Use &quot;D2010&quot; (default) if None.</span>
 
-<span class="sd">                6. singular_scale: [float] Scale factor for &#39;singular_fun&#39; or Jhet (1 by default).</span>
+<span class="sd">                6. singular_scale: [float; --singular--] Scale factor for &#39;singular_fun&#39; (1 by default).</span>
 
 <span class="sd">                7. n_init_weight_prof: [dict] a dict with keys &quot;height&quot; and &quot;weight&quot;. Each key contains</span>
 <span class="sd">                a list or np.ndarray of length s (s &gt; 1) determining PSD heights [m] and weighting profiles.</span>
@@ -278,18 +221,6 @@
 <span class="sd">                between the specified heights, and the edge values are used for extrapolation (can be used to set</span>
 <span class="sd">                different aerosol source layers at model initialization, and combined with turbulence weighting,</span>
 <span class="sd">                allows the emulation of cloud-driven mixing.</span>
-
-<span class="sd">                8. entrain_psd: [dict] PSD for entrained aerosol - similar to the aer_info dict for specifying the</span>
-<span class="sd">                PSD parameters of the entrained aerosol (can be surface aerosol fluxes if entrain_from_cth=0, for</span>
-<span class="sd">                example). The &#39;type&#39; key value must be the same as the aer_info dict.</span>
-<span class="sd">                optional keys:</span>
-<span class="sd">                    1. src_weight_time: [dict] a dict with keys &quot;time&quot; and &quot;weight&quot; for entrainment source.</span>
-<span class="sd">                9. entrain_to_cth: [bool or int] as in the &#39;entrain_to_cth&#39; in the ci_model class attributes, the</span>
-<span class="sd">                case of which will result in determining this attribute value only for this specific aerosol</span>
-<span class="sd">                population.</span>
-<span class="sd">                If not specified, using the default option, i.e., the initial PSD (&#39;dn_dlogD) with a weight of 1.,</span>
-<span class="sd">                which in likely most scenarios represent the free-tropospheric (or PBL top) as was the case until</span>
-<span class="sd">                the Sep 6, 2020 commits.</span>
 <span class="sd">        input_conc_units: str or None</span>
 <span class="sd">            An str specifies the input aerosol concentration units that will be converted to SI in pre-processing.</span>
 <span class="sd">            Relevant input parameters are: n_init_max and dn_dlogD (custom).</span>
@@ -297,11 +228,6 @@
 <span class="sd">            An str specifies the input aerosol diameter units that will be converted to SI in pre-processing.</span>
 <span class="sd">            Relevant input parameters are: diam (mono, custom) diam_mean (logn, multi_logn), diam_min</span>
 <span class="sd">            (logn, multi_logn), and diam_cutoff.</span>
-<span class="sd">        input_heatrate_units: str or None</span>
-<span class="sd">            An str specifies the input heating rate units that will be converted to SI in pre-processing.</span>
-<span class="sd">            The relevant input parameters is: heat_rate.</span>
-<span class="sd">        do_act: bool</span>
-<span class="sd">            determines whether aerosol (INP) activation will be performed.</span>
 <span class="sd">        do_entrain: bool</span>
 <span class="sd">            determines whether aerosols entrainment will be performed.</span>
 <span class="sd">        do_mix_aer: bool</span>
@@ -310,13 +236,6 @@
 <span class="sd">            determines whether mixing of ice will be performed.</span>
 <span class="sd">        do_sedim: bool</span>
 <span class="sd">            determines whether ice sedimentation will be performed.</span>
-<span class="sd">        do_sublim: bool</span>
-<span class="sd">            determines whether ice sublimation will be performed (based on dNi/dz from LES).</span>
-<span class="sd">        output_budgets: bool</span>
-<span class="sd">            If True, then activation, entrainment, and mixing budgest are provided in the model output.</span>
-<span class="sd">        output_aer_decay: bool</span>
-<span class="sd">            If True, then generating an output field of the relative fraction of PBL aerosol relative to</span>
-<span class="sd">            initial value, as well as the decay rate between consecutive time steps.</span>
 <span class="sd">        run_model: bool</span>
 <span class="sd">            True - run model once initialization is done.</span>
 
@@ -326,15 +245,11 @@
 <span class="sd">            LES output path (can be relative to running directory). Use default if None.</span>
 <span class="sd">        les_out_filename: str or None</span>
 <span class="sd">            LES output filename. Use default file if None.</span>
-<span class="sd">        les_bin_phys: bool</span>
-<span class="sd">            IF True, using bin microphysics output namelist for harvesting LES data.</span>
-<span class="sd">            If False, using bulk microphysics output namelist for harvesting LES data.</span>
-<span class="sd">        t_harvest: scalar, 2- or 3-element tuple, list (or ndarray), or None</span>
+<span class="sd">        t_harvest: scalar, 2-element tuple, list (or ndarray), or None</span>
 <span class="sd">            If scalar then using the nearest time (assuming units of seconds) to initialize the model</span>
 <span class="sd">            (single profile).</span>
 <span class="sd">            If a tuple, cropping the range defined by the first two elements (increasing values) using a</span>
-<span class="sd">            slice object. If len(t_harvest) == 3 then using the 3rd element as a time offset to subtract from</span>
-<span class="sd">            the tiem array values.</span>
+<span class="sd">            slice object.</span>
 <span class="sd">            If a list, cropping the times specified in the list (can be used take LES output profiles every</span>
 <span class="sd">            delta_t seconds.</span>
 <span class="sd">            NOTE: default in the ci_model class (10800 s) is different than in the DHARMA init method (None).</span>
@@ -351,6 +266,8 @@
 <span class="sd">                the highest index corresponding to the cutoff.</span>
 <span class="sd">                - OTHER OPTIONS TO BE ADDED.</span>
 <span class="sd">            If None then not cropping.</span>
+<span class="sd">            NOTE: default in the ci_model class (&quot;ql_pbl&quot;) is different than in the DHARMA init method (None).</span>
+<span class="sd">        cbh_det_method: str</span>
 <span class="sd">            Method to determine cloud base with:</span>
 <span class="sd">                - if == &quot;ql_thresh&quot; then cbh is determined by a q_liq threshold set with the &#39;q_liq_cbh&#39; attribute.</span>
 <span class="sd">                - OTHER OPTIONS TO BE ADDED.</span>
@@ -358,25 +275,14 @@
         <span class="c1"># count processing time</span>
         <span class="n">Now</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
 
+        <span class="c1"># Convert all input parameters to SI (if requested).</span>
+
         <span class="c1"># Set some simulation attributes.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vars_harvested_from_les</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RH&quot;</span><span class="p">,</span> <span class="s2">&quot;ql&quot;</span><span class="p">,</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;Ni&quot;</span><span class="p">,</span> <span class="s2">&quot;prec&quot;</span><span class="p">,</span> <span class="s2">&quot;rho&quot;</span><span class="p">]</span>  <span class="c1"># processed vars used by the model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vars_harvested_from_les</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RH&quot;</span><span class="p">,</span> <span class="s2">&quot;ql&quot;</span><span class="p">,</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;Ni&quot;</span><span class="p">,</span> <span class="s2">&quot;prec&quot;</span><span class="p">]</span>  <span class="c1"># processed variables used by the model.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_t</span> <span class="o">=</span> <span class="n">final_t</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_ABIFM</span> <span class="o">=</span> <span class="n">use_ABIFM</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">in_cld_q_thresh</span> <span class="o">=</span> <span class="n">in_cld_q_thresh</span>  <span class="c1"># kg/kg</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nuc_RH_thresh</span> <span class="o">=</span> <span class="n">nuc_RH_thresh</span>  <span class="c1"># fraction value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prognostic_inp</span> <span class="o">=</span> <span class="n">prognostic_inp</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">prognostic_inp</span><span class="p">,</span> <span class="n">prognostic_ice</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;prognostic_inp is False while prognostic_ice, which requires True prognostic_inp, is False - &quot;</span>
-                  <span class="s2">&quot;setting prognostic_ice = False&quot;</span><span class="p">)</span>
-            <span class="n">prognostic_ice</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prognostic_ice</span> <span class="o">=</span> <span class="n">prognostic_ice</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt_out</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting output time increments to </span><span class="si">{</span><span class="n">dt_out</span><span class="si">}</span><span class="s2"> s&quot;</span><span class="p">)</span>
-            <span class="n">dt_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_t</span> <span class="o">+</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="n">dt_out</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">dt_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting output time increments to 1 time step of </span><span class="si">{</span><span class="n">delta_t</span><span class="si">}</span><span class="s2"> s (none were specified)&quot;</span><span class="p">)</span>
-            <span class="n">dt_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_t</span> <span class="o">+</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">)</span>  <span class="c1"># By default output every time step</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dt_out</span> <span class="o">=</span> <span class="n">dt_out</span>
 
         <span class="c1"># assign a unit registry and define percent units.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ureg</span> <span class="o">=</span> <span class="n">pint</span><span class="o">.</span><span class="n">UnitRegistry</span><span class="p">()</span>
@@ -387,15 +293,12 @@
         <span class="k">if</span> <span class="n">les_name</span> <span class="o">==</span> <span class="s2">&quot;DHARMA&quot;</span><span class="p">:</span>
             <span class="n">les</span> <span class="o">=</span> <span class="n">LES</span><span class="o">.</span><span class="n">DHARMA</span><span class="p">(</span><span class="n">les_out_path</span><span class="o">=</span><span class="n">les_out_path</span><span class="p">,</span> <span class="n">les_out_filename</span><span class="o">=</span><span class="n">les_out_filename</span><span class="p">,</span> <span class="n">t_harvest</span><span class="o">=</span><span class="n">t_harvest</span><span class="p">,</span>
                              <span class="n">fields_to_retain</span><span class="o">=</span><span class="n">fields_to_retain</span><span class="p">,</span> <span class="n">height_ind_2crop</span><span class="o">=</span><span class="n">height_ind_2crop</span><span class="p">,</span>
-                             <span class="n">cbh_det_method</span><span class="o">=</span><span class="n">cbh_det_method</span><span class="p">,</span> <span class="n">q_liq_pbl_cut</span><span class="o">=</span><span class="n">in_cld_q_thresh</span><span class="p">,</span>
-                             <span class="n">les_bin_phys</span><span class="o">=</span><span class="n">les_bin_phys</span><span class="p">)</span>
-            <span class="n">les</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;rho&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">les</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;rho&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>  <span class="c1"># density is constant with time (per Exner function)</span>
+                             <span class="n">cbh_det_method</span><span class="o">=</span><span class="n">cbh_det_method</span><span class="p">,</span> <span class="n">q_liq_pbl_cut</span><span class="o">=</span><span class="n">in_cld_q_thresh</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t process LES model output from &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">les_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">LES_attributes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;LES_name&quot;</span><span class="p">:</span> <span class="n">les_name</span><span class="p">,</span>
                                <span class="s2">&quot;les_out_path&quot;</span><span class="p">:</span> <span class="n">les</span><span class="o">.</span><span class="n">les_out_path</span><span class="p">,</span>
                                <span class="s2">&quot;les_out_filename&quot;</span><span class="p">:</span> <span class="n">les</span><span class="o">.</span><span class="n">les_out_filename</span><span class="p">,</span>
-                               <span class="s2">&quot;les_bin_phys&quot;</span><span class="p">:</span> <span class="n">les</span><span class="o">.</span><span class="n">les_bin_phys</span><span class="p">,</span>
                                <span class="s2">&quot;t_averaged_les&quot;</span><span class="p">:</span> <span class="n">t_averaged_les</span><span class="p">,</span>
                                <span class="s2">&quot;t_harvest&quot;</span><span class="p">:</span> <span class="n">t_harvest</span><span class="p">,</span>
                                <span class="s2">&quot;fields_to_retain&quot;</span><span class="p">:</span> <span class="n">fields_to_retain</span><span class="p">,</span>
@@ -428,9 +331,8 @@
             <span class="n">les</span><span class="o">.</span><span class="n">q_liq_field</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">les</span><span class="o">.</span><span class="n">q_liq_field</span><span class="p">[</span><span class="s2">&quot;scaling&quot;</span><span class="p">],</span> <span class="n">les</span><span class="o">.</span><span class="n">height_dim</span> <span class="o">=</span> \
                 <span class="n">tmp_attrs</span><span class="p">[</span><span class="s2">&quot;ql&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">tmp_attrs</span><span class="p">[</span><span class="s2">&quot;ql&quot;</span><span class="p">][</span><span class="s2">&quot;scaling&quot;</span><span class="p">],</span> <span class="n">tmp_attrs</span><span class="p">[</span><span class="s2">&quot;height_dim&quot;</span><span class="p">]</span>
 
-        <span class="c1"># Make self.les point at the LES object&#39;s xr.Dataset for accessibility</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">LES_obj</span> <span class="o">=</span> <span class="n">les</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">les</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LES_obj</span><span class="o">.</span><span class="n">ds</span>
+        <span class="c1"># Retain only the LES xr.Dataset for accessibility</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">les</span> <span class="o">=</span> <span class="n">les</span><span class="o">.</span><span class="n">ds</span>
 
         <span class="c1"># Make sure ice does not sediment more than 1 vertical cell per time step. In that case change delta_t</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v_f_ice</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -452,14 +354,12 @@
                   <span class="s2">&quot;grid cell (</span><span class="si">%d</span><span class="s2"> s)&quot;</span> <span class="o">%</span> <span class="n">delta_t</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span> <span class="o">=</span> <span class="n">delta_t</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mod_nt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">final_t</span> <span class="o">/</span> <span class="n">delta_t</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># number of time steps</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mod_nt_out</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dt_out</span><span class="p">)</span>  <span class="c1"># number of output time steps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mod_nz</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>  <span class="c1"># number of vertical layers</span>
 
         <span class="c1"># allocate xarray DataSet for model atmospheric state and prognosed variable fields</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mod_nt</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;t_out&quot;</span><span class="p">:</span> <span class="n">dt_out</span><span class="p">})</span>
         <span class="n">delta_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;delta_z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">delta_z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">delta_z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]))),</span>
                                           <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">),</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;$m$&quot;</span><span class="p">})</span>
@@ -489,8 +389,7 @@
 
         <span class="c1"># init entrainment</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">w_e_ent</span> <span class="o">=</span> <span class="n">w_e_ent</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entrain_to_cth</span> <span class="o">=</span> <span class="n">entrain_to_cth</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">implicit_ent</span> <span class="o">=</span> <span class="n">implicit_ent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deplete_entrained</span> <span class="o">=</span> <span class="n">deplete_entrained</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_AERut</span><span class="p">(</span><span class="n">w_e_ent</span><span class="p">,</span> <span class="s2">&quot;w_e_ent&quot;</span><span class="p">,</span> <span class="s2">&quot;$m/s$&quot;</span><span class="p">,</span> <span class="s2">&quot;Cloud-top entrainment rate&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_AERut</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">les</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
@@ -507,7 +406,6 @@
 
         <span class="c1"># init vertical mixing and generate a mixing layer mask for the model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tau_mix</span> <span class="o">=</span> <span class="n">tau_mix</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mixing_bounds</span> <span class="o">=</span> <span class="n">mixing_bounds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_AERut</span><span class="p">(</span><span class="n">tau_mix</span><span class="p">,</span> <span class="s2">&quot;tau_mix&quot;</span><span class="p">,</span> <span class="s2">&quot;$s$&quot;</span><span class="p">,</span> <span class="s2">&quot;Boundary-layer mixing time scale&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">mixing_bounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mod_nz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mod_nt</span><span class="p">),</span>
@@ -531,7 +429,7 @@
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mod_nt</span><span class="p">):</span>
                 <span class="n">rel_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">t</span><span class="p">])),</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">t</span><span class="p">]))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># inc. top</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">t</span><span class="p">])))</span>
                 <span class="n">mixing_mask</span><span class="p">[</span><span class="n">rel_ind</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">mixing_mask</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_mask&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Mixing-layer mask (True --&gt; mixed)&quot;</span>
@@ -540,40 +438,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">v_f_ice</span> <span class="o">=</span> <span class="n">v_f_ice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_AERut</span><span class="p">(</span><span class="n">v_f_ice</span><span class="p">,</span> <span class="s2">&quot;v_f_ice&quot;</span><span class="p">,</span> <span class="s2">&quot;$m/s$&quot;</span><span class="p">,</span> <span class="s2">&quot;Number-weighted ice crystal fall velocity&quot;</span><span class="p">)</span>
 
-        <span class="c1"># init and apply heating rates (prior to calculating delta_aw and/or other activation-related variables)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">heat_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_heatrate_units</span> <span class="o">=</span> <span class="n">heat_rate</span><span class="p">,</span> <span class="n">input_heatrate_units</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">heat_rate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_1D_or_2D_var_from_AERut</span><span class="p">(</span><span class="n">heat_rate</span><span class="p">,</span> <span class="s2">&quot;heat_rate&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$K\ s^{-1}$&quot;</span><span class="p">,</span> <span class="s2">&quot;Atmospheric heating rate&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_heatrate_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;heat_rate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> \
-                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;heat_rate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ureg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_heatrate_units</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;K * s^{-1}&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span>
-            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mod_nt</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;T&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="n">t</span><span class="p">:]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;heat_rate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">t</span><span class="p">]})</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">delta_t</span>
-
-        <span class="c1"># set singular activation parameters.</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tau_act</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">use_tau_act</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tau_act</span> <span class="o">=</span> <span class="n">tau_act</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">use_tau_act</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tau_act</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">implicit_act</span> <span class="o">=</span> <span class="n">implicit_act</span>
-
-        <span class="c1"># init sublimation</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">relative_sublim</span> <span class="o">=</span> <span class="n">relative_sublim</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">implicit_sublim</span> <span class="o">=</span> <span class="n">implicit_sublim</span>
-
         <span class="c1"># calculate delta_aw</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_calc_delta_aw</span><span class="p">()</span>
 
         <span class="c1"># allocate aerosol population Datasets</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aer</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">aer_info</span><span class="p">)</span>  <span class="c1"># save the aerosol info dict for reference in a deep copy.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span> <span class="o">=</span> <span class="n">aer_info</span>  <span class="c1"># save the aerosol info dict for reference.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_conc_units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_diam_units</span> <span class="o">=</span> <span class="n">input_conc_units</span><span class="p">,</span> <span class="n">input_diam_units</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_convert_input_to_SI</span><span class="p">()</span>  <span class="c1"># Convert input concentration and/or diameter parameters to SI (if requested).</span>
         <span class="n">optional_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_type&quot;</span><span class="p">,</span> <span class="s2">&quot;diam_cutoff&quot;</span><span class="p">,</span> <span class="s2">&quot;T_array&quot;</span><span class="p">,</span>  <span class="c1"># optional aerosol class input params.</span>
-                         <span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">,</span> <span class="s2">&quot;singular_fun&quot;</span><span class="p">,</span> <span class="s2">&quot;singular_scale&quot;</span><span class="p">,</span>
-                         <span class="s2">&quot;entrain_psd&quot;</span><span class="p">,</span> <span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">]</span>
+                         <span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">,</span> <span class="s2">&quot;singular_fun&quot;</span><span class="p">,</span> <span class="s2">&quot;singular_scale&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">)):</span>
             <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;use_ABIFM&quot;</span><span class="p">:</span> <span class="n">use_ABIFM</span><span class="p">}</span>  <span class="c1"># tmp dict for aerosol attributes to send to class call.</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;n_init_max&quot;</span><span class="p">,</span> <span class="s2">&quot;psd&quot;</span><span class="p">]]):</span>
@@ -591,17 +465,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">tmp_aer_pop</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_aer_pop</span>
 
         <span class="c1"># allocate nucleated ice DataArrays</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">prognostic_ice</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ice_snap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ice_snap&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$m^{-3}$&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ice_snap&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Diagnostic ice number concentration (snapshot)&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Ni_nuc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mod_nz</span><span class="p">,</span>
-                                                   <span class="bp">self</span><span class="o">.</span><span class="n">mod_nt_out</span><span class="p">)),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;t_out&quot;</span><span class="p">))</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">mod_nt</span><span class="p">)),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Ni_nuc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$m^{-3}$&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Ni_nuc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Nucleated ice&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;nuc_rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mod_nz</span><span class="p">,</span>
-                                           <span class="bp">self</span><span class="o">.</span><span class="n">mod_nt_out</span><span class="p">)),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;t_out&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;nuc_rate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$m^{-3}\:s^{-1}$&quot;</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">mod_nt</span><span class="p">)),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;nuc_rate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$m^{-3}\:s^{-1}$&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;nuc_rate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Ice nucleation rate&quot;</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model initalization done! Total processing time = </span><span class="si">%f</span><span class="s2"> s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">Now</span><span class="p">))</span>
@@ -610,92 +480,46 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$m$&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$s$&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height_km&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1e3</span>  <span class="c1"># add coordinates for height in km.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">height_km</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height_km&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">height_km</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height_km&quot;</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height_km&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$km$&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time_h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3600</span>  <span class="c1"># add coordinates for time in h.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">time_h</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">time_h</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time_h&quot;</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;t_out&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt_out</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$s$&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3600</span>  <span class="c1"># add coordinates for time in h.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">t_out_h</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;t_out&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height_dim</span> <span class="o">=</span> <span class="s2">&quot;height&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">t_out_dim</span> <span class="o">=</span> <span class="s2">&quot;t_out&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">T_dim</span> <span class="o">=</span> <span class="s2">&quot;T&quot;</span>  <span class="c1"># setting the T dim even though it is only set when allocating an AER object.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">diam_dim</span> <span class="o">=</span> <span class="s2">&quot;diam&quot;</span>  <span class="c1"># setting the diam dim even though it is only set when allocating an AER object.</span>
 
-        <span class="c1"># Run the model and reassign coordinate unit attributes (typically lost in xr.DataArray manipulations)</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">prognostic_ice</span><span class="p">,</span> <span class="n">do_sublim</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;prognostic_ice is False while do_sublim is True, but do_sublim requires prognostic ice - &quot;</span>
-                  <span class="s2">&quot;setting do_sublim = False&quot;</span><span class="p">)</span>
-            <span class="n">do_sublim</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">do_act</span> <span class="o">=</span> <span class="n">do_act</span>
+        <span class="c1"># Run the model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_entrain</span> <span class="o">=</span> <span class="n">do_entrain</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_mix_aer</span> <span class="o">=</span> <span class="n">do_mix_aer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_mix_ice</span> <span class="o">=</span> <span class="n">do_mix_ice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_sedim</span> <span class="o">=</span> <span class="n">do_sedim</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">do_sublim</span> <span class="o">=</span> <span class="n">do_sublim</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_splitting</span> <span class="o">=</span> <span class="n">time_splitting</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ent_then_act</span> <span class="o">=</span> <span class="n">ent_then_act</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_budgets</span> <span class="o">=</span> <span class="n">output_budgets</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_aer_decay</span> <span class="o">=</span> <span class="n">output_aer_decay</span>
         <span class="k">if</span> <span class="n">run_model</span><span class="p">:</span>
             <span class="n">Run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$s$&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$s$&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height_km&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$km$&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$m$&quot;</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$s$&quot;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$h$&quot;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;t_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$s$&quot;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height_km&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$km$&quot;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$m$&quot;</span>
-
-<div class="viewcode-block" id="ci_model.calc_a_ice_w"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.calc_a_ice_w">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">calc_a_ice_w</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        calculate a_w(ice) using eq. 7 in Koop and Zobrist (2009, https://doi.org/10.1039/B914289D.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        T: np.ndarray or xr.DataArray</span>
-<span class="sd">            Temperature</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        a_ice_w: np.ndarray or xr.DataArray</span>
-<span class="sd">            water activity for ice nucleation</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">a_ice_w</span> <span class="o">=</span> \
-            <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">9.550426</span> <span class="o">-</span> <span class="mf">5723.265</span> <span class="o">/</span> <span class="n">T</span> <span class="o">+</span> <span class="mf">3.53068</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">-</span>
-                    <span class="mf">0.00728332</span> <span class="o">*</span> <span class="n">T</span><span class="p">)</span> <span class="o">/</span>
-             <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">54.842763</span> <span class="o">-</span> <span class="mf">6763.22</span> <span class="o">/</span> <span class="n">T</span> <span class="o">-</span>
-              <span class="mf">4.210</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.000367</span> <span class="o">*</span> <span class="n">T</span> <span class="o">+</span>
-              <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="mf">0.0415</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mf">218.8</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mf">53.878</span> <span class="o">-</span> <span class="mf">1331.22</span> <span class="o">/</span> <span class="n">T</span> <span class="o">-</span> <span class="mf">9.44523</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.014025</span> <span class="o">*</span> <span class="n">T</span><span class="p">)))</span>
-             <span class="p">)</span>
-        <span class="k">return</span> <span class="n">a_ice_w</span></div>
 
     <span class="k">def</span> <span class="nf">_calc_delta_aw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        calculate the ∆aw field and S_ice for ABIFM using:</span>
 <span class="sd">        1. eq. 1 in Knopf and Alpert (2013, https://doi.org/10.1039/C3FD00035D) combined with:</span>
 <span class="sd">        2. eq. 7 in Koop and Zobrist (2009, https://doi.org/10.1039/B914289D) for a_w(ice)</span>
 <span class="sd">        Here we assume that our droplets are in equilibrium with the environment at its given RH, hence, RH = a_w.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">a_ice_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_a_ice_w</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])</span>
+        <span class="n">a_ice_w</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">9.550426</span> <span class="o">-</span> <span class="mf">5723.265</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">3.53068</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])</span> <span class="o">-</span>
+                    <span class="mf">0.00728332</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])</span> <span class="o">/</span>
+             <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">54.842763</span> <span class="o">-</span> <span class="mf">6763.22</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">-</span>
+              <span class="mf">4.210</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="mf">0.000367</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">+</span>
+              <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="mf">0.0415</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mf">218.8</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mf">53.878</span> <span class="o">-</span> <span class="mf">1331.22</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mf">9.44523</span> <span class="o">*</span>
+                                                          <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="mf">0.014025</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">])))</span>
+             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;delta_aw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;RH&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">a_ice_w</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;S_ice&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;RH&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">a_ice_w</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;delta_aw&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;S_ice&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_set_1D_or_2D_var_from_AERut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_in</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">units_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">long_name_str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        set a 1D xr.DataArray from a scalar or a dictionary containing &quot;time&quot; and &quot;value&quot; keys.</span>
 <span class="sd">        If &#39;var_in&#39; is a scalar then generating a uniform time series.</span>
 <span class="sd">        Values are linearly interpolated onto the model temporal grid (values outside the provided</span>
@@ -748,7 +572,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">long_name_str</span>
 
     <span class="k">def</span> <span class="nf">_set_aer_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Invoke an AER class call and use the input parameters provided. Using a full dictionary key call to</span>
 <span class="sd">        maintain consistency even if some AER class input variable order will be changed in future updates.</span>
 
@@ -768,8 +592,6 @@
                                        <span class="n">psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">],</span> <span class="n">nucleus_type</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;nucleus_type&quot;</span><span class="p">],</span>
                                        <span class="n">name</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">diam_cutoff</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span>
                                        <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span> <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
-                                       <span class="n">entrain_psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_psd&quot;</span><span class="p">],</span>
-                                       <span class="n">entrain_to_cth</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">],</span>
                                        <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
                                        <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;logn&quot;</span><span class="p">:</span>
@@ -777,8 +599,6 @@
                                        <span class="n">psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">],</span> <span class="n">nucleus_type</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;nucleus_type&quot;</span><span class="p">],</span>
                                        <span class="n">name</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">diam_cutoff</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span>
                                        <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span> <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
-                                       <span class="n">entrain_psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_psd&quot;</span><span class="p">],</span>
-                                       <span class="n">entrain_to_cth</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">],</span>
                                        <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
                                        <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;multi_logn&quot;</span><span class="p">:</span>
@@ -788,8 +608,6 @@
                                              <span class="n">name</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">diam_cutoff</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span>
                                              <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span>
                                              <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
-                                             <span class="n">entrain_psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_psd&quot;</span><span class="p">],</span>
-                                             <span class="n">entrain_to_cth</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">],</span>
                                              <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
                                              <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;custom&quot;</span><span class="p">:</span>
@@ -797,8 +615,6 @@
                                          <span class="n">psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">],</span> <span class="n">nucleus_type</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;nucleus_type&quot;</span><span class="p">],</span>
                                          <span class="n">name</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">diam_cutoff</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span>
                                          <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span> <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
-                                         <span class="n">entrain_psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_psd&quot;</span><span class="p">],</span>
-                                         <span class="n">entrain_to_cth</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">],</span>
                                          <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
                                          <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
@@ -808,15 +624,13 @@
                                        <span class="n">psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">],</span> <span class="n">nucleus_type</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;nucleus_type&quot;</span><span class="p">],</span>
                                        <span class="n">name</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">diam_cutoff</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span>
                                        <span class="n">T_array</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;T_array&quot;</span><span class="p">],</span> <span class="n">singular_fun</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_fun&quot;</span><span class="p">],</span>
-                                       <span class="n">entrain_psd</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_psd&quot;</span><span class="p">],</span>
-                                       <span class="n">entrain_to_cth</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">],</span>
                                        <span class="n">singular_scale</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;singular_scale&quot;</span><span class="p">],</span>
                                        <span class="n">n_init_weight_prof</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">],</span> <span class="n">ci_model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">tmp_aer_pop</span>
 
     <span class="k">def</span> <span class="nf">_convert_input_to_SI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert one or more input parameters to SI if other units were specified.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_conc_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># assuming input_conc_units is an str with valid conc. units</span>
@@ -825,7 +639,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_do_input_conversion</span><span class="p">([</span><span class="s2">&quot;diam&quot;</span><span class="p">,</span> <span class="s2">&quot;diam_mean&quot;</span><span class="p">,</span> <span class="s2">&quot;diam_min&quot;</span><span class="p">,</span> <span class="s2">&quot;diam_cutoff&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_diam_units</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_do_input_conversion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_list</span><span class="p">,</span> <span class="n">from_units</span><span class="p">,</span> <span class="n">to_units</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Search for input parameters in the aer_info input list of dicts and convert units to SI.</span>
 <span class="sd">        Quantity type is parsed by pint (for all valid unit strings see:</span>
 <span class="sd">        https://github.com/hgrecco/pint/blob/master/pint/default_en.txt).</span>
@@ -847,7 +661,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">param_val</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="n">param</span><span class="p">])</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">param_val</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># scalar or np.ndarray</span>
+                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># np.ndarray or scalar</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_val</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; (in aer_info&#39;s &#39;psd&#39; keys) was input in </span><span class="si">%s</span><span class="s2"> units; now converted to </span><span class="si">%s</span><span class="s2"> (SI)&quot;</span> <span class="o">%</span>
                           <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">from_units</span><span class="p">,</span> <span class="n">to_units</span><span class="p">))</span>
@@ -857,13 +671,13 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">param_val</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="n">param</span><span class="p">])</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">param_val</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># scalar or np.ndarray</span>
+                    <span class="k">else</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_val</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; (in aer_info) was input in </span><span class="si">%s</span><span class="s2"> units; now converted to </span><span class="si">%s</span><span class="s2"> (SI)&quot;</span> <span class="o">%</span>
                           <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">from_units</span><span class="p">,</span> <span class="n">to_units</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_convert_quantity_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_units</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert a quantity units (e.g., volume, concentration) in all relevant arrays (e.g., from 1/m^3 to L-1).</span>
 
 <span class="sd">        Parameters</span>
@@ -895,7 +709,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No fields with units able to convert to </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">to_units</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_swap_height_dim_to_from_km</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the height dim is in m changing to km and vice versa.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;height&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
@@ -912,7 +726,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;height_km&quot;</span><span class="p">:</span> <span class="s2">&quot;height&quot;</span><span class="p">})</span>
 
     <span class="k">def</span> <span class="nf">_swap_time_dim_to_from_hr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the time dim is in seconds changing to hours and vice versa.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
@@ -927,21 +741,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">time_dim</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;time_h&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">})</span>
-        <span class="k">if</span> <span class="s2">&quot;t_out&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Converting output time dimension units from seconds to hours&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;t_out&quot;</span><span class="p">:</span> <span class="s2">&quot;t_out_h&quot;</span><span class="p">})</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">t_out_dim</span> <span class="o">=</span> <span class="s2">&quot;t_out_h&quot;</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;t_out&quot;</span><span class="p">:</span> <span class="s2">&quot;t_out_h&quot;</span><span class="p">})</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Converting output time dimension units from hours to seconds&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">:</span> <span class="s2">&quot;t_out&quot;</span><span class="p">})</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">t_out_dim</span> <span class="o">=</span> <span class="s2">&quot;t_out&quot;</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;t_out_h&quot;</span><span class="p">:</span> <span class="s2">&quot;t_out&quot;</span><span class="p">})</span>
 
     <span class="k">def</span> <span class="nf">_swap_diam_dim_to_from_um</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the diam dim is in m changing to um and vice versa.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -955,7 +757,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">diam_dim</span> <span class="o">=</span> <span class="s2">&quot;diam&quot;</span>
 
     <span class="k">def</span> <span class="nf">_swap_T_dim_to_from_C</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the T dim is in Kelvin changing to Celsius and vice versa (singular).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ABIFM</span><span class="p">:</span>
@@ -969,208 +771,33 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;T_C&quot;</span><span class="p">:</span> <span class="s2">&quot;T&quot;</span><span class="p">})</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">T_dim</span> <span class="o">=</span> <span class="s2">&quot;T&quot;</span>
 
-<div class="viewcode-block" id="ci_model.ci_model_ds_to_netcdf"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.ci_model_ds_to_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">ci_model_ds_to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_prefix</span><span class="o">=</span><span class="s1">&#39;AC_1D_out&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        export datasets from a model simulation. Each dataset is stored in a different file.</span>
-<span class="sd">        Files are generated for the main ci_model object and each aerosol population.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        out_prefix: str</span>
-<span class="sd">            filename prefix and path from which to load ci_model&#39;s datasets.</span>
-<span class="sd">            A &quot;_main.nc&quot; suffix is added to the filename of the NetCDF file containing the main</span>
-<span class="sd">            ci_model dataset, while for each dataset of an aerosol population xxxx, an</span>
-<span class="sd">            &#39;aer_pop_xxxx.nc&#39; suffix is added.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">out_filenames</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">)</span>
-        <span class="n">out_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="s2">&quot;_main.nc&quot;</span><span class="p">)</span>
-        <span class="n">ds_4_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">out_filenames</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">aer_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">aer_key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strip_units</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">)</span>
-            <span class="n">out_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;_aer_pop_</span><span class="si">{</span><span class="n">aer_key</span><span class="si">}</span><span class="s2">.nc&quot;</span><span class="p">)</span>
-            <span class="n">ds_4_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">out_filenames</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exporting ci_model xr.Dataset to the following files</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">out_filenames</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ci_model.ci_model_ds_from_netcdf"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.ci_model_ds_from_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">ci_model_ds_from_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_prefix</span><span class="o">=</span><span class="s1">&#39;AC_1D_out&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load datasets from a model simulation. Each dataset is stored in a different file.</span>
-<span class="sd">        Assumes files were generated for the main ci_model object and each aerosol population.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        out_prefix: str</span>
-<span class="sd">            filename prefix and path from which to load ci_model&#39;s datasets.</span>
-<span class="sd">            A &quot;_main.nc&quot; suffix is added to the filename of the NetCDF file containing the main</span>
-<span class="sd">            ci_model dataset, while for each dataset of an aerosol population xxxx, an</span>
-<span class="sd">            &#39;aer_pop_xxxx.nc&#39; suffix is added.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ds_4_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="s2">&quot;_main.nc&quot;</span><span class="p">)</span>
-        <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reassign_units</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">ds_4_out</span>
-        <span class="k">for</span> <span class="n">aer_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">ds_4_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;_aer_pop_</span><span class="si">{</span><span class="n">aer_key</span><span class="si">}</span><span class="s2">.nc&quot;</span><span class="p">)</span>
-            <span class="n">ds_4_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reassign_units</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">aer_key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">ds_4_out</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading ci_model xr.Datasets from the </span><span class="si">{</span><span class="n">out_prefix</span><span class="si">}</span><span class="s2"> files done!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ci_model.strip_units"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.strip_units">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">strip_units</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Strip units from fields in an xr.Dataset enabling export to NetCDF files</span>
-<span class="sd">        (convert pint.Quantity data fields to np.ndarray while saving stripping info).</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        ds_4_out: xr.Dataset</span>
-<span class="sd">            Dataset from which to strip units</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        ds_4_out: xr.Dataset</span>
-<span class="sd">            Dataset with to stripped units.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ds_4_out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">quantity</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stripping units from &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-                <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">magnitude</span>
-                <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stripped_units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stripped_units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">return</span> <span class="n">ds_4_out</span></div>
-
-<div class="viewcode-block" id="ci_model.reassign_units"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.reassign_units">[docs]</a>    <span class="k">def</span> <span class="nf">reassign_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_4_out</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Reassign units to fields in an xr.Dataset loaded from a NetCDF file assuming that</span>
-<span class="sd">        a &#39;stripped_units&#39; attribute exists.</span>
-<span class="sd">        (convert np.ndarray data fields to pint.Quantity and delete stripping info).</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        ds_4_out: xr.Dataset</span>
-<span class="sd">            Dataset with to stripped units.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        ds_4_out: xr.Dataset</span>
-<span class="sd">            Dataset with with units added to fields.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ds_4_out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stripped_units&quot;</span><span class="p">]:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Restoring units to &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-                <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ureg</span><span class="p">(</span><span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">])</span>
-                <span class="k">del</span> <span class="n">ds_4_out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stripped_units&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">ds_4_out</span></div>
-
-    <span class="k">def</span> <span class="nf">_recalc_cld_and_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Recalculate Jhet (ABIFM) and  LES-harvested parameters following changes to LES ouput (essentially,</span>
-<span class="sd">        cloud depth) in order for the model to consider in simulation. Mixing bounds are updated only if they</span>
-<span class="sd">        are cloud-dependent (e.g., using &#39;ql_thresh&#39;).</span>
-<span class="sd">        NOTE: no other change is made to the grid or cropped fields, so these parameters should be specified in</span>
-<span class="sd">        the first call to init_model.</span>
-<span class="sd">        NOTE: in the case of ABIFM, &#39;inp_cum_init&#39; and &#39;inp_pct&#39; are not recalculated.</span>
-<span class="sd">        ALSO, do not change units from SI before calling this method.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;recalculating cloud depth and mixing layer depth&quot;</span><span class="p">)</span>
-        <span class="c1"># find all cloud bases and the precip rate in the lowest cloud base in every time step (each profile).</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">LES_attributes</span><span class="p">[</span><span class="s2">&quot;cbh_det_method&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ql_thresh&quot;</span><span class="p">:</span>
-            <span class="n">cbh_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ql&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_cld_q_thresh</span><span class="p">,</span> <span class="n">prepend</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
-            <span class="n">cth_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ql&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_cld_q_thresh</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unknown cbh method string - skipping cbh detection function&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;lowest_cbh&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;lowest_cth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]):</span>
-            <span class="n">cbh_lowest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">cbh_all</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cbh_lowest</span><span class="p">):</span>
-                <span class="n">cth_lowest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">cth_all</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;lowest_cbh&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">cbh_lowest</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;lowest_cth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">tt</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">cth_lowest</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-
-        <span class="c1"># redetermine mixing bounds and mixing mask</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mixing_bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mixing_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mixing_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ql_thresh&quot;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;lowest_cbh&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mixing_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mixing_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ql_thresh&quot;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;lowest_cth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-            <span class="n">mixing_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mod_nz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mod_nt</span><span class="p">),</span> <span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mod_nt</span><span class="p">):</span>
-                <span class="n">rel_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">t</span><span class="p">])),</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">t</span><span class="p">]))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># inc. top</span>
-                <span class="n">mixing_mask</span><span class="p">[</span><span class="n">rel_ind</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mixing_mask&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">mixing_mask</span>
-
-        <span class="c1"># Recalculate delta_aw</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;recalculating delta_aw&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_calc_delta_aw</span><span class="p">()</span>  <span class="c1"># recalculate delta_aw</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ABIFM</span><span class="p">:</span>
-            <span class="c1"># Recalculate Jhet for ABIFM (NOTE that &#39;inp_cum_init&#39; and &#39;inp_pct&#39; are not recalculated)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;recalculating Jhet (use_ABIFM == True)&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Jhet&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10.</span><span class="o">**</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">Jhet</span><span class="o">.</span><span class="n">c</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">Jhet</span><span class="o">.</span><span class="n">m</span> <span class="o">*</span>
-                                                 <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;delta_aw&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1e4</span>  <span class="c1"># calc Jhet</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">singular_scale</span> <span class="o">!=</span> <span class="mf">1.</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Jhet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">singular_scale</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Jhet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;$m^{-2} s^{-1}$&quot;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Jhet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Heterogeneous ice nucleation rate coefficient&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># allocate aerosol population Datasets (required since the T array might have changed)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">aer</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">optional_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;nucleus_type&quot;</span><span class="p">,</span> <span class="s2">&quot;diam_cutoff&quot;</span><span class="p">,</span> <span class="s2">&quot;T_array&quot;</span><span class="p">,</span>  <span class="c1"># opt. aerosol class input params</span>
-                             <span class="s2">&quot;n_init_weight_prof&quot;</span><span class="p">,</span> <span class="s2">&quot;singular_fun&quot;</span><span class="p">,</span> <span class="s2">&quot;singular_scale&quot;</span><span class="p">,</span>
-                             <span class="s2">&quot;entrain_psd&quot;</span><span class="p">,</span> <span class="s2">&quot;entrain_to_cth&quot;</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">)):</span>
-                <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;use_ABIFM&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ABIFM</span><span class="p">}</span>  <span class="c1"># tmp dict for aerosol attributes to send to class call</span>
-                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;n_init_max&quot;</span><span class="p">,</span> <span class="s2">&quot;psd&quot;</span><span class="p">]]):</span>
-                    <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;n_init_max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s2">&quot;n_init_max&quot;</span><span class="p">]</span>
-                    <span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;psd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s2">&quot;psd&quot;</span><span class="p">]</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;aerosol information requires the keys &quot;n_init_max&quot;, &quot;psd&quot;&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="s2">&quot;psd&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mono&quot;</span><span class="p">,</span> <span class="s2">&quot;logn&quot;</span><span class="p">,</span> <span class="s2">&quot;multi_logn&quot;</span><span class="p">,</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">]:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;PSD type must be one of: &quot;mono&quot;, &quot;logn&quot;, &quot;multi_logn&quot;, &quot;custom&quot;, &quot;default&quot;&#39;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">optional_keys</span><span class="p">:</span>
-                    <span class="n">param_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aer_info</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
-
-                <span class="c1"># set aerosol population arrays</span>
-                <span class="n">tmp_aer_pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_aer_obj</span><span class="p">(</span><span class="n">param_dict</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">aer</span><span class="p">[</span><span class="n">tmp_aer_pop</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_aer_pop</span>
-
 <div class="viewcode-block" id="ci_model.generate_figure"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.generate_figure">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">generate_figure</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A method for generating a figure object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">generate_figure</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ci_model.plot_curtain"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.plot_curtain">[docs]</a>    <span class="k">def</span> <span class="nf">plot_curtain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A method for curtain plots based on the object&#39;s xr.DataSet</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">plot_curtain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ci_model.plot_tseries"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.plot_tseries">[docs]</a>    <span class="k">def</span> <span class="nf">plot_tseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A method for time series plots based on the object&#39;s xr.DataSet</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">plot_tseries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ci_model.plot_profile"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.plot_profile">[docs]</a>    <span class="k">def</span> <span class="nf">plot_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A method for profile plots based on the object&#39;s xr.DataSet</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">plot_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ci_model.plot_psd"><a class="viewcode-back" href="../API/init_model.html#init_model.ci_model.plot_psd">[docs]</a>    <span class="k">def</span> <span class="nf">plot_psd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A method for PSD plots based on the object&#39;s xr.DataSet</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">plotting</span><span class="o">.</span><span class="n">plot_psd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
@@ -1186,12 +813,12 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
     
@@ -1233,8 +860,8 @@
     </div>
 
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2022, Israel Silber, Ann Fridlind.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+        &#169; Copyright 2021, Israel Silber, Ann Fridlind.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
     <!-- cloud_sptheme 1.4 -->
   </body>
