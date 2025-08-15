@@ -461,7 +461,12 @@ def run_model(ci_model):
                                     # inp_sum_dim is 1 (temperature axis)
                                     mask_tiled_for_2d = np.tile(mask, (ci_model.mod_nz, 1)) # Shape (mod_nz, temp_bins)
                                     term_for_budget = np.where(mask_tiled_for_2d, inp_mixing, 0.0)
-                                    budget_aer_mix += term_for_budget.sum(axis=inp_sum_dim) / delta_t
+                                    calc_inas_mixing_budget(inp_mixing, mask, budget_aer_mix, delta_t, inp_sum_dim)
+                                else: # Non-INAS
+                                    # inp_mixing is (mod_nz, temp_bins)
+                                    # budget_aer_mix is (mod_nz,)
+                                    # inp_sum_dim is 1 (temperature axis)
+                                    calc_noninas_mixing_budget(inp_mixing, mask, budget_aer_mix, delta_t, inp_sum_dim, mod_nz=ci_model.mod_nz)
                         else: # Partially mixed
                             if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
                                 inp_fully_mixed = np.nanmean(np.where(np.tile(np.expand_dims(t_step_mix_mask,
