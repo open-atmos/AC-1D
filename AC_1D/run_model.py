@@ -346,7 +346,7 @@ def run_model(ci_model):
                             first_print["inp_ent"] = False
                         if np.logical_and(ci_model.output_budgets, update_out_data):
                             # For INAS entrainment budget, mask based on current timestep conditions
-                            T_min_timestep = ci_model.ds["T"].isel(time=it).min().values
+                            # T_min_timestep already calculated above
                             mask = ci_model.aer[key].ds["T"].values >= T_min_timestep
                             # inp_ent is 2D (diam_bins, temp_bins)
                             # budget_aer_ent is 1D (diam_bins) for the current t_out_ind
