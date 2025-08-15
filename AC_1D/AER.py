@@ -294,7 +294,6 @@ class AER_pop():
                                ' singular mode to allow any aerosol to activate' % T_max)
         #T_min = 0. + np.maximum(ci_model.ds["T"].min().values, 233.15)
         T_min = 235.15
-        #T_min=250.3670984
 
         T_array = np.array([T_min])
         while T_array[-1] < T_max:
