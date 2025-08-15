@@ -292,7 +292,8 @@ class AER_pop():
         if ci_model.ds["T"].min() >= T_max:
             raise RuntimeError('Minimum LES-informed temperature must be larger than %.2f K in'
                                ' singular mode to allow any aerosol to activate' % T_max)
-        #T_min = 0. + np.maximum(ci_model.ds["T"].min().values, 233.15)
+        # The minimum temperature is set to a fixed value (235.15 K) to ensure consistency across model runs.
+        # If a dynamic calculation is needed, consider using the minimum temperature from the model domain.
         T_min = 235.15
 
         T_array = np.array([T_min])
