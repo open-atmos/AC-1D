@@ -957,7 +957,8 @@ def activate_inp(ci_model, key, it, n_aer_calc, n_inp_calc, n_aer_curr, n_inp_cu
             else:
                 n_ice_curr += aer_act.sum(axis=ice_dim)  # Add from aerosol reservoir without aerosol memory
             if np.logical_and(ci_model.output_budgets, update_out_data):
-                budget_aer_act -= aer_act.sum(axis=inp_sum_dim) / delta_t
+                if ci_model.prognostic_inp:
+                    budget_aer_act -= aer_act.sum(axis=inp_sum_dim) / delta_t
         else:
             n_ice_curr += aer_act
             if np.logical_and(ci_model.output_budgets, update_out_data):
