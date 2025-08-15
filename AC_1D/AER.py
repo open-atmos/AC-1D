@@ -431,7 +431,7 @@ class AER_pop():
 
         if ci_model.prognostic_inp:
             self.ds = self.ds.assign_coords({"T": self.T_array})
-            print("Tvalues",self.ds["T"].values)
+            logging.debug("Tvalues %s", self.ds["T"].values)
             tmp_inp_array, tmp_inp_array_src = \
                 np.zeros((self.ds["height"].size, self.ds["T"].size)), np.zeros((self.ds["T"].size))
         if self.singular_fun.__code__.co_argcount > 1:
