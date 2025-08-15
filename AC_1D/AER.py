@@ -6,6 +6,7 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 import os
+import logging
 
 
 class Jhet():
@@ -68,7 +69,8 @@ class AER_pop():
     """
     def __init__(self, use_ABIFM=None, n_init_max=None, nucleus_type=None, diam=None, dn_dlogD=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None, psd={},
-                 n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None):
+                 n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None,
+                 high_resolution_T_array=False):
         """
         aerosol population namelist
 
@@ -97,6 +99,9 @@ class AER_pop():
                 4. "ND2012 to use surface area temperature-based fit (eq. 5) in Niemand et al., JAS, 2012.
                 5. "SC2020" to use surface area temperature-based fit (eq. 5) in Schill et al., PNAS, 2020.
                 6. "AT2013" to use surface area temperature_based fit (eq.6) in Atkinson et al., NATURE, 2013.
+                7. "PT2022" to use fit in Peter et al., Science Advances, 2022.
+                8. "SW2017" to use fit in Swarup China et al., JGR, 2017.
+                9. "MC2018" to use surface area temperature_based fit fig. 8 caption in McCluskey et al., JGR, 2018.
                 Use a lambda function for INP parametrization typically as a function of T (--singular--).
             Use "D2010" (default) if None.
             Notes:
@@ -140,6 +145,9 @@ class AER_pop():
             and LES xr.DataSet object(ci_model.les) after being processed.
             All these required data are automatically set when a ci_model class object is assigned
             during model initialization.
+        high_resolution_T_array: bool
+            If False (default), use original T array generation (dT0=0.1, dT_exp=1.05, dynamic T_min).
+            If True, use high-resolution T array generation (dT0=0.0001, dT_exp=1.001, fixed T_min=235.15).
         ds: Xarray Dataset
             will be shaped and incorporate all aerosol population in the domain:
             ABIFM: height x time x diameter
@@ -171,6 +179,7 @@ class AER_pop():
             self.scheme = None
         self.n_init_weight_prof = n_init_weight_prof
         self.n_init_max = n_init_max
+        self.high_resolution_T_array = high_resolution_T_array
         if isinstance(diam, (float, int)):
             self.diam = [diam]
         else:
@@ -275,7 +284,7 @@ class AER_pop():
         Sets the temperature array for singular using geometric progression bins (considering that n_AER(T)
         parameterizations typically follow a power law).
         The minimum temperature (leftmost bin edge) is set based on the minimum temperature of the model
-        domain (floored to the 1st decimal).
+        domain (floored to the 1st decimal) or fixed at 235.15 K for high-resolution arrays.
 
         Parameters
         ---------
@@ -289,12 +298,25 @@ class AER_pop():
         if ci_model.ds["T"].min() >= T_max:
             raise RuntimeError('Minimum LES-informed temperature must be larger than %.2f K in'
                                ' singular mode to allow any aerosol to activate' % T_max)
-        T_min = 0. + np.maximum(ci_model.ds["T"].min().values, 233.15)
+        
+        # Use high-resolution parameters if flag is set
+        if self.high_resolution_T_array:
+            dT0 = 0.0001
+            dT_exp = 1.001
+            # Fixed at 235.15K: Finer resolution can help remove "noise" like behaviors in nucleation rate,
+            # resulting in smoother figures. More broad and fixed temperature suggested by Nicole Riemer
+            # to ensure that each time we use the same temperature array covering all possible situations
+            # like climate models.
+            T_min = 235.15
+        else:
+            T_min = 0. + np.maximum(ci_model.ds["T"].min().values, 233.15)
+
         T_array = np.array([T_min])
         while T_array[-1] < T_max:
             T_array = np.append(T_array, [T_array[-1] + dT0 * dT_exp ** (len(T_array) - 1)])
         self.T_array = T_array
-
+        
+        logging.debug("length of T_array: %d", len(T_array))
     def _set_aer_conc_fun(self, singular_fun):
         """
         Set the INP initialization function for the singular approach.
@@ -309,6 +331,9 @@ class AER_pop():
                 4. "ND2012" to use surface area temperature-based fit (eq. 5) in Niemand et al., JAS, 2012.
                 5. "SC2020" to use surface area temperature-based fit (eq. 5) in Schill et al., PNAS, 2020.
                 6. "AT2013" to use surface area temperature_based fit (eq.6) in Atkinson et al., NATURE, 2013.
+                7. "PT2022" to use fit in Peter et al., Science Advances, 2022.
+                8. "SW2017" to use fit in Swarup China et al., JGR, 2017.
+                9. "MC2018" to use surface area temperature_based fit fig. 8 caption in McCluskey et al., JGR, 2018.
             Use a lambda function for INP parametrization typically as a function of T (--singular--).
             Use "D2010" (default) if None.
             Notes:
@@ -340,6 +365,63 @@ class AER_pop():
                 # K feldspar Atkinson et al.(2013; valid between 248 and 268 K)
                 self.singular_fun = lambda Tk, s_area: \
                     np.exp(-1.038 * Tk + 275.26) * s_area * 1e4
+            elif singular_fun == "AL2022":
+                # SSA ns fitting from Peter et al. (2022)
+                self.singular_fun = lambda Tk, s_area: \
+                    10**(24.02526 * (1-(np.exp(9.550426 - 5723.265 / Tk + 3.53068 * np.log(Tk) -
+                    0.00728332 * Tk) /
+             (np.exp(54.842763 - 6763.22 / Tk -
+              4.210 * np.log(Tk) + 0.000367 * Tk +
+              np.tanh(0.0415 * (Tk - 218.8)) * (53.878 - 1331.22 / Tk - 9.44523 * np.log(Tk) + 0.014025 * Tk)))
+             ))-2.26105)* 1e4* s_area
+            elif singular_fun == "AL2022up":
+                # SSA ns fitting from Peter et al. (2022)
+                self.singular_fun = lambda Tk, s_area: \
+                    10**(24.7168 * (1-(np.exp(9.550426 - 5723.265 / Tk + 3.53068 * np.log(Tk) -
+                    0.00728332 * Tk) /
+             (np.exp(54.842763 - 6763.22 / Tk -
+              4.210 * np.log(Tk) + 0.000367 * Tk +
+              np.tanh(0.0415 * (Tk - 218.8)) * (53.878 - 1331.22 / Tk - 9.44523 * np.log(Tk) + 0.014025 * Tk)))
+             ))-2.0965)* 1e4* s_area
+            elif singular_fun == "AL2022down":
+                # SSA ns fitting from Peter et al. (2022)
+                self.singular_fun = lambda Tk, s_area: \
+                    10**(23.33372 * (1-(np.exp(9.550426 - 5723.265 / Tk + 3.53068 * np.log(Tk) -
+                    0.00728332 * Tk) /
+             (np.exp(54.842763 - 6763.22 / Tk -
+              4.210 * np.log(Tk) + 0.000367 * Tk +
+              np.tanh(0.0415 * (Tk - 218.8)) * (53.878 - 1331.22 / Tk - 9.44523 * np.log(Tk) + 0.014025 * Tk)))
+             ))-2.4256)* 1e4* s_area
+            elif singular_fun == "SW2017":
+             # Organic ns fitting from Swarup China et al. (2017)
+                self.singular_fun = lambda Tk, s_area: \
+                    10**(66.90259 * (1-(np.exp(9.550426 - 5723.265 / Tk + 3.53068 * np.log(Tk) -
+                    0.00728332 * Tk) /
+             (np.exp(54.842763 - 6763.22 / Tk -
+              4.210 * np.log(Tk) + 0.000367 * Tk +
+              np.tanh(0.0415 * (Tk - 218.8)) * (53.878 - 1331.22 / Tk - 9.44523 * np.log(Tk) + 0.014025 * Tk)))
+             ))-12.322)* 1e4* s_area
+            elif singular_fun == "MC2018":
+                self.singular_fun = lambda Tk, s_area: \
+                    np.exp(-0.545 * (Tk-273.15) + 1.0125) * s_area 
+            elif singular_fun == "MC2018up":
+                self.singular_fun = lambda Tk, s_area: \
+                    np.exp(-0.535 * (Tk-273.15) + 1.3025) * s_area 
+            elif singular_fun == "MC2018down":
+                self.singular_fun = lambda Tk, s_area: \
+                    np.exp(-0.555 * (Tk-273.15) + 0.7225) * s_area     
+            elif singular_fun == "0.5PT2022":
+                # SSA ns fitting from Peter et al. (2022)
+                self.singular_fun = lambda Tk, s_area: \
+                    10**(24.02526 * (1-(np.exp(9.550426 - 5723.265 / Tk + 3.53068 * np.log(Tk) -
+                    0.00728332 * Tk) /
+             (np.exp(54.842763 - 6763.22 / Tk -
+              4.210 * np.log(Tk) + 0.000367 * Tk +
+              np.tanh(0.0415 * (Tk - 218.8)) * (53.878 - 1331.22 / Tk - 9.44523 * np.log(Tk) + 0.014025 * Tk)))
+             ))-2.26105)* 1e4*0.5*s_area
+            elif singular_fun == "0.5MC2018":
+                self.singular_fun = lambda Tk, s_area: \
+                    np.exp(-0.545 * (Tk-273.15) + 1.0125) *0.5* s_area     
             else:
                 raise NameError("The singular treatment %s is not implemented in the model. Check the \
                                 input string." % singular_fun)
@@ -358,8 +440,10 @@ class AER_pop():
         std_L_to_L: bool [singular]
             True - converting number concentration parameterization from standard liter to SI liter
         """
+
         if ci_model.prognostic_inp:
             self.ds = self.ds.assign_coords({"T": self.T_array})
+            logging.debug("Tvalues %s", self.ds["T"].values)
             tmp_inp_array, tmp_inp_array_src = \
                 np.zeros((self.ds["height"].size, self.ds["T"].size)), np.zeros((self.ds["T"].size))
         if self.singular_fun.__code__.co_argcount > 1:
@@ -380,7 +464,6 @@ class AER_pop():
                                         (self.ds["height"].size, 1)), input_2), axis=1)  # start at max temperature
                     input_2_src = np.ones((self.ds["T"].size)) * input_2_src
                     tmp_n_inp_src = np.flip(self.singular_fun(self.ds["T"].values, input_2_src), axis=0)
-
                     # weight array vertically.
                     if self.n_init_weight_prof is not None:
                         tmp_n_inp = np.tile(np.expand_dims(self._weight_aer_h_or_t(False), axis=1),
@@ -395,9 +478,8 @@ class AER_pop():
                             np.tile(np.expand_dims(ci_model.ds["T"].values[:, 0], axis=1), (1, self.ds["T"].size)),
                             conc_field_in=tmp_n_inp)
                         tmp_n_inp_src = self.convert_SL_to_L(
-                            ci_model.ds["rho"].values[0, 0], ci_model.ds["T"][0, 0].values,
+                            ci_model.ds["rho"].values[-1, 0], ci_model.ds["T"][-1, 0].values,
                             conc_field_in=tmp_n_inp_src)
-
             elif 's_area' in self.singular_fun.__code__.co_varnames:  # 2nd argument is surface area
                 self.is_INAS = True
                 self._init_aer_Jhet_ABIFM_arrays(ci_model)  # Also alocate aerosol concentration array
@@ -421,7 +503,6 @@ class AER_pop():
                     if self.n_init_weight_prof is not None:
                         tmp_n_inp = np.tile(np.expand_dims(self._weight_aer_h_or_t(False), axis=(1, 2)),
                                             (1, self.ds["diam"].size, self.ds["T"].size)) * tmp_n_inp
-
         elif ci_model.prognostic_inp:  # single input (temperature)
             tmp_n_inp = np.tile(np.expand_dims(np.flip(self.singular_fun(self.ds["T"].values)), axis=0),
                                 (self.ds["height"].size, 1))  # start at highest temperatures
@@ -447,7 +528,7 @@ class AER_pop():
             self.ds = self.ds.assign_coords(T_C=("T", self.ds["T_C"].values))
             self.ds["T_C"].attrs["units"] = "$° C$"
             self.ds["T"].attrs["units"] = "$K$"  # set coordinate attributes.
-
+        
         if self.src_weight_time is not None:
             src_weight_tseries = \
                 self._weight_aer_h_or_t(False, use_height=False, alternative_dict=self.src_weight_time)
@@ -531,7 +612,6 @@ class AER_pop():
             self.ds["inp_cum_init"].attrs["long_name"] = \
                 "Initial cumulative (over T) INP array"
             self.ds["ns_raw"].attrs["units"] = "$m^{-2}$"
-
     def _init_aer_Jhet_ABIFM_arrays(self, ci_model, pct_const=None):
         """
         initialize the aerosol array (height x time x diameter) and the Jhet arrays (for ABIFM) assuming that
@@ -682,7 +762,8 @@ class mono_AER(AER_pop):
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None):
+                 psd={}, n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None,
+                 high_resolution_T_array=False):
         """
         Parameters as in the 'AER_pop' class (fixed diameter can be specified in the 'psd' dict under the 'diam'
         key or in the diam).
@@ -701,7 +782,8 @@ class mono_AER(AER_pop):
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
                          n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
-                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model,
+                         high_resolution_T_array=high_resolution_T_array)
 
 
 class logn_AER(AER_pop):
@@ -711,7 +793,7 @@ class logn_AER(AER_pop):
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, correct_discrete=True,
-                 entrain_psd=None, entrain_to_cth=None, ci_model=None):
+                 entrain_psd=None, entrain_to_cth=None, ci_model=None, high_resolution_T_array=False):
         """
         Parameters as in the 'AER_pop' class
 
@@ -756,7 +838,8 @@ class logn_AER(AER_pop):
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
                          n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
-                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model,
+                         high_resolution_T_array=high_resolution_T_array)
 
     def _calc_logn_diam_dn_dlogd(self, psd, n_init_max, integrate_dn_dlogD=True, diam_in=None):
         """
@@ -843,7 +926,7 @@ class multi_logn_AER(logn_AER):
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, correct_discrete=True, entrain_psd=None,
-                 entrain_to_cth=None, ci_model=None):
+                 entrain_to_cth=None, ci_model=None, high_resolution_T_array=False):
         """
         Parameters as in the 'AER_pop' class. Note that n_init_max should be a list or np.ndarray
         of values for each mode with the same length as diam_mean and geom_sd. Array bins are specified
@@ -911,7 +994,8 @@ class multi_logn_AER(logn_AER):
                                        diam_cutoff=diam_cutoff, T_array=T_array, singular_fun=singular_fun,
                                        singular_scale=singular_scale, psd=psd,
                                        n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
-                                       entrain_to_cth=entrain_to_cth, ci_model=ci_model)
+                                       entrain_to_cth=entrain_to_cth, ci_model=ci_model,
+                                       high_resolution_T_array=high_resolution_T_array)
 
 
 class custom_AER(AER_pop):
@@ -921,7 +1005,7 @@ class custom_AER(AER_pop):
     def __init__(self, use_ABIFM, n_init_max=None, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None,
-                 ci_model=None):
+                 ci_model=None, high_resolution_T_array=False):
         """
         Parameters as in the 'AER_pop' class
 
@@ -956,4 +1040,5 @@ class custom_AER(AER_pop):
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
                          n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
-                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model,
+                         high_resolution_T_array=high_resolution_T_array)
