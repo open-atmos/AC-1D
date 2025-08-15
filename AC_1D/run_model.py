@@ -449,24 +449,15 @@ def run_model(ci_model):
                                 mask = ci_model.aer[key].ds["T"].values >= T_min_timestep # 1D temp mask
 
                                 if ci_model.aer[key].is_INAS:
-                                    # inp_mixing is (mod_nz, diam_dim_l, temp_bins)
-                                    # budget_aer_mix is (mod_nz, diam_dim_l)
-                                    # inp_sum_dim is 2 (temperature axis)
+                                    # INAS: Apply temperature mask to 3D mixing array (mod_nz, diam_dim_l, temp_bins)
                                     mask_broadcast_for_3d = mask[np.newaxis, np.newaxis, :] # Shape (1, 1, temp_bins)
                                     term_for_budget = np.where(mask_broadcast_for_3d, inp_mixing, 0.0)
                                     budget_aer_mix += term_for_budget.sum(axis=inp_sum_dim) / delta_t
                                 else: # Non-INAS
-                                    # inp_mixing is (mod_nz, temp_bins)
-                                    # budget_aer_mix is (mod_nz,)
-                                    # inp_sum_dim is 1 (temperature axis)
+                                    # Non-INAS: Apply temperature mask to 2D mixing array (mod_nz, temp_bins)
                                     mask_tiled_for_2d = np.tile(mask, (ci_model.mod_nz, 1)) # Shape (mod_nz, temp_bins)
                                     term_for_budget = np.where(mask_tiled_for_2d, inp_mixing, 0.0)
-                                    calc_inas_mixing_budget(inp_mixing, mask, budget_aer_mix, delta_t, inp_sum_dim)
-                                else: # Non-INAS
-                                    # inp_mixing is (mod_nz, temp_bins)
-                                    # budget_aer_mix is (mod_nz,)
-                                    # inp_sum_dim is 1 (temperature axis)
-                                    calc_noninas_mixing_budget(inp_mixing, mask, budget_aer_mix, delta_t, inp_sum_dim, mod_nz=ci_model.mod_nz)
+                                    budget_aer_mix += term_for_budget.sum(axis=inp_sum_dim) / delta_t
                         else: # Partially mixed
                             if ci_model.aer[key].is_INAS:  # additional dim (diam) for INAS
                                 inp_fully_mixed = np.nanmean(np.where(np.tile(np.expand_dims(t_step_mix_mask,
