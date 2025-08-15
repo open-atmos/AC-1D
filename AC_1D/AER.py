@@ -6,6 +6,7 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 import os
+import logging
 
 
 class Jhet():
@@ -68,7 +69,8 @@ class AER_pop():
     """
     def __init__(self, use_ABIFM=None, n_init_max=None, nucleus_type=None, diam=None, dn_dlogD=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None, psd={},
-                 n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None):
+                 n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None,
+                 high_resolution_T_array=False):
         """
         aerosol population namelist
 
@@ -143,6 +145,9 @@ class AER_pop():
             and LES xr.DataSet object(ci_model.les) after being processed.
             All these required data are automatically set when a ci_model class object is assigned
             during model initialization.
+        high_resolution_T_array: bool
+            If False (default), use original T array generation (dT0=0.1, dT_exp=1.05, dynamic T_min).
+            If True, use high-resolution T array generation (dT0=0.0001, dT_exp=1.001, fixed T_min=235.15).
         ds: Xarray Dataset
             will be shaped and incorporate all aerosol population in the domain:
             ABIFM: height x time x diameter
@@ -174,6 +179,7 @@ class AER_pop():
             self.scheme = None
         self.n_init_weight_prof = n_init_weight_prof
         self.n_init_max = n_init_max
+        self.high_resolution_T_array = high_resolution_T_array
         if isinstance(diam, (float, int)):
             self.diam = [diam]
         else:
@@ -273,12 +279,12 @@ class AER_pop():
         self.ds["surf_area"].attrs["units"] = "$m^2$"
         self.ds["surf_area"].attrs["long_name"] = "Surface area per particle diameter"
 
-    def _set_T_array(self, ci_model, dT0=0.0001, dT_exp=1.001, T_max=268.15):
+    def _set_T_array(self, ci_model, dT0=0.1, dT_exp=1.05, T_max=268.15):
         """
         Sets the temperature array for singular using geometric progression bins (considering that n_AER(T)
         parameterizations typically follow a power law).
         The minimum temperature (leftmost bin edge) is set based on the minimum temperature of the model
-        domain (floored to the 1st decimal).
+        domain (floored to the 1st decimal) or fixed at 235.15 K for high-resolution arrays.
 
         Parameters
         ---------
@@ -292,20 +298,23 @@ class AER_pop():
         if ci_model.ds["T"].min() >= T_max:
             raise RuntimeError('Minimum LES-informed temperature must be larger than %.2f K in'
                                ' singular mode to allow any aerosol to activate' % T_max)
-        # The minimum temperature is set to a fixed value (235.15 K) to ensure consistency across model runs.
-        # If a dynamic calculation is needed, consider using the minimum temperature from the model domain.
-        T_min = 235.15
+        
+        # Use high-resolution parameters if flag is set
+        if self.high_resolution_T_array:
+            dT0 = 0.0001
+            dT_exp = 1.001
+            # Fixed at 235.15K: Finer resolution can help remove "noise" like behaviors in nucleation rate,
+            # resulting in smoother figures. More broad and fixed temperature suggested by Nicole Riemer
+            # to ensure that each time we use the same temperature array covering all possible situations
+            # like climate models.
+            T_min = 235.15
+        else:
+            T_min = 0. + np.maximum(ci_model.ds["T"].min().values, 233.15)
 
         T_array = np.array([T_min])
         while T_array[-1] < T_max:
             T_array = np.append(T_array, [T_array[-1] + dT0 * dT_exp ** (len(T_array) - 1)])
-        self.T_array = T_array    
-        #save_path ='C:\\Users\\yij\\Documents\\1D_aerosol cloud model\\T_array.npy'
-        #np.save(save_path, T_array)
-        #T_array = np.load('C:\\Users\\yij\\Documents\\1D_aerosol cloud model\\T_array03.npy')
-        
-        
-        
+        self.T_array = T_array
         
         logging.debug("length of T_array: %d", len(T_array))
     def _set_aer_conc_fun(self, singular_fun):
@@ -753,7 +762,8 @@ class mono_AER(AER_pop):
     """
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
-                 psd={}, n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None):
+                 psd={}, n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None, ci_model=None,
+                 high_resolution_T_array=False):
         """
         Parameters as in the 'AER_pop' class (fixed diameter can be specified in the 'psd' dict under the 'diam'
         key or in the diam).
@@ -772,7 +782,8 @@ class mono_AER(AER_pop):
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
                          n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
-                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model,
+                         high_resolution_T_array=high_resolution_T_array)
 
 
 class logn_AER(AER_pop):
@@ -782,7 +793,7 @@ class logn_AER(AER_pop):
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, correct_discrete=True,
-                 entrain_psd=None, entrain_to_cth=None, ci_model=None):
+                 entrain_psd=None, entrain_to_cth=None, ci_model=None, high_resolution_T_array=False):
         """
         Parameters as in the 'AER_pop' class
 
@@ -827,7 +838,8 @@ class logn_AER(AER_pop):
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
                          n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
-                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model,
+                         high_resolution_T_array=high_resolution_T_array)
 
     def _calc_logn_diam_dn_dlogd(self, psd, n_init_max, integrate_dn_dlogD=True, diam_in=None):
         """
@@ -914,7 +926,7 @@ class multi_logn_AER(logn_AER):
     def __init__(self, use_ABIFM, n_init_max, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, correct_discrete=True, entrain_psd=None,
-                 entrain_to_cth=None, ci_model=None):
+                 entrain_to_cth=None, ci_model=None, high_resolution_T_array=False):
         """
         Parameters as in the 'AER_pop' class. Note that n_init_max should be a list or np.ndarray
         of values for each mode with the same length as diam_mean and geom_sd. Array bins are specified
@@ -982,7 +994,8 @@ class multi_logn_AER(logn_AER):
                                        diam_cutoff=diam_cutoff, T_array=T_array, singular_fun=singular_fun,
                                        singular_scale=singular_scale, psd=psd,
                                        n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
-                                       entrain_to_cth=entrain_to_cth, ci_model=ci_model)
+                                       entrain_to_cth=entrain_to_cth, ci_model=ci_model,
+                                       high_resolution_T_array=high_resolution_T_array)
 
 
 class custom_AER(AER_pop):
@@ -992,7 +1005,7 @@ class custom_AER(AER_pop):
     def __init__(self, use_ABIFM, n_init_max=None, nucleus_type=None, name=None,
                  diam_cutoff=None, T_array=None, singular_fun=None, singular_scale=None,
                  psd={}, n_init_weight_prof=None, entrain_psd=None, entrain_to_cth=None,
-                 ci_model=None):
+                 ci_model=None, high_resolution_T_array=False):
         """
         Parameters as in the 'AER_pop' class
 
@@ -1027,4 +1040,5 @@ class custom_AER(AER_pop):
                          dn_dlogD=dn_dlogD, name=name, diam_cutoff=diam_cutoff, T_array=T_array,
                          singular_fun=singular_fun, singular_scale=singular_scale, psd=psd,
                          n_init_weight_prof=n_init_weight_prof, entrain_psd=entrain_psd,
-                         entrain_to_cth=entrain_to_cth, ci_model=ci_model)
+                         entrain_to_cth=entrain_to_cth, ci_model=ci_model,
+                         high_resolution_T_array=high_resolution_T_array)
