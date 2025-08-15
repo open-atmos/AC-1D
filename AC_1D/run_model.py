@@ -357,7 +357,6 @@ def run_model(ci_model):
                             ci_model.ds["w_e_ent"].values[it - 1], delta_t, ent_delta_z[key][it - 1],
                             ci_model.aer[key].ds["inp_src"].values[it - 1, :],
                             n_inp_calc[ent_delta_n_ind[key][it - 1], :], ci_model.implicit_ent)
-                            
                         n_inp_curr[ent_target_ind[key][it - 1], :] += inp_ent
                         if first_print["inp_ent"]:
                             print("DEBUG - inp_ent shape for non-INAS:", inp_ent.shape)
