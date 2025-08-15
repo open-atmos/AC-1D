@@ -384,7 +384,7 @@ class AER_pop():
               np.tanh(0.0415 * (Tk - 218.8)) * (53.878 - 1331.22 / Tk - 9.44523 * np.log(Tk) + 0.014025 * Tk)))
              ))-2.4256)* 1e4* s_area
             elif singular_fun == "SW2017":
-             # Oragnic ns fitting from Swarup China et al. (2017)
+             # Organic ns fitting from Swarup China et al. (2017)
                 self.singular_fun = lambda Tk, s_area: \
                     10**(66.90259 * (1-(np.exp(9.550426 - 5723.265 / Tk + 3.53068 * np.log(Tk) -
                     0.00728332 * Tk) /
