@@ -304,7 +304,7 @@ class AER_pop():
         #np.save(save_path, T_array)
         #T_array = np.load('C:\\Users\\yij\\Documents\\1D_aerosol cloud model\\T_array03.npy')
         #self.T_array = T_array
-        print("length of T_array:", len(T_array))
+        logging.debug("length of T_array: %d", len(T_array))
     def _set_aer_conc_fun(self, singular_fun):
         """
         Set the INP initialization function for the singular approach.
