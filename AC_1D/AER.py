@@ -303,7 +303,10 @@ class AER_pop():
         #save_path ='C:\\Users\\yij\\Documents\\1D_aerosol cloud model\\T_array.npy'
         #np.save(save_path, T_array)
         #T_array = np.load('C:\\Users\\yij\\Documents\\1D_aerosol cloud model\\T_array03.npy')
-        #self.T_array = T_array
+        
+        
+        
+        
         logging.debug("length of T_array: %d", len(T_array))
     def _set_aer_conc_fun(self, singular_fun):
         """
