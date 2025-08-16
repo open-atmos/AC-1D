@@ -6,7 +6,7 @@ import numpy as np
 from time import time
 
 
-def run_model(ci_model):
+def run_model(ci_model, first_print=None):
     """
     Run the 1D model (output is stored in the ci_model object input to this method).
     Calculations are performed using numpy arrays rather than xarray DataArray indexing, because even though
@@ -28,6 +28,13 @@ def run_model(ci_model):
         and LES xr.DataSet object(ci_model.les) after being processed.
         All these required data are automatically set when a ci_model class object is assigned
         during model initialization.
+    first_print: dict, optional
+        Dictionary controlling debug print output (prints only on first occurrence).
+        Keys can include:
+        - 'inp_ent': Whether to print INP entrainment debug info (default: True)
+        - 'inp_mixing': Whether to print INP mixing debug info (default: True)
+        - 'aer_act': Whether to print aerosol activation debug info (default: True)
+        If None, all debug prints are enabled.
     """
     # Runtime stats
     Now = time()
@@ -38,12 +45,13 @@ def run_model(ci_model):
     delta_t = ci_model.delta_t
 
     # Add debug print flag to only print once
-    first_print = {
-        "inp_ent": True,
-        "inp_mixing": True,
-        "aer_act": True
+    if first_print is None:
+        first_print = {}
+    first_print_flag = {
+        "inp_ent": first_print.get("inp_ent", True),
+        "inp_mixing": first_print.get("inp_mixing", True),
+        "aer_act": first_print.get("aer_act", True)
     }
-
     # budget output option
     if ci_model.output_budgets:
         if ci_model.do_mix_ice:
