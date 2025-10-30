@@ -177,7 +177,7 @@ class LES():
         self.ds["T"] += self.T_field["addition"]
         self.ds["Ni"] *= self.Ni_field["scaling"]
         self.ds["prec"] *= self.pflux_field["scaling"]
-        self.ds["rho"] *= self.q_liq_field["scaling"]
+        self.ds["rho"] *= self.rho_field["scaling"]
 
         # set units
         self.ds["height"].attrs["units"] = "$m$"
